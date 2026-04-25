@@ -1,0 +1,23 @@
+name: Publish Folio PDF to PYPI
+
+on:
+  release:
+    types: [ "published" ]
+
+jobs:
+  run:
+    name: "Build and publish release"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Sync
+        run: uv sync
+      - name: Build
+        run: uv build
+      - name: Publish
+        run: uv publish -t ${{ secrets.PYPI_TOKEN }}

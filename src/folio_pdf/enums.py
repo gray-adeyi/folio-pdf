@@ -1,4 +1,4 @@
-from enum import IntEnum, IntFlag, StrEnum
+from enum import IntEnum, IntFlag, Enum
 
 
 class ErrorCodes(IntEnum):
@@ -102,7 +102,7 @@ class FlexWraps(IntEnum):
     WRAP = 1
 
 
-class StandardPDFFonts(StrEnum):
+class StandardPDFFonts(str, Enum):
     HELVETICA = "Helvetica"
     HELVETICA_BOLD = "Helvetica-Bold"
     HELVETICA_OBLIQUE = "Helvetica-Oblique"

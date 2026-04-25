@@ -1,0 +1,16 @@
+from folio_pdf.enums import Alignments
+from folio_pdf.font import Font
+
+
+class Heading:
+    def __init__(self, text: str, level): ...
+
+    @classmethod
+    def new_with_font(cls, text: str, level, font: Font, font_size: float): ...
+
+    @classmethod
+    def new_embedded(cls, text: str, level, font: Font): ...
+
+    def close(self): ...
+
+    def set_align(self, alignment: Alignments): ...

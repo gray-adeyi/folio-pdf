@@ -11,15 +11,15 @@ def _load_lib() -> ct.CDLL:
     operating_system = platform.system()
     architecture = platform.machine()
     if operating_system == "Windows" and architecture == "x86_64":
-        return ct.CDLL(THIS_FILE_PATH / "libs/folio-windows-x86_64.dll")
+        return ct.CDLL((THIS_FILE_PATH / "libs/folio-windows-x86_64.dll").as_posix())
     if operating_system == "Linux" and architecture == "x86_64":
-        return ct.CDLL(THIS_FILE_PATH / "libs/libfolio-linux-x86_64.so")
+        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-linux-x86_64.so").as_posix())
     if operating_system == "Linux" and architecture == "aarch64":
-        return ct.CDLL(THIS_FILE_PATH / "libs/libfolio-linux-aarch64.so")
+        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-linux-aarch64.so").as_posix())
     if operating_system == "Darwin" and architecture == "x86_64":
-        return ct.CDLL(THIS_FILE_PATH / "libs/libfolio-macos-x86_64.dylib")
+        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-macos-x86_64.dylib").as_posix())
     if operating_system == "Darwin" and architecture == "aarch64":
-        return ct.CDLL(THIS_FILE_PATH / "libs/libfolio-macos-aarch64.dylib")
+        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-macos-aarch64.dylib").as_posix())
     raise RuntimeError("OS or CPU architecture not supported")
 
 

@@ -261,6 +261,8 @@ lib.folio_document_set_right_margins.restype = ct.c_int32
 
 
 class Document(AbstractFolioObject):
+    _requires_close = True
+
     def __init__(self, width: float, height: float):
         self._doc_handle = lib.folio_document_new(
             ct.c_double(width), ct.c_double(height)
@@ -567,9 +569,3 @@ class Document(AbstractFolioObject):
 
     def close(self):
         lib.folio_document_free(self.handle)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self):
-        self.close()

@@ -5,8 +5,75 @@ from folio_pdf.object import AbstractFolioObject
 from folio_pdf.font import Font
 import ctypes as ct
 
+lib.folio_paragraph_new.argtypes = [
+    ct.c_char_p,
+    ct.c_uint64,
+    ct.c_double,
+]
+lib.folio_paragraph_new.restype = ct.c_uint64
+
+lib.folio_paragraph_new_embedded.argtypes = [ct.c_char_p, ct.c_uint64, ct.c_double]
+lib.folio_paragraph_new_embedded.restype = ct.c_uint64
+
+lib.folio_paragraph_free.argtypes = [ct.c_uint64]
+lib.folio_paragraph_free.restype = None
+
+lib.folio_paragraph_set_align.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_align.restype = ct.c_int32
+
+lib.folio_paragraph_set_leading.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_paragraph_set_leading.restype = ct.c_int32
+
+lib.folio_paragraph_set_space_before.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_paragraph_set_space_before.restype = ct.c_int32
+
+lib.folio_paragraph_set_space_after.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_paragraph_set_space_after.restype = ct.c_int32
+
+lib.folio_paragraph_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_paragraph_set_background.restype = ct.c_int32
+
+lib.folio_paragraph_set_first_indent.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_paragraph_set_first_indent.restype = ct.c_int32
+
+lib.folio_paragraph_set_orphans.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_orphans.restype = ct.c_int32
+
+lib.folio_paragraph_set_widows.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_widows.restype = ct.c_int32
+
+lib.folio_paragraph_set_ellipsis.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_ellipsis.restype = ct.c_int32
+
+lib.folio_paragraph_set_word_break.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_paragraph_set_word_break.restype = ct.c_int32
+
+lib.folio_paragraph_set_hyphens.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_paragraph_set_hyphens.restype = ct.c_int32
+
+lib.folio_paragraph_set_text_align_last.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_text_align_last.restype = ct.c_int32
+
+lib.folio_paragraph_add_run.argtypes = [
+    ct.c_uint64,
+    ct.c_char_p,
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_paragraph_add_run.restype = ct.c_int32
+
 
 class Paragraph(AbstractFolioObject):
+    _requires_close = True
+
     def __init__(self, text: str, font: Font, font_size: float):
         self._paragraph_handle = lib.folio_paragraph_new(
             ct.c_char_p(text.encode()), font.handle, ct.c_double(font_size)
@@ -101,9 +168,3 @@ class Paragraph(AbstractFolioObject):
             ct.c_double(g),
             ct.c_double(b),
         )
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self):
-        self.close()

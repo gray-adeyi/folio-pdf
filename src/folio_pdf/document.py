@@ -267,8 +267,8 @@ class Document(AbstractFolioObject):
         )
 
     @property
-    def handle(self) -> int:
-        return self._doc_handle
+    def handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self._doc_handle)
 
     @classmethod
     def new_a4(cls):
@@ -284,20 +284,16 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_title(self, value: str):
-        return lib.folio_document_set_title(
-            ct.c_uint64(self._doc_handle), ct.c_char_p(value.encode())
-        )
+        return lib.folio_document_set_title(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
     def set_author(self, value: str):
-        return lib.folio_document_author(
-            ct.c_uint64(self._doc_handle), ct.c_char_p(value.encode())
-        )
+        return lib.folio_document_author(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
     def set_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_margins(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),
@@ -305,25 +301,23 @@ class Document(AbstractFolioObject):
         )
 
     def add_page(self) -> Page:
-        pg_ptr = lib.folio_document_add_page(ct.c_uint64(self._doc_handle))
+        pg_ptr = lib.folio_document_add_page(self.handle)
         return Page._new_from_handle(pg_ptr)
 
     @_with_error_handling(DocumentException)
     def add(self, element):
         # TODO: Figure out what elements can be added to a page
-        return lib.folio_document_add(self._doc_handle, element)
+        return lib.folio_document_add(self.handle, element)
 
     @_with_error_handling(DocumentException)
     def save(self, destination: str | Path):
         _destination = destination
         if isinstance(_destination, Path):
             _destination = _destination.as_posix()
-        return lib.folio_document_save(
-            ct.c_uint64(self._doc_handle), ct.c_char_p(_destination.encode())
-        )
+        return lib.folio_document_save(self.handle, ct.c_char_p(_destination.encode()))
 
     def to_buffer(self) -> BytesIO:
-        buf = lib.folio_document_write_to_buffer(ct.c_uint64(self._doc_handle))
+        buf = lib.folio_document_write_to_buffer(self.handle)
         size = lib.folio_buffer_len(buf)
         ptr = lib.folio_buffer_data(buf)
         data = ct.string_at(ptr, size)
@@ -332,20 +326,18 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_tagged(self, enabled: bool):
-        return lib.folio_set_tagged(ct.c_uint64(self._doc_handle), ct.c_int32(enabled))
+        return lib.folio_set_tagged(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
     def set_pdfa(self, level: PDFALevels):
-        return lib.folio_document_set_pdfa(
-            ct.c_uint64(self._doc_handle), ct.c_int32(level.value)
-        )
+        return lib.folio_document_set_pdfa(self.handle, ct.c_int32(level.value))
 
     @_with_error_handling(DocumentException)
     def set_encryption(
         self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithms
     ):
         return lib.folio_document_set_encryption(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(user_password.encode()),
             ct.c_char_p(owner_password.encode()),
             ct.c_int32(algorithm.value),
@@ -360,7 +352,7 @@ class Document(AbstractFolioObject):
         permissions: EncryptionPermissions,
     ):
         return lib.folio_document_set_encryption_with_permissions(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(user_password.encode()),
             ct.c_char_p(owner_password.encode()),
             ct.c_int32(algorithm.value),
@@ -368,7 +360,7 @@ class Document(AbstractFolioObject):
         )
 
     def to_bytes(self) -> bytes:
-        buf = lib.folio_document_to_bytes(ct.c_uint64(self._doc_handle))
+        buf = lib.folio_document_to_bytes(self.handle)
         size = lib.folio_buffer_len(buf)
         ptr = lib.folio_buffer_data(buf)
         data = ct.string_at(ptr, size)
@@ -377,13 +369,11 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def validate_pdfa(self):
-        return lib.folio_document_validate_pdfa(ct.c_uint64(self._doc_handle))
+        return lib.folio_document_validate_pdfa(self.handle)
 
     @_with_error_handling(DocumentException)
     def set_auto_bookmarks(self, enabled: bool):
-        return lib.folio_document_set_auto_bookmarks(
-            ct.c_uint64(self._doc_handle), ct.c_int32(enabled)
-        )
+        return lib.folio_document_set_auto_bookmarks(self.handle, ct.c_int32(enabled))
 
     def set_form(self, form: Form): ...
 
@@ -394,7 +384,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def set_header_text(self, value: str, font: Font, size: float, align: Alignments):
         return lib.folio_document_set_header_text(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(value.encode()),
             ct.c_uint64(font.handle),
             ct.c_double(size),
@@ -404,7 +394,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def set_footer_text(self, value: str, font: Font, size: float, align: Alignments):
         return lib.folio_document_set_footer_text(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(value.encode()),
             ct.c_uint64(font.handle),
             ct.c_double(size),
@@ -413,9 +403,7 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_watermark(self, text: str):
-        return lib.folio_document_set_watermark(
-            ct.c_uint64(self._doc_handle), ct.c_char_p(text.encode())
-        )
+        return lib.folio_document_set_watermark(self.handle, ct.c_char_p(text.encode()))
 
     @_with_error_handling(DocumentException)
     def set_watermark_config(
@@ -429,7 +417,7 @@ class Document(AbstractFolioObject):
         opacity: float,
     ):
         return lib.folio_document_set_watermark_config(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(text.encode()),
             ct.c_double(font_size),
             ct.c_double(color_r),
@@ -441,7 +429,7 @@ class Document(AbstractFolioObject):
 
     def add_outline(self, title: str, page_index: int) -> Outline:
         outline_handle = lib.folio_document_add_outline(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(title.encode()),
             ct.c_int32(page_index),
         )
@@ -451,7 +439,7 @@ class Document(AbstractFolioObject):
         self, title: str, page_index: int, left: float, top: float, zoom: float
     ) -> Outline:
         outline_handle = lib.folio_document_add_outline_xyz(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(title.encode()),
             ct.c_int32(page_index),
             ct.c_double(left),
@@ -471,7 +459,7 @@ class Document(AbstractFolioObject):
         zoom: float,
     ):
         return lib.folio_document_add_named_dest(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(name.encode()),
             ct.c_int32(page_index),
             ct.c_char_p(fit_type.encode()),
@@ -493,7 +481,7 @@ class Document(AbstractFolioObject):
         display_doc_title: bool,
     ):
         return lib.folio_document_set_viewer_preferences(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(page_layout.encode()),
             ct.c_char_p(page_mode.encode()),
             ct.c_int32(hide_toolbar),
@@ -507,7 +495,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def add_page_label(self, page_index: int, style: str, prefix: str, start: int):
         return lib.folio_document_add_page_label(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_int32(page_index),
             ct.c_char_p(style.encode()),
             ct.c_char_p(prefix.encode()),
@@ -516,9 +504,7 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def remove_page(self, index: int):
-        return lib.folio_document_remove_page(
-            ct.c_uint64(self._doc_handle), ct.c_int32(index)
-        )
+        return lib.folio_document_remove_page(self.handle, ct.c_int32(index))
 
     @_with_error_handling(DocumentException)
     def add_absolute(self, element, x: float, y: float, width: float): ...
@@ -527,9 +513,7 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def add_html(self, html: str):
-        return lib.folio_document_add_html(
-            ct.c_uint64(self._doc_handle), ct.c_char_p(html.encode())
-        )
+        return lib.folio_document_add_html(self.handle, ct.c_char_p(html.encode()))
 
     @_with_error_handling(DocumentException)
     def add_html_with_options(
@@ -542,7 +526,7 @@ class Document(AbstractFolioObject):
         fallback_font_path: str,
     ):
         return lib.folio_document_add_html_with_options(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_char_p(html.encode()),
             ct.c_double(default_font_size),
             ct.c_double(page_width),
@@ -554,7 +538,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def set_first_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_first_margins(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),
@@ -564,7 +548,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def set_left_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_left_margins(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),
@@ -574,7 +558,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def set_right_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_right_margins(
-            ct.c_uint64(self._doc_handle),
+            self.handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),
@@ -582,7 +566,7 @@ class Document(AbstractFolioObject):
         )
 
     def close(self):
-        lib.folio_document_free(ct.c_uint64(self._doc_handle))
+        lib.folio_document_free(self.handle)
 
     def __enter__(self):
         return self

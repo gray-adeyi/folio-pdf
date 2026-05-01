@@ -4,6 +4,15 @@ from folio_pdf.core import lib
 from folio_pdf.enums import StandardPDFFonts
 import ctypes as ct
 
+lib.folio_font_standard.argtypes = [ct.c_char_p]
+lib.folio_font_standard.restype = ct.c_uint64
+
+lib.folio_font_load_ttf.argtypes = [ct.c_char_p]
+lib.folio_font_load_ttf.restype = ct.c_uint64
+
+lib.folio_font_parse_ttf.argtypes = [ct.c_char_p, ct.c_int32]
+lib.folio_font_parse_ttf.restype = ct.c_uint64
+
 
 class Font(AbstractFolioObject):
     def __init__(self, font_family: StandardPDFFonts):
@@ -12,8 +21,8 @@ class Font(AbstractFolioObject):
         )
 
     @property
-    def handle(self) -> int:
-        return self._font_ptr
+    def handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self._font_ptr)
 
     def close(self):
         # TODO: Find out if standard fonts don't require to be freed and it only

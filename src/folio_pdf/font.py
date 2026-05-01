@@ -1,14 +1,19 @@
+from folio_pdf.object import AbstractFolioObject
 from pathlib import Path
 from folio_pdf.core import lib
 from folio_pdf.enums import StandardPDFFonts
 import ctypes as ct
 
 
-class Font:
+class Font(AbstractFolioObject):
     def __init__(self, font_family: StandardPDFFonts):
         self._font_ptr = lib.folio_font_standard(
             ct.c_char_p(font_family.value.encode())
         )
+
+    @property
+    def handle(self) -> int:
+        return self._font_ptr
 
     def close(self):
         # TODO: Find out if standard fonts don't require to be freed and it only

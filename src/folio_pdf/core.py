@@ -19,7 +19,9 @@ def _load_lib() -> ct.CDLL:
     if operating_system == "Darwin" and architecture == "x86_64":
         return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-macos-x86_64.dylib").as_posix())
     if operating_system == "Darwin" and architecture == "aarch64":
-        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-macos-aarch64.dylib").as_posix())
+        return ct.CDLL(
+            (THIS_FILE_PATH / "libs/libfolio-macos-aarch64.dylib").as_posix()
+        )
     raise RuntimeError("OS or CPU architecture not supported")
 
 

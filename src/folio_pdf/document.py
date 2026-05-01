@@ -1,3 +1,7 @@
+from folio_pdf.object import AbstractFolioObject
+from folio_pdf.outline import Outline
+from folio_pdf.font import Font
+from folio_pdf.forms import Form
 from folio_pdf.page import Page
 import ctypes as ct
 from io import BytesIO
@@ -7,6 +11,7 @@ from folio_pdf.enums import (
     PDFALevels,
     EncryptionAlgorithms,
     EncryptionPermissions,
+    Alignments,
 )
 from folio_pdf.core import lib, _with_error_handling
 
@@ -255,11 +260,15 @@ lib.folio_document_set_right_margins.argtypes = [
 lib.folio_document_set_right_margins.restype = ct.c_int32
 
 
-class Document:
+class Document(AbstractFolioObject):
     def __init__(self, width: float, height: float):
         self._doc_handle = lib.folio_document_new(
             ct.c_double(width), ct.c_double(height)
         )
+
+    @property
+    def handle(self) -> int:
+        return self._doc_handle
 
     @classmethod
     def new_a4(cls):
@@ -376,45 +385,201 @@ class Document:
             ct.c_uint64(self._doc_handle), ct.c_int32(enabled)
         )
 
-    def set_form(self, form): ...
+    def set_form(self, form: Form): ...
 
     def set_header(self): ...
 
     def set_footer(self): ...
 
-    def set_header_text(self): ...
+    @_with_error_handling(DocumentException)
+    def set_header_text(self, value: str, font: Font, size: float, align: Alignments):
+        return lib.folio_document_set_header_text(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(value.encode()),
+            ct.c_uint64(font.handle),
+            ct.c_double(size),
+            ct.c_int32(align.value),
+        )
 
-    def set_footer_text(self): ...
+    @_with_error_handling(DocumentException)
+    def set_footer_text(self, value: str, font: Font, size: float, align: Alignments):
+        return lib.folio_document_set_footer_text(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(value.encode()),
+            ct.c_uint64(font.handle),
+            ct.c_double(size),
+            ct.c_int32(align.value),
+        )
 
-    def set_watermark(self): ...
+    @_with_error_handling(DocumentException)
+    def set_watermark(self, text: str):
+        return lib.folio_document_set_watermark(
+            ct.c_uint64(self._doc_handle), ct.c_char_p(text.encode())
+        )
 
-    def set_watermark_config(self): ...
+    @_with_error_handling(DocumentException)
+    def set_watermark_config(
+        self,
+        text: str,
+        font_size: float,
+        color_r: float,
+        color_g: float,
+        color_b: float,
+        angle: float,
+        opacity: float,
+    ):
+        return lib.folio_document_set_watermark_config(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(text.encode()),
+            ct.c_double(font_size),
+            ct.c_double(color_r),
+            ct.c_double(color_g),
+            ct.c_double(color_b),
+            ct.c_double(angle),
+            ct.c_double(opacity),
+        )
 
-    def add_outline(self): ...
+    def add_outline(self, title: str, page_index: int) -> Outline:
+        outline_handle = lib.folio_document_add_outline(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(title.encode()),
+            ct.c_int32(page_index),
+        )
+        return Outline._new_from_handle(outline_handle)
 
-    def add_outline_xyz(self): ...
+    def add_outline_xyz(
+        self, title: str, page_index: int, left: float, top: float, zoom: float
+    ) -> Outline:
+        outline_handle = lib.folio_document_add_outline_xyz(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(title.encode()),
+            ct.c_int32(page_index),
+            ct.c_double(left),
+            ct.c_double(top),
+            ct.c_double(zoom),
+        )
+        return Outline._new_from_handle(outline_handle)
 
-    def add_named_dest(self): ...
+    @_with_error_handling(DocumentException)
+    def add_named_dest(
+        self,
+        name: str,
+        page_index: int,
+        fit_type: str,
+        top: float,
+        left: float,
+        zoom: float,
+    ):
+        return lib.folio_document_add_named_dest(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(name.encode()),
+            ct.c_int32(page_index),
+            ct.c_char_p(fit_type.encode()),
+            ct.c_double(top),
+            ct.c_double(left),
+            ct.c_double(zoom),
+        )
 
-    def set_viewer_preferences(self): ...
+    @_with_error_handling(DocumentException)
+    def set_viewer_preferences(
+        self,
+        page_layout: str,
+        page_mode: str,
+        hide_toolbar: bool,
+        hide_menubar: bool,
+        hide_window_ui: bool,
+        fit_window: bool,
+        center_window: bool,
+        display_doc_title: bool,
+    ):
+        return lib.folio_document_set_viewer_preferences(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(page_layout.encode()),
+            ct.c_char_p(page_mode.encode()),
+            ct.c_int32(hide_toolbar),
+            ct.c_int32(hide_menubar),
+            ct.c_int32(hide_window_ui),
+            ct.c_int32(fit_window),
+            ct.c_int32(center_window),
+            ct.c_int32(display_doc_title),
+        )
 
-    def add_page_label(self): ...
+    @_with_error_handling(DocumentException)
+    def add_page_label(self, page_index: int, style: str, prefix: str, start: int):
+        return lib.folio_document_add_page_label(
+            ct.c_uint64(self._doc_handle),
+            ct.c_int32(page_index),
+            ct.c_char_p(style.encode()),
+            ct.c_char_p(prefix.encode()),
+            ct.c_int32(start),
+        )
 
-    def remove_page(self): ...
+    @_with_error_handling(DocumentException)
+    def remove_page(self, index: int):
+        return lib.folio_document_remove_page(
+            ct.c_uint64(self._doc_handle), ct.c_int32(index)
+        )
 
-    def add_absolute(self): ...
+    @_with_error_handling(DocumentException)
+    def add_absolute(self, element, x: float, y: float, width: float): ...
 
     def attach_file(self): ...
 
-    def add_html(self): ...
+    @_with_error_handling(DocumentException)
+    def add_html(self, html: str):
+        return lib.folio_document_add_html(
+            ct.c_uint64(self._doc_handle), ct.c_char_p(html.encode())
+        )
 
-    def add_html_with_options(self): ...
+    @_with_error_handling(DocumentException)
+    def add_html_with_options(
+        self,
+        html: str,
+        default_font_size: float,
+        page_width: float,
+        page_height: float,
+        base_path: str,
+        fallback_font_path: str,
+    ):
+        return lib.folio_document_add_html_with_options(
+            ct.c_uint64(self._doc_handle),
+            ct.c_char_p(html.encode()),
+            ct.c_double(default_font_size),
+            ct.c_double(page_width),
+            ct.c_double(page_height),
+            ct.c_char_p(base_path.encode()),
+            ct.c_char_p(fallback_font_path.encode()),
+        )
 
-    def set_first_margins(self): ...
+    @_with_error_handling(DocumentException)
+    def set_first_margins(self, top: float, right: float, bottom: float, left: float):
+        return lib.folio_document_set_first_margins(
+            ct.c_uint64(self._doc_handle),
+            ct.c_double(top),
+            ct.c_double(right),
+            ct.c_double(bottom),
+            ct.c_double(left),
+        )
 
-    def set_left_margins(self): ...
+    @_with_error_handling(DocumentException)
+    def set_left_margins(self, top: float, right: float, bottom: float, left: float):
+        return lib.folio_document_set_left_margins(
+            ct.c_uint64(self._doc_handle),
+            ct.c_double(top),
+            ct.c_double(right),
+            ct.c_double(bottom),
+            ct.c_double(left),
+        )
 
-    def set_right_margins(self): ...
+    @_with_error_handling(DocumentException)
+    def set_right_margins(self, top: float, right: float, bottom: float, left: float):
+        return lib.folio_document_set_right_margins(
+            ct.c_uint64(self._doc_handle),
+            ct.c_double(top),
+            ct.c_double(right),
+            ct.c_double(bottom),
+            ct.c_double(left),
+        )
 
     def close(self):
         lib.folio_document_free(ct.c_uint64(self._doc_handle))

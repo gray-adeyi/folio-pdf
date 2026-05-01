@@ -177,6 +177,8 @@ lib.folio_page_add_strikeout.restype = ct.c_int32
 
 
 class Page(AbstractFolioObject):
+    _requires_close = False
+
     def __init__(self):
         self._page_handle = -1
 
@@ -195,7 +197,7 @@ class Page(AbstractFolioObject):
         return lib.folio_page_add_text(
             self.handle,
             ct.c_char_p(text.encode()),
-            ct.c_uint64(font.handle),
+            font.handle,
             ct.c_double(size),
             ct.c_double(x),
             ct.c_double(y),
@@ -206,7 +208,7 @@ class Page(AbstractFolioObject):
         return lib.folio_page_add_text_embedded(
             self.handle,
             ct.c_char_p(text.encode()),
-            ct.c_uint64(font.handle),
+            font.handle,
             ct.c_double(size),
             ct.c_double(x),
             ct.c_double(y),

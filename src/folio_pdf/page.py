@@ -1,3 +1,8 @@
+"""
+Copyright 2026 Gbenga Adeyi and Folio PDF Authors
+SPDX-License-Identifier: Apache-2.0
+"""
+
 from folio_pdf.page_importer import PageImporter
 from folio_pdf.image import Image
 from folio_pdf.exceptions import PageException

@@ -1,3 +1,9 @@
+"""
+Copyright 2026 Gbenga Adeyi and Folio PDF Authors
+SPDX-License-Identifier: Apache-2.0
+"""
+
+from folio_pdf.run_list import RunList
 from folio_pdf.exceptions import HeadingException
 from folio_pdf.core import lib, _with_error_handling
 from folio_pdf.object import AbstractFolioObject
@@ -69,3 +75,5 @@ class Heading(AbstractFolioObject):
     @_with_error_handling(HeadingException)
     def set_align(self, align: Alignments):
         return lib.folio_heading_set_align(self.handle, ct.c_int32(align.value))
+
+    def set_runs(self, run_list: RunList): ...

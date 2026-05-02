@@ -1,3 +1,8 @@
+"""
+Copyright 2026 Gbenga Adeyi and Folio PDF Authors
+SPDX-License-Identifier: Apache-2.0
+"""
+
 from folio_pdf.document import Document
 from io import BytesIO
 from .core import lib

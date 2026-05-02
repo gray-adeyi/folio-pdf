@@ -224,7 +224,7 @@ class Page(AbstractFolioObject):
     def add_image(self, img: Image, x: float, y: float, w: float, h: float):
         return lib.folio_page_add_image(
             self.handle,
-            ct.c_uint64(img.handle),
+            img.handle,
             ct.c_double(x),
             ct.c_double(y),
             ct.c_double(w),
@@ -358,9 +358,9 @@ class Page(AbstractFolioObject):
         r: float,
         g: float,
         b: float,
-        quad_points: float,
-        quad_count: int,
-    ):  # TODO: quad_points might be an array
+        quad_points: list[float],
+    ):
+        DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_highlight(
             self.handle,
             ct.c_double(x1),
@@ -370,8 +370,8 @@ class Page(AbstractFolioObject):
             ct.c_double(r),
             ct.c_double(g),
             ct.c_double(b),
-            ct.c_double(quad_points),
-            ct.c_double(quad_count),
+            DoubleArray(quad_points),
+            ct.c_int32(len(quad_points)),
         )
 
     @_with_error_handling(PageException)
@@ -384,9 +384,9 @@ class Page(AbstractFolioObject):
         r: float,
         g: float,
         b: float,
-        quad_points: float,
-        quad_count: int,
-    ):  # TODO: quad_points might be an array
+        quad_points: list[float],
+    ):
+        DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_underline_annotation(
             self.handle,
             ct.c_double(x1),
@@ -396,8 +396,8 @@ class Page(AbstractFolioObject):
             ct.c_double(r),
             ct.c_double(g),
             ct.c_double(b),
-            ct.c_double(quad_points),
-            ct.c_double(quad_count),
+            DoubleArray(quad_points),
+            ct.c_int32(len(quad_points)),
         )
 
     @_with_error_handling(PageException)
@@ -410,9 +410,9 @@ class Page(AbstractFolioObject):
         r: float,
         g: float,
         b: float,
-        quad_points: float,
-        quad_count: int,
-    ):  # TODO: quad_points might be an array
+        quad_points: list[float],
+    ):
+        DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_squiggly(
             self.handle,
             ct.c_double(x1),
@@ -422,8 +422,8 @@ class Page(AbstractFolioObject):
             ct.c_double(r),
             ct.c_double(g),
             ct.c_double(b),
-            ct.c_double(quad_points),
-            ct.c_double(quad_count),
+            DoubleArray(quad_points),
+            ct.c_int32(len(quad_points)),
         )
 
     @_with_error_handling(PageException)
@@ -436,9 +436,9 @@ class Page(AbstractFolioObject):
         r: float,
         g: float,
         b: float,
-        quad_points: float,
-        quad_count: int,
-    ):  # TODO: quad_points might be an array
+        quad_points: list[float],
+    ):
+        DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_strikeout(
             self.handle,
             ct.c_double(x1),
@@ -448,8 +448,8 @@ class Page(AbstractFolioObject):
             ct.c_double(r),
             ct.c_double(g),
             ct.c_double(b),
-            ct.c_double(quad_points),
-            ct.c_double(quad_count),
+            DoubleArray(quad_points),
+            ct.c_int32(len(quad_points)),
         )
 
     @_with_error_handling(PageException)

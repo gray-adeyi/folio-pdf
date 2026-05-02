@@ -125,3 +125,9 @@ class StandardPDFFonts(str, Enum):
 
     SYMBOL = "Symbol"
     ZAPF_DINGBATS = "ZapfDingbats"
+
+
+class Directions(IntEnum):
+    AUTO = 0
+    LTR = 1
+    RTL = 2

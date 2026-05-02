@@ -3,6 +3,8 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.write_options import WriteOptions
+
 from folio_pdf.object import AbstractFolioObject
 from folio_pdf.outline import Outline
 from folio_pdf.font import Font
@@ -62,11 +64,20 @@ lib.folio_document_save.restype = ct.c_int32
 lib.folio_document_write_to_buffer.argtypes = [ct.c_uint64]
 lib.folio_document_write_to_buffer.restype = ct.c_uint64
 
+lib.folio_document_save_with_options.argtypes = [ct.c_uint64, ct.c_char_p, ct.c_uint64]
+lib.folio_document_save_with_options.restype = ct.c_int32
+
+lib.folio_document_write_to_buffer_with_options.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_document_write_to_buffer_with_options.restype = ct.c_int32
+
 lib.folio_document_set_tagged.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_document_set_tagged.restype = ct.c_int32
 
 lib.folio_document_set_pdfa.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_document_set_pdfa.restype = ct.c_int32
+
+lib.folio_document_set_actual_text.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_document_set_actual_text.restype = ct.c_int32
 
 
 lib.folio_document_set_encryption.argtypes = [
@@ -313,8 +324,8 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def add(self, element):
-        # TODO: Figure out what elements can be added to a page
-        return lib.folio_document_add(self.handle, element)
+        # TODO: Figure out what elements can be added to a document
+        return lib.folio_document_add(self.handle, element.handle)
 
     @_with_error_handling(DocumentException)
     def save(self, destination: str | Path):
@@ -332,12 +343,33 @@ class Document(AbstractFolioObject):
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
+    def save_with_options(self, destination: str | Path, opts: WriteOptions):
+        _destination = destination
+        if isinstance(_destination, Path):
+            _destination = _destination.as_posix()
+        return lib.folio_document_save_with_options(
+            self.handle, ct.c_char_p(_destination.encode()), opts.handle
+        )
+
+    def to_buffer_with_options(self, opts: WriteOptions) -> BytesIO:
+        buf = lib.folio_document_write_to_buffer_with_options(self.handle, opts.handle)
+        size = lib.folio_buffer_len(buf)
+        ptr = lib.folio_buffer_data(buf)
+        data = ct.string_at(ptr, size)
+        lib.folio_buffer_free(buf)
+        return BytesIO(data)
+
+    @_with_error_handling(DocumentException)
     def set_tagged(self, enabled: bool):
         return lib.folio_set_tagged(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
     def set_pdfa(self, level: PDFALevels):
         return lib.folio_document_set_pdfa(self.handle, ct.c_int32(level.value))
+
+    @_with_error_handling(DocumentException)
+    def set_actual_text(self, enabled: bool):
+        return lib.folio_document_set_actual_text(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
     def set_encryption(
@@ -393,7 +425,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_header_text(
             self.handle,
             ct.c_char_p(value.encode()),
-            ct.c_uint64(font.handle),
+            font.handle,
             ct.c_double(size),
             ct.c_int32(align.value),
         )
@@ -403,7 +435,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_footer_text(
             self.handle,
             ct.c_char_p(value.encode()),
-            ct.c_uint64(font.handle),
+            font.handle,
             ct.c_double(size),
             ct.c_int32(align.value),
         )

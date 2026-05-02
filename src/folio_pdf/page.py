@@ -1,3 +1,4 @@
+from folio_pdf.page_importer import PageImporter
 from folio_pdf.image import Image
 from folio_pdf.exceptions import PageException
 from folio_pdf.object import AbstractFolioObject
@@ -444,4 +445,71 @@ class Page(AbstractFolioObject):
             ct.c_double(b),
             ct.c_double(quad_points),
             ct.c_double(quad_count),
+        )
+
+    @_with_error_handling(PageException)
+    def import_apply(self, imp: PageImporter):
+        return lib.folio_page_import_apply(self.handle, imp.handle)
+
+    @_with_error_handling(PageException)
+    def add_line(
+        self,
+        x1: float,
+        y1: float,
+        x2: float,
+        y2: float,
+        width: float,
+        r: float,
+        g: float,
+        b: float,
+    ):
+        return lib.folio_page_add_line(
+            self.handle,
+            ct.c_double(x1),
+            ct.c_double(y1),
+            ct.c_double(x2),
+            ct.c_double(y2),
+            ct.c_double(width),
+            ct.c_double(r),
+            ct.c_double(g),
+            ct.c_double(b),
+        )
+
+    @_with_error_handling(PageException)
+    def add_rect(
+        self,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        stroke_width: float,
+        r: float,
+        g: float,
+        b: float,
+    ):
+        return lib.folio_page_add_rect(
+            self.handle,
+            ct.c_double(x),
+            ct.c_double(y),
+            ct.c_double(w),
+            ct.c_double(h),
+            ct.c_double(stroke_width),
+            ct.c_double(r),
+            ct.c_double(g),
+            ct.c_double(b),
+        )
+
+    @_with_error_handling(PageException)
+    def add_rect_filled(
+        self, x: float, y: float, w: float, h: float, r: float, g: float, b: float
+    ):
+        return lib.folio_page_add_rect_filled(
+            self.handle,
+            ct.c_double(x),
+            ct.c_double(y),
+            ct.c_double(w),
+            ct.c_double(h),
+            ct.c_double(r),
+            ct.c_double(g),
+            ct.c_double(b),
         )

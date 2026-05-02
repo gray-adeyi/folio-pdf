@@ -3,7 +3,7 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.enums import Alignments
+from folio_pdf.enums import Alignments, Directions
 from folio_pdf.exceptions import ParagraphException
 from folio_pdf.core import lib, _with_error_handling
 from folio_pdf.object import AbstractFolioObject
@@ -45,6 +45,9 @@ lib.folio_paragraph_set_background.restype = ct.c_int32
 
 lib.folio_paragraph_set_first_indent.argtypes = [ct.c_uint64, ct.c_double]
 lib.folio_paragraph_set_first_indent.restype = ct.c_int32
+
+lib.folio_paragraph_set_direction.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_paragraph_set_direction.restype = ct.c_int32
 
 lib.folio_paragraph_set_orphans.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_paragraph_set_orphans.restype = ct.c_int32
@@ -124,6 +127,10 @@ class Paragraph(AbstractFolioObject):
     @_with_error_handling(ParagraphException)
     def set_first_indent(self, pts: float):
         return lib.folio_paragraph_set_first_indent(self.handle, ct.c_double(pts))
+
+    @_with_error_handling(ParagraphException)
+    def set_direction(self, dir: Directions):
+        return lib.folio_paragraph_set_direction(self.handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ParagraphException)
     def set_orphans(self, n: int):

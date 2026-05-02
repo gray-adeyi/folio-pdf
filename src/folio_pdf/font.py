@@ -20,6 +20,8 @@ lib.folio_font_parse_ttf.restype = ct.c_uint64
 
 
 class Font(AbstractFolioObject):
+    _requires_close = True
+
     def __init__(self, font_family: StandardPDFFonts):
         self._font_ptr = lib.folio_font_standard(
             ct.c_char_p(font_family.value.encode())

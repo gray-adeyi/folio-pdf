@@ -3,7 +3,11 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.core import lib
+from folio_pdf.exceptions import ImageElementException
+
+from folio_pdf.enums import Alignments
+
+from folio_pdf.core import lib, _with_error_handling
 from folio_pdf.image import Image
 from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
@@ -22,12 +26,30 @@ class ImageElement(AbstractFolioObject):
     def close(self):
         lib.folio_image_element_free(self.handle)
 
-    def set_size(self): ...
+    @_with_error_handling(ImageElementException)
+    def set_size(self, width: float, height: float):
+        return lib.folio_image_element_set_size(
+            self.handle, ct.c_double(width), ct.c_double(height)
+        )
 
-    def set_align(self): ...
+    @_with_error_handling(ImageElementException)
+    def set_align(self, align: Alignments):
+        return lib.folio_image_element_set_align(self.handle, ct.c_int32(align))
 
-    def set_alt_text(self): ...
+    @_with_error_handling(ImageElementException)
+    def set_alt_text(self, text: str):
+        return lib.folio_image_element_set_align(
+            self.handle, ct.c_char_p(text.encode())
+        )
 
-    def set_object_fit(self): ...
+    @_with_error_handling(ImageElementException)
+    def set_object_fit(self, fit: str):
+        return lib.folio_image_element_set_object_fit(
+            self.handle, ct.c_char_p(fit.encode())
+        )
 
-    def set_object_position(self): ...
+    @_with_error_handling(ImageElementException)
+    def set_object_position(self, pos: str):
+        return lib.folio_image_element_set_object_position(
+            self.handle, ct.c_char_p(pos.encode())
+        )

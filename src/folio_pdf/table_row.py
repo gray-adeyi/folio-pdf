@@ -9,6 +9,10 @@ from folio_pdf.core import lib
 
 from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from folio_pdf.folio_pdf import Element
 
 
 class TableRow(AbstractFolioObject):
@@ -42,6 +46,6 @@ class TableRow(AbstractFolioObject):
         )
         return TableCell._new_from_handle(handle)
 
-    def add_cell_element(self, element) -> TableCell:
+    def add_cell_element(self, element: "Element") -> TableCell:
         handle = lib.folio_row_add_cell_element(self.handle, element.handle)
         return TableCell._new_from_handle(handle)

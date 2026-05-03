@@ -68,10 +68,20 @@ class Image(AbstractFolioObject):
         return obj
 
     @classmethod
-    def parse_jpeg(cls): ...
+    def parse_jpeg(cls, data: bytes):
+        obj = cls.__new__(cls)
+        obj._image_handle = lib.folio_image_parse_jpeg(
+            ct.c_char_p(data), ct.c_int32(len(data))
+        )
+        return obj
 
     @classmethod
-    def parse_png(cls): ...
+    def parse_png(cls, data: bytes):
+        obj = cls.__new__(cls)
+        obj._image_handle = lib.folio_image_parse_jpeg(
+            ct.c_char_p(data), ct.c_int32(len(data))
+        )
+        return obj
 
     @property
     def width(self):

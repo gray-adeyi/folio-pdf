@@ -21,7 +21,10 @@ from folio_pdf.enums import (
     Alignments,
 )
 from folio_pdf.core import lib, _with_error_handling
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from folio_pdf.folio_pdf import Element
 
 lib.folio_document_new.argtypes = [ct.c_double, ct.c_double]
 lib.folio_document_new.restype = ct.c_uint64
@@ -323,8 +326,7 @@ class Document(AbstractFolioObject):
         return Page._new_from_handle(pg_ptr)
 
     @_with_error_handling(DocumentException)
-    def add(self, element):
-        # TODO: Figure out what elements can be added to a document
+    def add(self, element: "Element"):
         return lib.folio_document_add(self.handle, element.handle)
 
     @_with_error_handling(DocumentException)
@@ -546,7 +548,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_remove_page(self.handle, ct.c_int32(index))
 
     @_with_error_handling(DocumentException)
-    def add_absolute(self, element, x: float, y: float, width: float): ...
+    def add_absolute(self, element: "Element", x: float, y: float, width: float): ...
 
     def attach_file(self): ...
 

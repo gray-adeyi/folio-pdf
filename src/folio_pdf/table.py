@@ -3,6 +3,8 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.enums import Directions
+
 from folio_pdf.table_row import TableRow
 from folio_pdf.exceptions import TableException
 from folio_pdf.core import lib, _with_error_handling
@@ -43,6 +45,10 @@ class Table(AbstractFolioObject):
     @_with_error_handling(TableException)
     def set_auto_column_widths(self):
         return lib.folio_table_set_auto_column_widths(self.handle)
+
+    @_with_error_handling(TableException)
+    def set_direction(self, dir: Directions):
+        return lib.folio_table_set_direction(self.handle, ct.c_int32(dir.value))
 
     @_with_error_handling(TableException)
     def set_min_width(self, pts: float):

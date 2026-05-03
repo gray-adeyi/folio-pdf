@@ -62,9 +62,8 @@ lib.folio_html_parse_css_length.restype = ct.c_double
 
 
 def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float:
-    result: ct.c_double = lib.folio_html_parse_css_length(
+    return lib.folio_html_parse_css_length(
         ct.c_char_p(s.encode()),
         ct.c_double(font_size),
         ct.c_double(relative_to),
     )
-    return ct.c_double(result).value

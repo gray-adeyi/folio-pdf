@@ -76,4 +76,6 @@ class Heading(AbstractFolioObject):
     def set_align(self, align: Alignments):
         return lib.folio_heading_set_align(self.handle, ct.c_int32(align.value))
 
-    def set_runs(self, run_list: RunList): ...
+    @_with_error_handling(HeadingException)
+    def set_runs(self, run_list: RunList):
+        return lib.folio_heading_set_runs(self.handle, run_list.handle)

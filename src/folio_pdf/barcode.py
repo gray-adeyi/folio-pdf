@@ -3,6 +3,8 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.enums import ECCLevels
+
 from folio_pdf.core import lib
 from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
@@ -11,8 +13,8 @@ import ctypes as ct
 class Barcode(AbstractFolioObject):
     _requires_close = True
 
-    def __init__(self):
-        self._barcode_handle = -1
+    def __init__(self, data: str):
+        self._barcode_handle = lib.folio_barcode_qr(ct.c_char_p(data.encode()))
 
     @property
     def handle(self) -> ct.c_uint64:
@@ -22,16 +24,29 @@ class Barcode(AbstractFolioObject):
         lib.folio_barcode_free(self.handle)
 
     @classmethod
-    def new_qr_ecc(cls): ...
+    def new_qr_ecc(cls, data: str, level: ECCLevels):
+        obj = cls.__new__(cls)
+        obj._barcode_handle = lib.folio_barcode_qr_ecc(
+            ct.c_char_p(data.encode()), ct.c_int32(level.value)
+        )
+        return obj
 
     @classmethod
-    def new_code128(cls): ...
+    def new_code128(cls, data: str):
+        obj = cls.__new__(cls)
+        obj._barcode_handle = lib.folio_barcode_code128(ct.c_char_p(data.encode()))
+        return obj
 
     @classmethod
-    def new_ean13(cls): ...
+    def new_ean13(cls, data: str):
+        obj = cls.__new__(cls)
+        obj._barcode_handle = lib.folio_barcode_ean13(ct.c_char_p(data.encode()))
+        return obj
 
     @property
-    def width(self): ...
+    def width(self):
+        return lib.folio_barcode_width(self.handle)
 
     @property
-    def height(self): ...
+    def height(self):
+        return lib.folio_barcode_height(self.handle)

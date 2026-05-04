@@ -3,6 +3,8 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.run_list import RunList
+
 from folio_pdf.exceptions import ListException
 
 from folio_pdf.enums import ListStyles, Directions
@@ -39,6 +41,12 @@ class List(AbstractFolioObject):
         )
         return obj
 
+    @classmethod
+    def _new_from_handle(cls, handle: int):
+        obj = cls.__new__(cls)
+        obj._list_handle = handle
+        return obj
+
     @_with_error_handling(ListException)
     def set_style(self, style: ListStyles):
         return lib.folio_list_set_style(self.handle, ct.c_int32(style))
@@ -61,4 +69,12 @@ class List(AbstractFolioObject):
 
     def add_nested_item(
         self, text: str
-    ): ...  # TODO: Find out what type of object the bindig call of the fn returns
+    ): ...  # TODO: Find out what type of object the binding call of the fn returns
+
+    @_with_error_handling(ListException)
+    def add_item_runs(self, run_list: RunList):
+        return lib.folio_list_add_item_runs(self.handle, run_list.handle)
+
+    def add_item_runs_with_sublist(self, run_list: RunList) -> "List":
+        handle = lib.folio_list_add_item_runs_with_sublist(self.handle, run_list.handle)
+        return self._new_from_handle(handle)

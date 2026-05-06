@@ -3,6 +3,8 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.signer_options import SignerOptions
+
 from folio_pdf.document import Document
 from io import BytesIO
 from .core import lib
@@ -67,3 +69,14 @@ def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float
         ct.c_double(font_size),
         ct.c_double(relative_to),
     )
+
+
+def sign_pdf(pdf_data: bytes, opts: SignerOptions):
+    buf = lib.folio_sign_pdf(
+        ct.c_char_p(pdf_data), ct.c_int32(len(pdf_data)), opts.handle
+    )
+    size = lib.folio_buffer_len(buf)
+    ptr = lib.folio_buffer_data(buf)
+    data = ct.string_at(ptr, size)
+    lib.folio_buffer_free(buf)
+    return data

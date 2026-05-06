@@ -131,3 +131,10 @@ class Directions(IntEnum):
     AUTO = 0
     LTR = 1
     RTL = 2
+
+
+class Pades(IntEnum):
+    BB = 0
+    BT = 1
+    BLT = 2
+    BLTA = 3

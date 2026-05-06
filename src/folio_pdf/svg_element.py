@@ -3,7 +3,13 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.core import lib
+from folio_pdf.exceptions import SVGElementException
+
+from folio_pdf.enums import Alignments
+
+from folio_pdf.svg import SVG
+
+from folio_pdf.core import lib, _with_error_handling
 from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
 
@@ -11,8 +17,8 @@ import ctypes as ct
 class SVGElement(AbstractFolioObject):
     _requires_close = True
 
-    def __init__(self):
-        self._svg_element_handle = -1
+    def __init__(self, svg: SVG):
+        self._svg_element_handle = lib.folio_svg_element_new(svg.handle)
 
     @property
     def handle(self) -> ct.c_uint64:
@@ -21,8 +27,18 @@ class SVGElement(AbstractFolioObject):
     def close(self):
         lib.folio_svg_element_free(self.handle)
 
-    def set_size(self): ...
+    @_with_error_handling(SVGElementException)
+    def set_size(self, w: float, h: float):
+        return lib.folio_svg_element_set_size(
+            self.handle, ct.c_double(w), ct.c_double(h)
+        )
 
-    def set_align(self): ...
+    @_with_error_handling(SVGElementException)
+    def set_align(self, align: Alignments):
+        return lib.folio_svg_element_set_align(self.handle, ct.c_int32(align.value))
 
-    def set_alt_text(self): ...
+    @_with_error_handling(SVGElementException)
+    def set_alt_text(self, text: str):
+        return lib.folio_svg_element_set_alt_text(
+            self.handle, ct.c_char_p(text.encode())
+        )

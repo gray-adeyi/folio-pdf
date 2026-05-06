@@ -11,8 +11,8 @@ import ctypes as ct
 class SVG(AbstractFolioObject):
     _requires_close = True
 
-    def __init__(self):
-        self._svg_handle = -1
+    def __init__(self, svg_xml: str):
+        self._svg_handle = lib.folio_svg_parse(ct.c_char_p(svg_xml.encode()))
 
     @property
     def handle(self) -> ct.c_uint64:
@@ -22,13 +22,17 @@ class SVG(AbstractFolioObject):
         lib.folio_svg_free(self.handle)
 
     @classmethod
-    def parse(cls): ...
-
-    @classmethod
-    def parse_bytes(cls): ...
+    def parse_bytes(cls, data: bytes):
+        obj = cls.__new__(cls)
+        obj._svg_handle = lib.folio_svg_parse_bytes(
+            ct.c_char_p(data), ct.c_int32(len(data))
+        )
+        return obj
 
     @property
-    def width(self): ...
+    def width(self):
+        return lib.folio_svg_width(self.handle)
 
     @property
-    def height(self): ...
+    def height(self):
+        return lib.folio_svg_height(self.handle)

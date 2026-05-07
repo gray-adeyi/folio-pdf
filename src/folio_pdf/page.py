@@ -6,9 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.elements import Image
 from folio_pdf.exceptions import PageException
 from folio_pdf.font import Font
-from folio_pdf.image import Image
 from folio_pdf.page_importer import PageImporter
 
 lib.folio_page_add_text.argtypes = [

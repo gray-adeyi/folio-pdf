@@ -17,3 +17,9 @@ build-backend = "uv_build"
 dev = [
     "ruff>=0.15.12",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

@@ -3,16 +3,31 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.redactor_options import RedactorOptions
-from folio_pdf.reader import PDFReader
-
-from folio_pdf.signer_options import SignerOptions
+import ctypes as ct
+from io import BytesIO
+from pathlib import Path
 
 from folio_pdf.document import Document
-from io import BytesIO
+from folio_pdf.font import Font
+from folio_pdf.merger import PDFMerger
+from folio_pdf.outline import Outline
+from folio_pdf.page import Page
+from folio_pdf.reader import PDFReader
+from folio_pdf.redactor_options import RedactorOptions
+from folio_pdf.signer_options import SignerOptions
+
 from .core import lib
-import ctypes as ct
-from pathlib import Path
+
+__all__ = [
+    "Document",
+    "Page",
+    "Font",
+    "PDFMerger",
+    "Outline",
+    "PDFReader",
+    "RedactorOptions",
+    "SignerOptions",
+]
 
 
 lib.folio_html_to_pdf.argtypes = [ct.c_char_p, ct.c_char_p]

@@ -3,25 +3,24 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.write_options import WriteOptions
-
-from folio_pdf.object import AbstractFolioObject
-from folio_pdf.outline import Outline
-from folio_pdf.font import Font
-from folio_pdf.forms import Form
-from folio_pdf.page import Page
 import ctypes as ct
 from io import BytesIO
 from pathlib import Path
-from folio_pdf.exceptions import DocumentException
+from typing import TYPE_CHECKING
+
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import (
-    PDFALevels,
+    Alignments,
     EncryptionAlgorithms,
     EncryptionPermissions,
-    Alignments,
+    PDFALevels,
 )
-from folio_pdf.core import lib, _with_error_handling
-from typing import TYPE_CHECKING
+from folio_pdf.exceptions import DocumentException
+from folio_pdf.font import Font
+from folio_pdf.forms import Form
+from folio_pdf.outline import Outline
+from folio_pdf.page import Page
+from folio_pdf.write_options import WriteOptions
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element

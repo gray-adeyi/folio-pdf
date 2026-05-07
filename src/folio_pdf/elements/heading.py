@@ -3,13 +3,13 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.run_list import RunList
-from folio_pdf.exceptions import HeadingException
-from folio_pdf.core import lib, _with_error_handling
-from folio_pdf.object import AbstractFolioObject
-from folio_pdf.enums import Alignments, HeadingLevels
-from folio_pdf.font import Font
 import ctypes as ct
+
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.enums import Alignments, HeadingLevels
+from folio_pdf.exceptions import HeadingException
+from folio_pdf.font import Font
+from folio_pdf.run_list import RunList
 
 lib.folio_heading_new.argtypes = [ct.c_char_p, ct.c_int32]
 lib.folio_heading_new.restype = ct.c_uint64

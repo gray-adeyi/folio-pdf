@@ -3,11 +3,11 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.object import AbstractFolioObject
-from pathlib import Path
-from folio_pdf.core import lib
-from folio_pdf.enums import StandardPDFFonts
 import ctypes as ct
+from pathlib import Path
+
+from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.enums import StandardPDFFonts
 
 lib.folio_font_standard.argtypes = [ct.c_char_p]
 lib.folio_font_standard.restype = ct.c_uint64

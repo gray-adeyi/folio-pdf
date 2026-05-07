@@ -3,17 +3,13 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.run_list import RunList
-
-from folio_pdf.exceptions import ListException
-
-from folio_pdf.enums import ListStyles, Directions
-
-from folio_pdf.font import Font
-
-from folio_pdf.core import lib, _with_error_handling
-from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
+
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.enums import Directions, ListStyles
+from folio_pdf.exceptions import ListException
+from folio_pdf.font import Font
+from folio_pdf.run_list import RunList
 
 
 class List(AbstractFolioObject):

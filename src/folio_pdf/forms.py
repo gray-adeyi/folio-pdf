@@ -3,11 +3,10 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.form_field import FormField
-
-from folio_pdf.core import lib
-from folio_pdf.object import AbstractFolioObject
 import ctypes as ct
+
+from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.form_field import FormField
 
 
 class Form(AbstractFolioObject):

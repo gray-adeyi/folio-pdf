@@ -3,12 +3,12 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+import ctypes as ct
+
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments, Directions
 from folio_pdf.exceptions import ParagraphException
-from folio_pdf.core import lib, _with_error_handling
-from folio_pdf.object import AbstractFolioObject
 from folio_pdf.font import Font
-import ctypes as ct
 
 lib.folio_paragraph_new.argtypes = [
     ct.c_char_p,

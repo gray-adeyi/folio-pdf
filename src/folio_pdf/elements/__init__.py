@@ -1,19 +1,24 @@
-from .barcode import Barcode, BarcodeElement
-from .flex import Flex, FlexItem
-from .image import Image, ImageElement
-from .svg import SVG, SVGElement
-from .table import Table, TableRow, TableCell
+"""
+Copyright 2026 Gbenga Adeyi and Folio PDF Authors
+SPDX-License-Identifier: Apache-2.0
+"""
+
 from .area_break import AreaBreak
+from .barcode import Barcode, BarcodeElement
 from .columns import Column
 from .div import Div
+from .flex import Flex, FlexItem
 from .float import Float
 from .grid import Grid
 from .heading import Heading
+from .image import Image, ImageElement
 from .line_separator import LineSeparator
 from .link import Link
-from .paragraph import Paragraph
 from .list import List
+from .paragraph import Paragraph
+from .svg import SVG, SVGElement
 from .tabbed_line import TabbedLine
+from .table import Table, TableCell, TableRow
 
 __all__ = [
     "Barcode",

@@ -3,11 +3,10 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+import ctypes as ct
 from pathlib import Path
 
-from folio_pdf.core import lib
-from folio_pdf.object import AbstractFolioObject
-import ctypes as ct
+from folio_pdf.core import AbstractFolioObject, lib
 
 
 class PDFReader(AbstractFolioObject):

@@ -3,19 +3,14 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.exceptions import PDFMergerException
-
+import ctypes as ct
 from io import BytesIO
-
-from folio_pdf.font import Font
-
 from pathlib import Path
 
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.exceptions import PDFMergerException
+from folio_pdf.font import Font
 from folio_pdf.reader import PDFReader
-
-from folio_pdf.core import lib, _with_error_handling
-from folio_pdf.object import AbstractFolioObject
-import ctypes as ct
 
 
 class PDFMerger(AbstractFolioObject):

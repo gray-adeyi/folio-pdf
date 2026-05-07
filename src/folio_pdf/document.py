@@ -280,6 +280,8 @@ lib.folio_document_set_right_margins.restype = ct.c_int32
 
 
 class Document(AbstractFolioObject):
+    """Document is the top-level API for building a PDF."""
+
     _requires_close = True
 
     def __init__(self, width: float, height: float):
@@ -338,10 +340,7 @@ class Document(AbstractFolioObject):
 
     def to_buffer(self) -> BytesIO:
         buf = lib.folio_document_write_to_buffer(self.handle)
-        size = lib.folio_buffer_len(buf)
-        ptr = lib.folio_buffer_data(buf)
-        data = ct.string_at(ptr, size)
-        lib.folio_buffer_free(buf)
+        data = self._read_from_obj_buffer(buf)
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
@@ -355,10 +354,7 @@ class Document(AbstractFolioObject):
 
     def to_buffer_with_options(self, opts: WriteOptions) -> BytesIO:
         buf = lib.folio_document_write_to_buffer_with_options(self.handle, opts.handle)
-        size = lib.folio_buffer_len(buf)
-        ptr = lib.folio_buffer_data(buf)
-        data = ct.string_at(ptr, size)
-        lib.folio_buffer_free(buf)
+        data = self._read_from_obj_buffer(buf)
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
@@ -402,11 +398,7 @@ class Document(AbstractFolioObject):
 
     def to_bytes(self) -> bytes:
         buf = lib.folio_document_to_bytes(self.handle)
-        size = lib.folio_buffer_len(buf)
-        ptr = lib.folio_buffer_data(buf)
-        data = ct.string_at(ptr, size)
-        lib.folio_buffer_free(buf)
-        return data
+        return self._read_from_obj_buffer(buf)
 
     @_with_error_handling(DocumentException)
     def validate_pdfa(self):

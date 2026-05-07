@@ -3,6 +3,9 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.redactor_options import RedactorOptions
+from folio_pdf.reader import PDFReader
+
 from folio_pdf.signer_options import SignerOptions
 
 from folio_pdf.document import Document
@@ -80,3 +83,14 @@ def sign_pdf(pdf_data: bytes, opts: SignerOptions):
     data = ct.string_at(ptr, size)
     lib.folio_buffer_free(buf)
     return data
+
+
+def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions): ...
+
+
+def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions): ...
+
+
+def redact_regions(
+    reader: PDFReader,
+): ...

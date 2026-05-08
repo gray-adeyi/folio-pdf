@@ -5,7 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
-from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.exceptions import RedactorOptionsException
 
 
 class RedactorOptions(AbstractFolioObject):
@@ -21,8 +22,23 @@ class RedactorOptions(AbstractFolioObject):
     def close(self):
         lib.folio_redact_opts_free(self.handle)
 
-    def set_fill_color(self): ...
+    @_with_error_handling(RedactorOptionsException)
+    def set_fill_color(self, r: float, g: float, b: float):
+        return lib.folio_redact_opts_set_fill_color(
+            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+        )
 
-    def set_overlay(self): ...
+    @_with_error_handling(RedactorOptionsException)
+    def set_overlay(self, text: str, font_size: float, r: float, g: float, b: float):
+        return lib.folio_redact_opts_set_overlay(
+            self.handle,
+            ct.c_char_p(text.encode()),
+            ct.c_double(font_size),
+            ct.c_double(r),
+            ct.c_double(g),
+            ct.c_double(b),
+        )
 
-    def set_strip_metadata(self): ...
+    @_with_error_handling(RedactorOptionsException)
+    def set_strip_metadata(self, strip: bool):
+        return lib.folio_redact_opts_set_strip_metadata(self.handle, ct.c_int32(strip))

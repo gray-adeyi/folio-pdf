@@ -5,10 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
-from folio_pdf.barcode import Barcode
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments
 from folio_pdf.exceptions import BarcodeElementException
+
+from .barcode import Barcode
 
 
 class BarcodeElement(AbstractFolioObject):

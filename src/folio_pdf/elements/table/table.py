@@ -8,7 +8,8 @@ import ctypes as ct
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Directions
 from folio_pdf.exceptions import TableException
-from folio_pdf.table_row import TableRow
+
+from .table_row import TableRow
 
 
 class Table(AbstractFolioObject):

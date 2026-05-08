@@ -14,7 +14,8 @@ from folio_pdf.enums import (
     JustifyContents,
 )
 from folio_pdf.exceptions import FlexException
-from folio_pdf.flex_item import FlexItem
+
+from .flex_item import FlexItem
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element

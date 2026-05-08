@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 
 from folio_pdf.core import AbstractFolioObject, lib
 from folio_pdf.font import Font
-from folio_pdf.table_cell import TableCell
+
+from .table_cell import TableCell
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element

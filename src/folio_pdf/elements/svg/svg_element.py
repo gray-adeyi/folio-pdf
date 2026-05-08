@@ -8,7 +8,8 @@ import ctypes as ct
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments
 from folio_pdf.exceptions import SVGElementException
-from folio_pdf.svg import SVG
+
+from .svg import SVG
 
 
 class SVGElement(AbstractFolioObject):

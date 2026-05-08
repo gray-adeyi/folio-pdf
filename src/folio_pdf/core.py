@@ -93,6 +93,6 @@ class AbstractFolioObject:
     def __enter__(self):
         return self
 
-    def __exit__(self):
+    def __exit__(self, *_args, **_kwargs):
         if self._requires_close:
             self.close()

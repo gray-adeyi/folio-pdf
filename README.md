@@ -24,7 +24,7 @@ pip install folio-pdf
 
 ## Usage
 
-## Building a pdf from scratch
+### Building a pdf from scratch
 ```python
 from folio_pdf import Document, Font
 
@@ -38,7 +38,7 @@ page.add_text("I love folio pdf", font, 14, 100, 100)
 doc.save("result.pdf")
 ```
 
-## Generating a pdf from html
+### Generating a pdf from html
 
 ```python
 from folio_pdf import html_to_pdf

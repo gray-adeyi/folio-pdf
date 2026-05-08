@@ -49,4 +49,3 @@ html = '''
 html_to_pdf(html, "result.pdf")
 # see generated result.pdf the generated pdf
 ```
-```

@@ -3,6 +3,10 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+_NOT_IMPLEMENTED_ERROR = NotImplementedError(
+    "this functionality is yet to be implemented"
+)
+
 
 class FolioPDFException(Exception): ...
 

@@ -15,7 +15,7 @@ from folio_pdf.enums import (
     EncryptionPermissions,
     PDFALevels,
 )
-from folio_pdf.exceptions import DocumentException
+from folio_pdf.exceptions import DocumentException, _NOT_IMPLEMENTED_ERROR
 from folio_pdf.font import Font
 from folio_pdf.forms import Form
 from folio_pdf.outline import Outline
@@ -294,6 +294,7 @@ class Document(AbstractFolioObject):
 
     @classmethod
     def new_a4(cls) -> "Document":
+        """Creates a new PDF document with A4 dimensions"""
         obj = cls.__new__(cls)
         cls._doc_handle = lib.folio_document_new_a4()
         return obj
@@ -306,14 +307,27 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_title(self, value: str):
+        """Sets the title of the PDF document"""
         return lib.folio_document_set_title(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
     def set_author(self, value: str):
+        """Sets the author of the PDF document"""
         return lib.folio_document_author(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
     def set_margins(self, top: float, right: float, bottom: float, left: float):
+        """
+        It sets the page margins used by the layout engine (in PDF points).
+
+        Default is 72pt (1 inch) on all sides.
+
+        Args:
+            top: the margin for the top of the page.
+            right: the margin for the right side of the page.
+            bottom: the margin for the bottom of the page.
+            left: the margin for the left side of the page.
+        """
         return lib.folio_document_set_margins(
             self.handle,
             ct.c_double(top),
@@ -323,15 +337,27 @@ class Document(AbstractFolioObject):
         )
 
     def add_page(self) -> Page:
+        """Adds a blank page to the document and returns it."""
         pg_ptr = lib.folio_document_add_page(self.handle)
         return Page._new_from_handle(pg_ptr)
 
+    @property
+    def page_count(self) -> int:
+        """Returns the number of pages in the document."""
+        return lib.folio_document_page_count(self.handle)
+
     @_with_error_handling(DocumentException)
     def add(self, element: "Element"):
+        """Appends a layout element (e.g. Paragraph) to the document.
+
+        Elements are laid out automatically with word wrapping and page breaks
+        when `save`/`to_bytes`/`write_to_buffer` is called.
+        """
         return lib.folio_document_add(self.handle, element.handle)
 
     @_with_error_handling(DocumentException)
     def save(self, destination: str | Path):
+        """Writes the document to a file at the given path"""
         _destination = destination
         if isinstance(_destination, Path):
             _destination = _destination.as_posix()
@@ -358,6 +384,14 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_tagged(self, enabled: bool):
+        """
+        Enables tagged PDF output (PDF/UA foundation).
+
+        When enabled, the document includes a structure tree with semantic tags
+        (P, H1-H6, Table, Figure, etc.) and marked content operators in the
+        content streams. This enables screen readers, text extraction, and
+        accessibility compliance (Section 508, EN 301 549).
+        """
         return lib.folio_set_tagged(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
@@ -366,6 +400,15 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_actual_text(self, enabled: bool):
+        """
+        It controls whether the document wraps shaped Arabic words in
+        ISO 32000-2 §14.9.4 /Span /ActualText marked-content sequences. When
+        enabled (the default), copy/paste and accessibility consumers recover the
+        original Unicode codepoints rather than the Arabic Presentation Forms-B
+        substitutions emitted by the shaper. Disabling shaves a few dozen bytes
+        per shaped Arabic word and is appropriate for size-sensitive documents
+        that do not need text round-tripping.
+        """
         return lib.folio_document_set_actual_text(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
@@ -396,6 +439,7 @@ class Document(AbstractFolioObject):
         )
 
     def to_bytes(self) -> bytes:
+        """Serializes the complete PDF document and returns the raw bytes."""
         buf = lib.folio_document_to_bytes(self.handle)
         return self._read_from_obj_buffer(buf)
 
@@ -405,13 +449,22 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def set_auto_bookmarks(self, enabled: bool):
+        """
+        It Enables automatic bookmark/outline generation from
+        layout headings (H1-H6). When enabled, each Heading element in the
+        document flow produces a bookmark entry. Headings are nested by level:
+        H2 under H1, H3 under H2, etc.
+        """
         return lib.folio_document_set_auto_bookmarks(self.handle, ct.c_int32(enabled))
 
-    def set_form(self, form: Form): ...
+    def set_form(self, form: Form):
+        raise _NOT_IMPLEMENTED_ERROR
 
-    def set_header(self): ...
+    def set_header(self):
+        raise _NOT_IMPLEMENTED_ERROR
 
-    def set_footer(self): ...
+    def set_footer(self):
+        raise _NOT_IMPLEMENTED_ERROR
 
     @_with_error_handling(DocumentException)
     def set_header_text(self, value: str, font: Font, size: float, align: Alignments):
@@ -541,7 +594,8 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def add_absolute(self, element: "Element", x: float, y: float, width: float): ...
 
-    def attach_file(self): ...
+    def attach_file(self):
+        raise _NOT_IMPLEMENTED_ERROR
 
     @_with_error_handling(DocumentException)
     def add_html(self, html: str):

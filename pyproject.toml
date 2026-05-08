@@ -1,6 +1,6 @@
 [project]
 name = "folio-pdf"
-version = "0.0.0"
+version = "0.0.1"
 description = "A PDF library for Python powered by bindings to github.com/carlos7ags/folio in GO"
 readme = "README.md"
 license = "Apache-2.0"

@@ -138,3 +138,8 @@ class Pades(IntEnum):
     BT = 1
     BLT = 2
     BLTA = 3
+
+
+class FloatSides(IntEnum):
+    LEFT = 0
+    RIGHT = 1

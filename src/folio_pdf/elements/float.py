@@ -4,15 +4,21 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+from typing import TYPE_CHECKING
 
-from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.enums import FloatSides
+from folio_pdf.exceptions import FloatException
+
+if TYPE_CHECKING:
+    from folio_pdf.folio_pdf import Element
 
 
 class Float(AbstractFolioObject):
     _requires_close = True
 
-    def __init__(self):
-        self._float_handle = lib.folio_float_new()
+    def __init__(self, side: FloatSides, element: "Element"):
+        self._float_handle = lib.folio_float_new(ct.c_int32(side.value), element.handle)
 
     @property
     def handle(self) -> ct.c_uint64:
@@ -20,3 +26,7 @@ class Float(AbstractFolioObject):
 
     def close(self):
         lib.folio_float_free(self.handle)
+
+    @_with_error_handling(FloatException)
+    def set_margin(self, margin: float):
+        return lib.folio_float_set_margin(self.handle, ct.c_double(margin))

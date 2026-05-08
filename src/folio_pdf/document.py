@@ -293,13 +293,13 @@ class Document(AbstractFolioObject):
         return ct.c_uint64(self._doc_handle)
 
     @classmethod
-    def new_a4(cls):
+    def new_a4(cls) -> "Document":
         obj = cls.__new__(cls)
         cls._doc_handle = lib.folio_document_new_a4()
         return obj
 
     @classmethod
-    def _new_from_handle(cls, doc_handle: int):
+    def _new_from_handle(cls, doc_handle: int) -> "Document":
         obj = cls.__new__(cls)
         cls._doc_handle = doc_handle
         return obj

@@ -66,6 +66,14 @@ def _with_error_handling(exception: type[Exception]):
     return decorator
 
 
+def _read_from_obj_buffer(buf: int):
+    size = lib.folio_buffer_len(buf)
+    ptr = lib.folio_buffer_data(buf)
+    data = ct.string_at(ptr, size)
+    lib.folio_buffer_free(buf)
+    return data
+
+
 class AbstractFolioObject:
     _requires_close: bool
 
@@ -84,11 +92,7 @@ class AbstractFolioObject:
         raise NotImplementedError(err_msg)
 
     def _read_from_obj_buffer(self, buf: int):
-        size = lib.folio_buffer_len(buf)
-        ptr = lib.folio_buffer_data(buf)
-        data = ct.string_at(ptr, size)
-        lib.folio_buffer_free(buf)
-        return data
+        return _read_from_obj_buffer(buf)
 
     def __enter__(self):
         return self

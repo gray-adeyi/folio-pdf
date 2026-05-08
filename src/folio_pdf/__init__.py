@@ -16,7 +16,7 @@ from folio_pdf.reader import PDFReader
 from folio_pdf.redactor_options import RedactorOptions
 from folio_pdf.signer_options import SignerOptions
 
-from .core import lib
+from .core import _read_from_obj_buffer, lib
 
 __all__ = [
     "Document",
@@ -57,10 +57,7 @@ def html_to_buffer(html: str, page_width: float, page_height: float) -> BytesIO:
         ct.c_double(page_width),
         ct.c_double(page_height),
     )
-    size = lib.folio_buffer_len(buf)
-    ptr = lib.folio_buffer_data(buf)
-    data = ct.string_at(ptr, size)
-    lib.folio_buffer_free(buf)
+    data = _read_from_obj_buffer(buf)
     return BytesIO(data)
 
 
@@ -93,19 +90,47 @@ def sign_pdf(pdf_data: bytes, opts: SignerOptions):
     buf = lib.folio_sign_pdf(
         ct.c_char_p(pdf_data), ct.c_int32(len(pdf_data)), opts.handle
     )
-    size = lib.folio_buffer_len(buf)
-    ptr = lib.folio_buffer_data(buf)
-    data = ct.string_at(ptr, size)
-    lib.folio_buffer_free(buf)
-    return data
+    return _read_from_obj_buffer(buf)
 
 
-def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions): ...
+def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions):
+    CharPArray = ct.c_char_p * len(targets)
+
+    buf = lib.folio_redact_text(
+        reader.handle, CharPArray(targets), ct.c_int32(len(targets)), opts.handle
+    )
+    return _read_from_obj_buffer(buf)
 
 
-def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions): ...
+def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions):
+    buf = lib.folio_redact_pattern(
+        reader.handle, ct.c_char_p(pattern.encode()), opts.handle
+    )
+    return _read_from_obj_buffer(buf)
 
 
 def redact_regions(
     reader: PDFReader,
-): ...
+    pages: list[int],
+    x1s: list[float],
+    y1s: list[float],
+    x2s: list[float],
+    y2s: list[float],
+    opts: RedactorOptions,
+):  # TODO: Make this more python friendly
+    assert len(x1s) == len(y1s) == len(x2s) == len(y2s), (
+        "The lists x1s,y1s,x2s & y2s must all be of the same length"
+    )
+    Int32Array = ct.c_int32 * len(pages)
+    DoubleArray = ct.c_double * len(x1s)
+    buf = lib.folio_redact_regions(
+        reader.handle,
+        Int32Array(pages),
+        DoubleArray(x1s),
+        DoubleArray(y1s),
+        DoubleArray(x2s),
+        DoubleArray(y2s),
+        ct.c_int32(len(x1s)),
+        opts.handle,
+    )
+    return _read_from_obj_buffer(buf)

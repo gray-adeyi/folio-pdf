@@ -27,6 +27,7 @@ pip install folio-pdf
 ### Building a pdf from scratch
 ```python
 from folio_pdf import Document, Font
+from folio_pdf.enums import StandardPDFFonts
 
 doc = Document.new_a4()
 doc.set_title("PDF Document Example")

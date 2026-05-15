@@ -27,11 +27,13 @@ pip install folio-pdf
 ### Building a pdf from scratch
 ```python
 from folio_pdf import Document, Font
-from folio_pdf.enums import StandardPDFFonts
+from folio_pdf.enums import StandardPDFFonts, PageSizes
 
-doc = Document.new_a4()
-doc.set_title("PDF Document Example")
-doc.set_watermark("Made with Folio PDF")
+doc = (
+    Document.new_with_size(PageSizes.A4)
+      .title("PDF Document Example")
+      .watermark("Made with Folio PDF")
+)
 
 page = doc.add_page()
 font = Font(StandardPDFFonts.HELVETICA_BOLD)

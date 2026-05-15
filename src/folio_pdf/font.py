@@ -18,6 +18,9 @@ lib.folio_font_load_ttf.restype = ct.c_uint64
 lib.folio_font_parse_ttf.argtypes = [ct.c_char_p, ct.c_int32]
 lib.folio_font_parse_ttf.restype = ct.c_uint64
 
+lib.folio_font_free.argtypes = [ct.c_uint64]
+lib.folio_font_free.restype = None
+
 
 class Font(AbstractFolioObject):
     _requires_close = True

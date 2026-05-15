@@ -11,6 +11,12 @@ from folio_pdf.exceptions import TableException
 
 from .table_row import TableRow
 
+lib.folio_table_new.argtypes = []
+lib.folio_table_new.restype = ct.c_uint64
+
+lib.folio_table_free.argtypes = [ct.c_uint64]
+lib.folio_table_free.restype = None
+
 
 class Table(AbstractFolioObject):
     _requires_close = True

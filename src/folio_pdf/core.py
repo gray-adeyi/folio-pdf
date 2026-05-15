@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 import platform
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Callable
 
@@ -91,7 +91,7 @@ class AbstractFolioObject(ABC):
             else "folio object does not require close"
         )
         raise NotImplementedError(err_msg)
-    
+
     @staticmethod
     def _read_from_obj_buffer(buf: int):
         return _read_from_obj_buffer(buf)

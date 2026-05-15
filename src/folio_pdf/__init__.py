@@ -63,6 +63,10 @@ def html_to_buffer(html: str, page_width: float, page_height: float) -> BytesIO:
     return BytesIO(data)
 
 
+lib.folio_html_convert.argtypes = [ct.c_char_p, ct.c_double, ct.c_double]
+lib.folio_html_convert.restype = ct.c_uint64
+
+
 def html_convert(html: str, page_width: float, page_height: float) -> Document:
     doc_handle = lib.folio_html_convert(
         ct.c_char_p(html.encode()),
@@ -80,7 +84,7 @@ lib.folio_html_parse_css_length.argtypes = [
 lib.folio_html_parse_css_length.restype = ct.c_double
 
 
-def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float:
+def parse_css_length(s: str, font_size: float, relative_to: float) -> float:
     """Parses a CSS length string and returns its value in points.
 
     Args:
@@ -94,9 +98,9 @@ def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float
 
     Example:
         ```python
-        pts = html_parse_css_length("1in", 12, 0) # 72.0
-        em = html_parse_css_length("2em", 16,0) # 32.0
-        pct = html_parse_css_length("50%", 12, 100) # 50.0
+        pts = parse_css_length("1in", 12, 0) # 72.0
+        em = parse_css_length("2em", 16,0) # 32.0
+        pct = parse_css_length("50%", 12, 100) # 50.0
         ```
     """
     return lib.folio_html_parse_css_length(
@@ -104,6 +108,14 @@ def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float
         ct.c_double(font_size),
         ct.c_double(relative_to),
     )
+
+
+lib.folio_sign_pdf.argtypes = [
+    ct.c_void_p,
+    ct.c_int32,
+    ct.c_int64,
+]
+lib.folio_sign_pdf.restype = ct.c_int64
 
 
 def sign_pdf(pdf_data: bytes, opts: SignerOptions):
@@ -116,10 +128,22 @@ def sign_pdf(pdf_data: bytes, opts: SignerOptions):
 def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions):
     CharPArray = ct.c_char_p * len(targets)
 
+    lib.folio_redact_text.argtypes = [
+        ct.c_uint64,
+        CharPArray,
+        ct.c_int32,
+        ct.c_uint64,
+    ]
+    lib.folio_redact_text.restype = ct.c_uint64
+
     buf = lib.folio_redact_text(
         reader._handle, CharPArray(targets), ct.c_int32(len(targets)), opts._handle
     )
     return _read_from_obj_buffer(buf)
+
+
+lib.folio_redact_pattern.argtypes = [ct.c_uint64, ct.c_char_p, ct.c_uint64]
+lib.folio_redact_pattern.restype = ct.c_uint64
 
 
 def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions):
@@ -143,6 +167,19 @@ def redact_regions(
     )
     Int32Array = ct.c_int32 * len(pages)
     DoubleArray = ct.c_double * len(x1s)
+
+    lib.folio_redact_regions.argtypes = [
+        ct.c_uint64,
+        Int32Array,
+        DoubleArray,
+        DoubleArray,
+        DoubleArray,
+        DoubleArray,
+        ct.c_int32,
+        ct.c_uint64,
+    ]
+    lib.folio_redact_regions.restype = ct.c_uint64
+
     buf = lib.folio_redact_regions(
         reader._handle,
         Int32Array(pages),

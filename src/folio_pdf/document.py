@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Self
+from typing import TYPE_CHECKING, Callable
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
@@ -330,7 +330,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_title(self._handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
-    def author(self, value: str) -> Self:
+    def author(self, value: str) -> "Document":
         """Sets the author of the PDF document
 
         Args:
@@ -466,6 +466,17 @@ class Document(AbstractFolioObject):
     def encryption(
         self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithms
     ):
+        """
+        Applies password-based encryption to the output PDF.
+
+        Args:
+            user_password: password required to open the document
+            owner_password: password granting full owner permissions
+            algorithm: the {@link EncryptionAlgorithm} to use
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_encryption(
             self._handle,
             ct.c_char_p(user_password.encode()),
@@ -481,6 +492,18 @@ class Document(AbstractFolioObject):
         algorithm: EncryptionAlgorithms,
         permissions: EncryptionPermissions,
     ):
+        """
+        Applies password-based encryption with granular permission flags.
+
+        Args:
+            user_password: password required to open the document
+            owner_password: password granting full owner permissions
+            algorithm: the `EncryptionAlgorithms` variant to use
+            permissions: bitwise OR of {@link PdfPermission} flags
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_encryption_with_permissions(
             self._handle,
             ct.c_char_p(user_password.encode()),
@@ -506,19 +529,33 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def auto_bookmarks(self, enabled: bool):
         """
-        It Enables automatic bookmark/outline generation from
-        layout headings (H1-H6). When enabled, each Heading element in the
-        document flow produces a bookmark entry. Headings are nested by level:
-        H2 under H1, H3 under H2, etc.
+        Enables or disables automatic bookmark generation from headings.
+
+        Args:
+            enabled: `True` to generate bookmarks automatically
+
+        Returns:
+            this document, for chaining
         """
         return lib.folio_document_set_auto_bookmarks(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def form(self, form: Form):
+    def form(self, form: Form) -> "Document":
+        """
+        Attaches an interactive {@link Form} to this document.
+
+        Args:
+            form: the form to attach
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_form(self._handle, form._handle)
 
     @_with_error_handling(DocumentException)
-    def header_text(self, value: str, font: Font, size: float, align: Alignments):
+    def header_text(
+        self, value: str, font: Font, size: float, align: Alignments
+    ) -> "Document":
         """Sets a simple text header rendered on every page.
 
         The text may contain `{page}` and `{pages}` placeholders.
@@ -541,7 +578,9 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def footer_text(self, value: str, font: Font, size: float, align: Alignments):
+    def footer_text(
+        self, value: str, font: Font, size: float, align: Alignments
+    ) -> "Document":
         """Sets a simple text footer rendered on every page.
 
         The text may contain `{page}` and `{pages}` placeholders.
@@ -585,7 +624,7 @@ class Document(AbstractFolioObject):
         color: Color,
         angle: float,
         opacity: float,
-    ):
+    ) -> "Document":
         """Adds a text watermark to every page with custom font size, color,
         angle, and opacity.
 
@@ -661,7 +700,7 @@ class Document(AbstractFolioObject):
         top: float,
         left: float,
         zoom: float,
-    ):
+    ) -> "Document":
         """Adds a named destination that can be targeted by internal links.
 
         Args:
@@ -696,7 +735,23 @@ class Document(AbstractFolioObject):
         fit_window: bool,
         center_window: bool,
         display_doc_title: bool,
-    ):
+    ) -> "Document":
+        """
+        Configures PDF viewer preferences for how the document is displayed when opened.
+
+        Args:
+            page_layout: PDF page layout name (e.g., {@code "SinglePage"})
+            page_mode: PDF page mode name (e.g., {@code "UseOutlines"})
+            hide_toolbar: whether to hide the viewer toolbar
+            hide_menubar: whether to hide the viewer menu bar
+            hide_window_ui: whether to hide the viewer window UI
+            fit_window: whether to fit the window to the first page
+            center_window: whether to center the window on screen
+            display_doc_title: whether to display the document title in the title bar
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_viewer_preferences(
             self._handle,
             ct.c_char_p(page_layout.encode()),
@@ -710,7 +765,21 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def add_page_label(self, page_index: int, style: str, prefix: str, start: int):
+    def add_page_label(
+        self, page_index: int, style: str, prefix: str, start: int
+    ) -> "Document":
+        """
+        Adds a page label range starting at the given page index.
+
+        Args:
+            page_index: zero-based page index where the label range starts
+            style: numbering style (e.g., `"D"` for decimal, `"r"` for lowercase roman)
+            prefix: optional text prefix for each label
+            start: the numeric start value for this range
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_add_page_label(
             self._handle,
             ct.c_int32(page_index),
@@ -720,17 +789,83 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def remove_page(self, index: int):
+    def remove_page(self, index: int) -> "Document":
+        """
+        Removes the page at the given zero-based index from the document.
+
+        Args:
+            index: zero-based page index to remove
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_remove_page(self._handle, ct.c_int32(index))
 
     @_with_error_handling(DocumentException)
-    def add_absolute(self, element: "Element", x: float, y: float, width: float): ...
+    def add_absolute(
+        self, element: "Element", x: float, y: float, width: float
+    ) -> "Document":
+        """Adds an element handle at an absolute position on the current page.
 
-    def attach_file(self):
-        raise _NOT_IMPLEMENTED_ERROR
+        Args:
+            element: the native element handle
+            x: x coordinate in points from the left edge
+            y: y coordinate in points from the top edge
+            width: available width in points
+
+        Returns:
+            this document, for chaining
+        """
+        return lib.folio_document_add_absolute(
+            self._handle,
+            element._handle,
+            ct.c_double(x),
+            ct.c_double(y),
+            ct.c_double(width),
+        )
+
+    def attach_file(
+        self,
+        data: bytes,
+        file_name: str,
+        mime_type: str,
+        description: str,
+        af_relationship: str,
+    ) -> "Document":
+        """
+        Attaches a file as an embedded file stream in the PDF.
+
+        Args:
+            data: the raw file bytes
+            file_name: the name to assign to the attachment
+            mime_type: MIME type of the attachment (e.g., `"text/plain"`)
+            description: human-readable description of the attachment
+            af_relationship: PDF AF relationship value (e.g., `"Data"`)
+
+        Returns:
+            this document, for chaining
+        """
+        return lib.folio_document_attach_file(
+            self._handle,
+            ct.c_char_p(data),
+            ct.c_int32(len(data)),
+            ct.c_char_p(file_name.encode()),
+            ct.c_char_p(mime_type.encode()),
+            ct.c_char_p(description.encode()),
+            ct.c_char_p(af_relationship.encode()),
+        )
 
     @_with_error_handling(DocumentException)
-    def add_html(self, html: str):
+    def add_html(self, html: str) -> "Document":
+        """
+        Appends an HTML fragment to the document using default rendering options.
+
+        Args:
+            html: the HTML content to render
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_add_html(self._handle, ct.c_char_p(html.encode()))
 
     @_with_error_handling(DocumentException)
@@ -742,7 +877,21 @@ class Document(AbstractFolioObject):
         page_height: float,
         base_path: str,
         fallback_font_path: str,
-    ):
+    ) -> "Document":
+        """
+        Appends an HTML fragment with explicit rendering options.
+
+        Args:
+            html: the HTML content to render
+            default_font_size: base font size in points
+            page_width: page width in points used for layout
+            page_height: page height in points used for layout
+            base_path: base path for resolving relative resource URLs
+            fallback_font_path: path to a fallback font file
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_add_html_with_options(
             self._handle,
             ct.c_char_p(html.encode()),
@@ -754,7 +903,21 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def first_margins(self, top: float, right: float, bottom: float, left: float):
+    def first_margins(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> "Document":
+        """
+        Sets custom margins for the first page of the document.
+
+        Args:
+            top: top margin in points
+            right: right margin in points
+            bottom: bottom margin in points
+            left: left margin in points
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_first_margins(
             self._handle,
             ct.c_double(top),
@@ -764,7 +927,21 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def left_margins(self, top: float, right: float, bottom: float, left: float):
+    def left_margins(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> "Document":
+        """
+        Sets custom margins for left (even-numbered) pages in a duplex layout.
+
+        Args:
+            top: top margin in points
+            right: right margin in points
+            bottom: bottom margin in points
+            left: left margin in points
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_left_margins(
             self._handle,
             ct.c_double(top),
@@ -774,7 +951,21 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def right_margins(self, top: float, right: float, bottom: float, left: float):
+    def right_margins(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> "Document":
+        """
+        Sets custom margins for right (odd-numbered) pages in a duplex layout.
+
+        Args:
+            top: top margin in points
+            right: right margin in points
+            bottom: bottom margin in points
+            left: left margin in points
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_right_margins(
             self._handle,
             ct.c_double(top),

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
@@ -17,7 +17,7 @@ from folio_pdf.enums import (
     PageSizes,
     PDFALevels,
 )
-from folio_pdf.exceptions import _NOT_IMPLEMENTED_ERROR, DocumentException
+from folio_pdf.exceptions import DocumentException
 from folio_pdf.font import Font
 from folio_pdf.forms import Form
 from folio_pdf.outline import Outline
@@ -27,9 +27,6 @@ from folio_pdf.write_options import WriteOptions
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
-# def page_decorator_fn(page_index: int, total_pages: int,
-# page_handle: ct.c_uint64,user_data: bytes) -> None: ...
-PageDecoratorFn = Callable[[int, int, ct.c_uint64, bytes], None]
 
 lib.folio_document_new.argtypes = [ct.c_double, ct.c_double]
 lib.folio_document_new.restype = ct.c_uint64

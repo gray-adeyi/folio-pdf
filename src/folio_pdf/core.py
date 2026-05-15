@@ -60,6 +60,7 @@ def _with_error_handling(exception: type[Exception]):
             if err != ErrorCodes.OK:
                 msg_bytes = lib.folio_last_error()
                 raise exception(str(msg_bytes))
+            return self
 
         return wrapper
 

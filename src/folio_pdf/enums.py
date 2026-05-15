@@ -6,6 +6,33 @@ SPDX-License-Identifier: Apache-2.0
 from enum import Enum, IntEnum, IntFlag
 
 
+class Colors(str, Enum):
+    BLACK = "black"
+    WHITE = "white"
+    RED = "red"
+    GREEN = "green"
+    BLUE = "blue"
+    GRAY = "gray"
+    LIGHT_GRAY = "light_gray"
+    DARK_GRAY = "dark_gray"
+    NAVY = "navy"
+    TEAL = "teal"
+    ORANGE = "orange"
+    PURPLE = "purple"
+    YELLOW = "yellow"
+    CYAN = "cyan"
+    MAGENTA = "magenta"
+    BROWN = "brown"
+    PINK = "pink"
+
+
+class PageSizes(IntEnum):
+    LETTER = 0
+    A4 = 1
+    LEGAL = 2
+    TABLOID = 3
+
+
 class ErrorCodes(IntEnum):
     OK = 0
     HANDLE = -1  # invalid or expired handle
@@ -17,6 +44,11 @@ class ErrorCodes(IntEnum):
 
 
 class Alignments(IntEnum):
+    """
+    Horizontal text alignment options for paragraphs, headings,
+    links, and other elements.
+    """
+
     LEFT = 0
     CENTER = 1
     RIGHT = 2
@@ -96,6 +128,11 @@ class JustifyContents(IntEnum):
 
 
 class AlignItems(IntEnum):
+    """
+    Controls how child elements are aligned along the cross axis of a flex
+    or grid container.
+    """
+
     STRETCH = 0
     START = 1
     END = 2

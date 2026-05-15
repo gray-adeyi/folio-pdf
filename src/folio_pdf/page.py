@@ -187,24 +187,24 @@ class Page(AbstractFolioObject):
     _requires_close = False
 
     def __init__(self):
-        self._page_handle = -1
+        self.__handle = -1
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._page_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     @classmethod
     def _new_from_handle(cls, page_handle: int):
         obj = cls.__new__(cls)
-        cls._page_handle = page_handle
+        cls.__handle = page_handle
         return obj
 
     @_with_error_handling(PageException)
     def add_text(self, text: str, font: Font, size: float, x: float, y: float):
         return lib.folio_page_add_text(
-            self.handle,
+            self._handle,
             ct.c_char_p(text.encode()),
-            font.handle,
+            font._handle,
             ct.c_double(size),
             ct.c_double(x),
             ct.c_double(y),
@@ -213,9 +213,9 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_text_embedded(self, text: str, font: Font, size: float, x: float, y: float):
         return lib.folio_page_add_text_embedded(
-            self.handle,
+            self._handle,
             ct.c_char_p(text.encode()),
-            font.handle,
+            font._handle,
             ct.c_double(size),
             ct.c_double(x),
             ct.c_double(y),
@@ -224,8 +224,8 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_image(self, img: Image, x: float, y: float, w: float, h: float):
         return lib.folio_page_add_image(
-            self.handle,
-            img.handle,
+            self._handle,
+            img._handle,
             ct.c_double(x),
             ct.c_double(y),
             ct.c_double(w),
@@ -235,7 +235,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_link(self, x1: float, y1: float, x2: float, y2: float, uri: str):
         return lib.folio_page_add_link(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -248,7 +248,7 @@ class Page(AbstractFolioObject):
         self, x1: float, y1: float, x2: float, y2: float, dest_name: str
     ):
         return lib.folio_page_add_internal_link(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -261,7 +261,7 @@ class Page(AbstractFolioObject):
         self, x1: float, y1: float, x2: float, y2: float, text: str, icon: str
     ):
         return lib.folio_page_add_text_annotation(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -272,11 +272,11 @@ class Page(AbstractFolioObject):
 
     @_with_error_handling(PageException)
     def opacity(self, alpha: float):
-        return lib.folio_page_set_opacity(self.handle, ct.c_double(alpha))
+        return lib.folio_page_set_opacity(self._handle, ct.c_double(alpha))
 
     @_with_error_handling(PageException)
     def rotate(self, degress: int):
-        return lib.folio_page_set_rotate(self.handle, ct.c_int32(degress))
+        return lib.folio_page_set_rotate(self._handle, ct.c_int32(degress))
 
     @_with_error_handling(PageException)
     def crop_box(
@@ -287,7 +287,7 @@ class Page(AbstractFolioObject):
         y2: float,
     ):
         return lib.folio_page_set_crop_box(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -297,7 +297,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def trim_box(self, x1: float, y1: float, x2: float, y2: float):
         return lib.folio_page_set_trim_box(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -307,7 +307,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def bleed_box(self, x1: float, y1: float, x2: float, y2: float):
         return lib.folio_page_set_bleed_box(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -317,7 +317,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def art_box(self, x1: float, y1: float, x2: float, y2: float):
         return lib.folio_page_set_art_box(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -327,7 +327,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def size(self, width: float, height: float):
         return lib.folio_page_set_size(
-            self.handle, ct.c_double(width), ct.c_double(height)
+            self._handle, ct.c_double(width), ct.c_double(height)
         )
 
     @_with_error_handling(PageException)
@@ -335,7 +335,7 @@ class Page(AbstractFolioObject):
         self, x1: float, y1: float, x2: float, y2: float, target_page: int
     ):
         return lib.folio_page_add_page_link(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -346,7 +346,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def opacity_fill_stroke(self, fill_alpha: float, stroke_alpha: float):
         return lib.folio_page_set_opacity(
-            self.handle, ct.c_double(fill_alpha), ct.c_double(stroke_alpha)
+            self._handle, ct.c_double(fill_alpha), ct.c_double(stroke_alpha)
         )
 
     @_with_error_handling(PageException)
@@ -361,7 +361,7 @@ class Page(AbstractFolioObject):
     ):
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_highlight(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -385,7 +385,7 @@ class Page(AbstractFolioObject):
     ):
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_underline_annotation(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -409,7 +409,7 @@ class Page(AbstractFolioObject):
     ):
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_squiggly(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -433,7 +433,7 @@ class Page(AbstractFolioObject):
     ):
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_strikeout(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -447,7 +447,7 @@ class Page(AbstractFolioObject):
 
     @_with_error_handling(PageException)
     def import_apply(self, imp: PageImporter):
-        return lib.folio_page_import_apply(self.handle, imp.handle)
+        return lib.folio_page_import_apply(self._handle, imp._handle)
 
     @_with_error_handling(PageException)
     def add_line(
@@ -460,7 +460,7 @@ class Page(AbstractFolioObject):
         color: Color,
     ):
         return lib.folio_page_add_line(
-            self.handle,
+            self._handle,
             ct.c_double(x1),
             ct.c_double(y1),
             ct.c_double(x2),
@@ -482,7 +482,7 @@ class Page(AbstractFolioObject):
         color: Color,
     ):
         return lib.folio_page_add_rect(
-            self.handle,
+            self._handle,
             ct.c_double(x),
             ct.c_double(y),
             ct.c_double(w),
@@ -503,7 +503,7 @@ class Page(AbstractFolioObject):
         color: Color,
     ):
         return lib.folio_page_add_rect_filled(
-            self.handle,
+            self._handle,
             ct.c_double(x),
             ct.c_double(y),
             ct.c_double(w),

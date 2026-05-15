@@ -12,14 +12,14 @@ class SVG(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, svg_xml: str):
-        self._svg_handle = lib.folio_svg_parse(ct.c_char_p(svg_xml.encode()))
+        self.__handle = lib.folio_svg_parse(ct.c_char_p(svg_xml.encode()))
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._svg_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_svg_free(self.handle)
+        lib.folio_svg_free(self._handle)
 
     @classmethod
     def parse_bytes(cls, data: bytes):
@@ -31,8 +31,8 @@ class SVG(AbstractFolioObject):
 
     @property
     def width(self):
-        return lib.folio_svg_width(self.handle)
+        return lib.folio_svg_width(self._handle)
 
     @property
     def height(self):
-        return lib.folio_svg_height(self.handle)
+        return lib.folio_svg_height(self._handle)

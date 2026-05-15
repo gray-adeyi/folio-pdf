@@ -12,8 +12,8 @@ class LineSeparator(AbstractFolioObject):
     _requires_close = False
 
     def __init__(self):
-        self._line_separator_handle = lib.folio_line_separator_new()
+        self.__handle = lib.folio_line_separator_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._line_separator_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)

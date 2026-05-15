@@ -3,10 +3,9 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from folio_pdf.color import Color
-
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import FormFieldException
 
@@ -17,7 +16,7 @@ class FormField(AbstractFolioObject):
     def __init__(
         self, name: str, x1: float, y1: float, x2: float, y2: float, page_index: int
     ):
-        self._form_field_handle = lib.folio_form_create_text_field(
+        self.__handle = lib.folio_form_create_text_field(
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -27,11 +26,11 @@ class FormField(AbstractFolioObject):
         )
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._form_field_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_form_field_free(self.handle)
+        lib.folio_form_field_free(self._handle)
 
     @classmethod
     def create_checkbox(
@@ -71,7 +70,7 @@ class FormField(AbstractFolioObject):
     @_with_error_handling(FormFieldException)
     def background_color(self, color: Color):
         return lib.folio_form_field_set_background_color(
-            self.handle,
+            self._handle,
             ct.c_double(color.r),
             ct.c_double(color.g),
             ct.c_double(color.b),
@@ -80,7 +79,7 @@ class FormField(AbstractFolioObject):
     @_with_error_handling(FormFieldException)
     def border_color(self, color: Color):
         return lib.folio_form_field_set_border_color(
-            self.handle,
+            self._handle,
             ct.c_double(color.r),
             ct.c_double(color.g),
             ct.c_double(color.b),

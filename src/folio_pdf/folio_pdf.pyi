@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 from folio_pdf.elements import (
     AreaBreak,
     BarcodeElement,
-    Column,
+    Columns,
     Div,
     Flex,
     Float,
@@ -25,7 +25,7 @@ from folio_pdf.elements import (
 Element = (
     AreaBreak
     | BarcodeElement
-    | Column
+    | Columns
     | Div
     | Flex
     | Float

@@ -14,19 +14,19 @@ class RedactorOptions(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._redactor_options_handle = lib.folio_redact_opts_new()
+        self.__handle = lib.folio_redact_opts_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._redactor_options_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_redact_opts_free(self.handle)
+        lib.folio_redact_opts_free(self._handle)
 
     @_with_error_handling(RedactorOptionsException)
     def fill_color(self, color: Color):
         return lib.folio_redact_opts_set_fill_color(
-            self.handle,
+            self._handle,
             ct.c_double(color.r),
             ct.c_double(color.g),
             ct.c_double(color.b),
@@ -35,7 +35,7 @@ class RedactorOptions(AbstractFolioObject):
     @_with_error_handling(RedactorOptionsException)
     def overlay(self, text: str, font_size: float, color: Color):
         return lib.folio_redact_opts_set_overlay(
-            self.handle,
+            self._handle,
             ct.c_char_p(text.encode()),
             ct.c_double(font_size),
             ct.c_double(color.r),
@@ -45,4 +45,4 @@ class RedactorOptions(AbstractFolioObject):
 
     @_with_error_handling(RedactorOptionsException)
     def strip_metadata(self, strip: bool):
-        return lib.folio_redact_opts_set_strip_metadata(self.handle, ct.c_int32(strip))
+        return lib.folio_redact_opts_set_strip_metadata(self._handle, ct.c_int32(strip))

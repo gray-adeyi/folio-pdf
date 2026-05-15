@@ -165,6 +165,8 @@ class StandardPDFFonts(str, Enum):
 
 
 class Directions(IntEnum):
+    """Writing direction for paragraphs, lists, and tables."""
+
     AUTO = 0
     LTR = 1
     RTL = 2

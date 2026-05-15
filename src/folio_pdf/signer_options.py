@@ -17,16 +17,14 @@ class SignerOptions(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, signer: Signer, level: Pades):
-        self._signer_options_handle = lib.folio_sign_opts_new(
-            signer.handle, ct.c_int32(level.value)
-        )
+        self.__handle = lib.folio_sign_opts_new(signer._handle, ct.c_int32(level.value))
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._signer_options_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_sign_opts_free(self.handle)
+        lib.folio_sign_opts_free(self._handle)
 
     @_with_error_handling(SignerOptionsException)
     def name(self, name: str):
@@ -46,8 +44,8 @@ class SignerOptions(AbstractFolioObject):
 
     @_with_error_handling(SignerOptionsException)
     def tsa(self, tsa: TSAClient):
-        return lib.folio_sign_opts_set_tsa(tsa.handle)
+        return lib.folio_sign_opts_set_tsa(tsa._handle)
 
     @_with_error_handling(SignerOptionsException)
     def ocsp(self, ocsp: OCSPClient):
-        return lib.folio_sign_opts_set_ocsp(ocsp.handle)
+        return lib.folio_sign_opts_set_ocsp(ocsp._handle)

@@ -18,35 +18,35 @@ class FlexItem(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, element: "Element"):
-        self._flex_handle = lib.folio_flex_item_new(element.handle)
+        self.__handle = lib.folio_flex_item_new(element._handle)
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._flex_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_flex_item_free(self.handle)
+        lib.folio_flex_item_free(self._handle)
 
     @_with_error_handling(FlexItemException)
     def grow(self, grow: float):
-        return lib.folio_flex_item_set_grow(self.handle, ct.c_double(grow))
+        return lib.folio_flex_item_set_grow(self._handle, ct.c_double(grow))
 
     @_with_error_handling(FlexItemException)
     def shrink(self, shrink: float):
-        return lib.folio_flex_item_set_shrink(self.handle, ct.c_double(shrink))
+        return lib.folio_flex_item_set_shrink(self._handle, ct.c_double(shrink))
 
     @_with_error_handling(FlexItemException)
     def basis(self, basis: float):
-        return lib.folio_flex_item_set_basis(self.handle, ct.c_double(basis))
+        return lib.folio_flex_item_set_basis(self._handle, ct.c_double(basis))
 
     @_with_error_handling(FlexItemException)
     def align_self(self, align: Alignments):
-        return lib.folio_flex_item_set_align_self(self.handle, ct.c_int32(align))
+        return lib.folio_flex_item_set_align_self(self._handle, ct.c_int32(align))
 
     @_with_error_handling(FlexItemException)
     def margin(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_flex_item_set_margins(
-            self.handle,
+            self._handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),

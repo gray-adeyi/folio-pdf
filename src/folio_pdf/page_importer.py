@@ -12,19 +12,19 @@ class PageImporter(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._redactor_handle = -1
+        self.__handle = -1
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._redactor_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_page_import_free(self.handle)
+        lib.folio_page_import_free(self._handle)
 
     @property
     def width(self):
-        return lib.folio_page_import_width(self.handle)
+        return lib.folio_page_import_width(self._handle)
 
     @property
     def height(self):
-        return lib.folio_page_import_height(self.handle)
+        return lib.folio_page_import_height(self._handle)

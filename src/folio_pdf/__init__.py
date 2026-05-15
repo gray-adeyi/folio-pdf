@@ -81,6 +81,16 @@ lib.folio_html_parse_css_length.restype = ct.c_double
 
 
 def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float:
+    """Parses a CSS length string and returns its value in points.
+
+    Args:
+        s: the CSS length expression
+        font_size: the current font size in points (used for {@code em}/{@code rem})
+        relative_to: the reference length in points (used for {@code %})
+
+    Returns:
+        the parsed length in points
+    """
     return lib.folio_html_parse_css_length(
         ct.c_char_p(s.encode()),
         ct.c_double(font_size),
@@ -90,7 +100,7 @@ def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float
 
 def sign_pdf(pdf_data: bytes, opts: SignerOptions):
     buf = lib.folio_sign_pdf(
-        ct.c_char_p(pdf_data), ct.c_int32(len(pdf_data)), opts.handle
+        ct.c_char_p(pdf_data), ct.c_int32(len(pdf_data)), opts._handle
     )
     return _read_from_obj_buffer(buf)
 
@@ -99,14 +109,14 @@ def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions):
     CharPArray = ct.c_char_p * len(targets)
 
     buf = lib.folio_redact_text(
-        reader.handle, CharPArray(targets), ct.c_int32(len(targets)), opts.handle
+        reader._handle, CharPArray(targets), ct.c_int32(len(targets)), opts._handle
     )
     return _read_from_obj_buffer(buf)
 
 
 def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions):
     buf = lib.folio_redact_pattern(
-        reader.handle, ct.c_char_p(pattern.encode()), opts.handle
+        reader._handle, ct.c_char_p(pattern.encode()), opts._handle
     )
     return _read_from_obj_buffer(buf)
 
@@ -126,13 +136,13 @@ def redact_regions(
     Int32Array = ct.c_int32 * len(pages)
     DoubleArray = ct.c_double * len(x1s)
     buf = lib.folio_redact_regions(
-        reader.handle,
+        reader._handle,
         Int32Array(pages),
         DoubleArray(x1s),
         DoubleArray(y1s),
         DoubleArray(x2s),
         DoubleArray(y2s),
         ct.c_int32(len(x1s)),
-        opts.handle,
+        opts._handle,
     )
     return _read_from_obj_buffer(buf)

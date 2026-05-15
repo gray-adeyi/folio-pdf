@@ -14,14 +14,14 @@ class Image(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._image_handle = -1
+        self.__handle = -1
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._image_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_image_free(self.handle)
+        lib.folio_image_free(self._handle)
 
     @classmethod
     def load(cls, path: str | Path):
@@ -52,7 +52,7 @@ class Image(AbstractFolioObject):
         if isinstance(_path, Path):
             _path = _path.as_posix()
         obj = cls.__new__(cls)
-        obj._image_handle = lib.folio_image_load_png(ct.c_char_p(_path.encode()))
+        obj.__handle = lib.folio_image_load_png(ct.c_char_p(_path.encode()))
         return obj
 
     @classmethod
@@ -61,13 +61,13 @@ class Image(AbstractFolioObject):
         if isinstance(_path, Path):
             _path = _path.as_posix()
         obj = cls.__new__(cls)
-        obj._image_handle = lib.folio_image_load_tiff(ct.c_char_p(_path.encode()))
+        obj.__handle = lib.folio_image_load_tiff(ct.c_char_p(_path.encode()))
         return obj
 
     @classmethod
     def parse_jpeg(cls, data: bytes):
         obj = cls.__new__(cls)
-        obj._image_handle = lib.folio_image_parse_jpeg(
+        obj.__handle = lib.folio_image_parse_jpeg(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
         return obj
@@ -75,15 +75,15 @@ class Image(AbstractFolioObject):
     @classmethod
     def parse_png(cls, data: bytes):
         obj = cls.__new__(cls)
-        obj._image_handle = lib.folio_image_parse_jpeg(
+        obj.__handle = lib.folio_image_parse_jpeg(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
         return obj
 
     @property
     def width(self):
-        return lib.folio_image_width(self.handle)
+        return lib.folio_image_width(self._handle)
 
     @property
     def height(self):
-        return lib.folio_image_height(self.handle)
+        return lib.folio_image_height(self._handle)

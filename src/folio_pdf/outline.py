@@ -12,18 +12,27 @@ class Outline(AbstractFolioObject):
     _requires_close = False
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._outline_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     @classmethod
-    def _new_from_handle(cls, outline_handle: int):
+    def _new_from_handle(cls, handle: int):
         obj = cls.__new__(cls)
-        cls._outline_handle = outline_handle
+        cls.__handle = handle
         return obj
 
     def add_child(self, title: str, page_index: int) -> "Outline":
+        """Adds a child bookmark under an existing outline entry.
+
+        Args:
+            title: the bookmark label
+            page_index: zero-based target page index
+
+        Returns:
+            the outline object representing the added child
+        """
         outline_handle = lib.folio_outline_add_child(
-            ct.c_uint64(self._outline_handle),
+            self._handle,
             ct.c_char_p(title.encode()),
             ct.c_int32(page_index),
         )
@@ -32,8 +41,21 @@ class Outline(AbstractFolioObject):
     def add_child_xyz(
         self, title: str, page_index: int, left: float, top: float, zoom: float
     ) -> "Outline":
+        """Adds a child bookmark under an existing outline entry with an
+        explicit XYZ destination.
+
+        Args:
+            title: the bookmark label
+            page_index: zero-based target page index
+            left: left coordinate of the destination view
+            top: top coordinate of the destination view
+            zoom: zoom factor at the destination
+
+        Returns:
+            the outline object representing the added child
+        """
         outline_handle = lib.folio_outline_add_child(
-            ct.c_uint64(self._outline_handle),
+            self._handle,
             ct.c_char_p(title.encode()),
             ct.c_int32(page_index),
             ct.c_double(left),

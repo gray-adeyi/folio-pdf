@@ -14,21 +14,21 @@ class Form(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._form_handle = lib.folio_form_new()
+        self.__handle = lib.folio_form_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._form_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_form_free(self.handle)
+        lib.folio_form_free(self._handle)
 
     @_with_error_handling(FormException)
     def add_text_field(
         self, name: str, x1: float, y1: float, x2: float, y2: float, page_index: int
     ):
         return lib.folio_form_add_text_field(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -49,7 +49,7 @@ class Form(AbstractFolioObject):
         checked: bool,
     ):
         return lib.folio_form_add_checkbox(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -72,7 +72,7 @@ class Form(AbstractFolioObject):
     ):
         CharPArray = ct.c_char_p * len(options)
         return lib.folio_form_add_dropdown(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -94,7 +94,7 @@ class Form(AbstractFolioObject):
         page_index: int,
     ):
         return lib.folio_form_add_signature(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -114,7 +114,7 @@ class Form(AbstractFolioObject):
         page_index: int,
     ):
         return lib.folio_form_add_multiline_text_field(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -134,7 +134,7 @@ class Form(AbstractFolioObject):
         page_index: int,
     ):
         return lib.folio_form_add_password_field(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -156,7 +156,7 @@ class Form(AbstractFolioObject):
     ):
         CharPArray = ct.c_char_p * len(options)
         return lib.folio_form_add_listbox(
-            self.handle,
+            self._handle,
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -171,4 +171,4 @@ class Form(AbstractFolioObject):
 
     @_with_error_handling(FormException)
     def add_field(self, field: FormField):
-        return lib.folio_form_add_field(self.handle, field.handle)
+        return lib.folio_form_add_field(self._handle, field._handle)

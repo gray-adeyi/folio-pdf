@@ -14,8 +14,8 @@ class AreaBreak(AbstractFolioObject):
     _requires_close = False
 
     def __init__(self):
-        self._area_break_handle = lib.folio_area_break_new()
+        self.__handle = lib.folio_area_break_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._area_break_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)

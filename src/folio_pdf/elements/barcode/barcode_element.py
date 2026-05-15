@@ -19,27 +19,27 @@ class BarcodeElement(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, bc: Barcode, width: float):
-        self._barcode_handle = lib.folio_barcode_element_new(
-            bc.handle, ct.c_double(width)
-        )
+        self.__handle = lib.folio_barcode_element_new(bc._handle, ct.c_double(width))
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._barcode_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_barcode_element_free(self.handle)
+        lib.folio_barcode_element_free(self._handle)
 
     @_with_error_handling(BarcodeElementException)
     def height(self, height: float):
-        return lib.folio_barcode_element_set_height(self.handle, ct.c_double(height))
+        return lib.folio_barcode_element_set_height(self._handle, ct.c_double(height))
 
     @_with_error_handling(BarcodeElementException)
     def align(self, align: Alignments):
-        return lib.folio_barcode_element_set_align(self.handle, ct.c_int32(align.value))
+        return lib.folio_barcode_element_set_align(
+            self._handle, ct.c_int32(align.value)
+        )
 
     @_with_error_handling(BarcodeElementException)
     def alt_text(self, text: str):
         return lib.folio_barcode_element_set_alt_text(
-            self.handle, ct.c_char_p(text.encode())
+            self._handle, ct.c_char_p(text.encode())
         )

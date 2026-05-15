@@ -26,53 +26,53 @@ class Flex(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._flex_handle = lib.folio_flex_new()
+        self.__handle = lib.folio_flex_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._flex_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_flex_free(self.handle)
+        lib.folio_flex_free(self._handle)
 
     @_with_error_handling(FlexException)
     def add(self, element: "Element"):
-        return lib.folio_flex_add(self.handle, element.handle)
+        return lib.folio_flex_add(self._handle, element._handle)
 
     @_with_error_handling(FlexException)
     def add_item(self, item: FlexItem):
-        return lib.folio_flex_add_item(self.handle, item.handle)
+        return lib.folio_flex_add_item(self._handle, item._handle)
 
     @_with_error_handling(FlexException)
     def direction(self, direction: FlexDirections):
-        return lib.folio_flex_set_direction(self.handle, ct.c_int32(direction.value))
+        return lib.folio_flex_set_direction(self._handle, ct.c_int32(direction.value))
 
     @_with_error_handling(FlexException)
     def justify_content(self, justify: JustifyContents):
         return lib.folio_flex_set_justify_content(
-            self.handle, ct.c_int32(justify.value)
+            self._handle, ct.c_int32(justify.value)
         )
 
     @_with_error_handling(FlexException)
     def align_items(self, align: Alignments):
-        return lib.folio_flex_set_align_items(self.handle, ct.c_int32(align.value))
+        return lib.folio_flex_set_align_items(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(FlexException)
     def wrap(self, wrap: FlexWraps):
-        return lib.folio_flex_set_wrap(self.handle, ct.c_int32(wrap.value))
+        return lib.folio_flex_set_wrap(self._handle, ct.c_int32(wrap.value))
 
     @_with_error_handling(FlexException)
     def gap(self, gap: float):
-        return lib.folio_flex_set_gap(self.handle, ct.c_double(gap))
+        return lib.folio_flex_set_gap(self._handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
     def padding(self, padding: float):
-        return lib.folio_flex_set_padding(self.handle, ct.c_double(padding))
+        return lib.folio_flex_set_padding(self._handle, ct.c_double(padding))
 
     @_with_error_handling(FlexException)
     def background(self, color: Color):
         return lib.folio_flex_set_background(
-            self.handle,
+            self._handle,
             ct.c_double(color.r),
             ct.c_double(color.g),
             ct.c_double(color.b),
@@ -80,23 +80,23 @@ class Flex(AbstractFolioObject):
 
     @_with_error_handling(FlexException)
     def space_before(self, pts: float):
-        return lib.folio_flex_set_space_before(self.handle, ct.c_double(pts))
+        return lib.folio_flex_set_space_before(self._handle, ct.c_double(pts))
 
     @_with_error_handling(FlexException)
     def space_after(self, pts: float):
-        return lib.folio_flex_set_space_after(self.handle, ct.c_double(pts))
+        return lib.folio_flex_set_space_after(self._handle, ct.c_double(pts))
 
     @_with_error_handling(FlexException)
     def row_gap(self, gap: float):
-        return lib.folio_flex_set_row_gap(self.handle, ct.c_double(gap))
+        return lib.folio_flex_set_row_gap(self._handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
     def column_gap(self, gap: float):
-        return lib.folio_flex_set_column_gap(self.handle, ct.c_double(gap))
+        return lib.folio_flex_set_column_gap(self._handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
     def align_content(self, align: Alignments):
-        return lib.folio_flex_set_align_content(self.handle, ct.c_int32(align.value))
+        return lib.folio_flex_set_align_content(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(FlexException)
     def borders(
@@ -119,7 +119,7 @@ class Flex(AbstractFolioObject):
         left_blue: float,
     ):
         return lib.folio_flex_set_borders(
-            self.handle,
+            self._handle,
             ct.c_double(top_width),
             ct.c_double(top_red),
             ct.c_double(top_green),
@@ -141,7 +141,7 @@ class Flex(AbstractFolioObject):
     @_with_error_handling(FlexException)
     def padding_all(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_flex_set_padding_all(
-            self.handle,
+            self._handle,
             ct.c_double(top),
             ct.c_double(right),
             ct.c_double(bottom),
@@ -151,7 +151,7 @@ class Flex(AbstractFolioObject):
     @_with_error_handling(FlexException)
     def border(self, width: float, red: float, green: float, blue: float):
         return lib.folio_flex_set_border(
-            self.handle,
+            self._handle,
             ct.c_double(width),
             ct.c_double(red),
             ct.c_double(green),

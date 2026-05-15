@@ -14,33 +14,33 @@ class FormFiller(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, reader: PDFReader):
-        self._form_handle = lib.folio_form_filler_new(reader.handle)
+        self.__handle = lib.folio_form_filler_new(reader._handle)
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._form_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_form_filler_free(self.handle)
+        lib.folio_form_filler_free(self._handle)
 
     def field_names(self):
-        buf = lib.folio_form_filler_field_names(self.handle)
+        buf = lib.folio_form_filler_field_names(self._handle)
         return self._read_from_obj_buffer(buf)
 
     def get_value(self, field_name: str):
         buf = lib.folio_form_filler_get_value(
-            self.handle, ct.c_char_p(field_name.encode())
+            self._handle, ct.c_char_p(field_name.encode())
         )
         return self._read_from_obj_buffer(buf)
 
     @_with_error_handling(FormFillerException)
     def value(self, field_name: str, value: str):
         return lib.folio_form_filler_set_value(
-            self.handle, ct.c_char_p(field_name.encode()), ct.c_char_p(value.encode())
+            self._handle, ct.c_char_p(field_name.encode()), ct.c_char_p(value.encode())
         )
 
     @_with_error_handling(FormFillerException)
     def checkbox(self, field_name: str, checked: bool):
         return lib.folio_form_filler_set_checkbox(
-            self.handle, ct.c_char_p(field_name.encode()), ct.c_int32(checked)
+            self._handle, ct.c_char_p(field_name.encode()), ct.c_int32(checked)
         )

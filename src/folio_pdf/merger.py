@@ -17,18 +17,18 @@ class PDFMerger(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, readers: list[PDFReader]):
-        readers_handles = [reader.handle for reader in readers]
+        readers_handles = [reader._handle for reader in readers]
         UInt64Array = ct.c_uint64 * len(readers_handles)
-        self._merger_handle = lib.folio_reader_merge(
+        self.__handle = lib.folio_reader_merge(
             UInt64Array(readers_handles), ct.c_int32(len(readers_handles))
         )
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._merger_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_merge_free(self.handle)
+        lib.folio_merge_free(self._handle)
 
     @classmethod
     def merge_files(cls, paths: list[str | Path]):
@@ -66,7 +66,7 @@ class PDFMerger(AbstractFolioObject):
             ct.c_double(width),
             ct.c_double(height),
             ct.c_char_p(text.encode()),
-            font.handle,
+            font._handle,
             ct.c_double(font_size),
             ct.c_double(x),
             ct.c_double(y),
@@ -77,10 +77,10 @@ class PDFMerger(AbstractFolioObject):
         _path = path
         if isinstance(_path, Path):
             _path = _path.as_posix()
-        return lib.folio_merge_save(self.handle, ct.c_char_p(_path.encode()))
+        return lib.folio_merge_save(self._handle, ct.c_char_p(_path.encode()))
 
     def write_to_buffer(self) -> BytesIO:
-        buf = lib.folio_merge_write_to_buffer(self.handle)
+        buf = lib.folio_merge_write_to_buffer(self._handle)
         data = self._read_from_obj_buffer(buf)
         return BytesIO(data)
 
@@ -93,25 +93,25 @@ class PDFMerger(AbstractFolioObject):
 
     @_with_error_handling(PDFMergerException)
     def remove_page(self, index: int):
-        return lib.folio_merge_remove_page(self.handle, ct.c_int32(index))
+        return lib.folio_merge_remove_page(self._handle, ct.c_int32(index))
 
     @_with_error_handling(PDFMergerException)
     def rotate_page(self, index: int, degrees: int):
         return lib.folio_merge_rotate_page(
-            self.handle, ct.c_int32(index), ct.c_int32(degrees)
+            self._handle, ct.c_int32(index), ct.c_int32(degrees)
         )
 
     @_with_error_handling(PDFMergerException)
     def reorder_pages(self, order: list[int]):
         Int32Array = ct.c_int32 * len(order)
         return lib.folio_merge_reorder_pages(
-            self.handle, Int32Array(order), ct.c_int32(len(order))
+            self._handle, Int32Array(order), ct.c_int32(len(order))
         )
 
     @_with_error_handling(PDFMergerException)
     def crop_page(self, index: float, x1: float, y1: float, x2: float, y2: float):
         return lib.folio_merge_crop_page(
-            self.handle,
+            self._handle,
             ct.c_double(index),
             ct.c_double(x1),
             ct.c_double(y1),

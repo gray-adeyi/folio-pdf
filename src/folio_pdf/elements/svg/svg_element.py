@@ -16,27 +16,27 @@ class SVGElement(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, svg: SVG):
-        self._svg_element_handle = lib.folio_svg_element_new(svg.handle)
+        self.__handle = lib.folio_svg_element_new(svg._handle)
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._svg_element_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_svg_element_free(self.handle)
+        lib.folio_svg_element_free(self._handle)
 
     @_with_error_handling(SVGElementException)
     def size(self, w: float, h: float):
         return lib.folio_svg_element_set_size(
-            self.handle, ct.c_double(w), ct.c_double(h)
+            self._handle, ct.c_double(w), ct.c_double(h)
         )
 
     @_with_error_handling(SVGElementException)
     def align(self, align: Alignments):
-        return lib.folio_svg_element_set_align(self.handle, ct.c_int32(align.value))
+        return lib.folio_svg_element_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(SVGElementException)
     def alt_text(self, text: str):
         return lib.folio_svg_element_set_alt_text(
-            self.handle, ct.c_char_p(text.encode())
+            self._handle, ct.c_char_p(text.encode())
         )

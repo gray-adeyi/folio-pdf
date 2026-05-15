@@ -18,15 +18,15 @@ class Float(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, side: FloatSides, element: "Element"):
-        self._float_handle = lib.folio_float_new(ct.c_int32(side.value), element.handle)
+        self.__handle = lib.folio_float_new(ct.c_int32(side.value), element._handle)
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._float_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_float_free(self.handle)
+        lib.folio_float_free(self._handle)
 
     @_with_error_handling(FloatException)
     def margin(self, margin: float):
-        return lib.folio_float_set_margin(self.handle, ct.c_double(margin))
+        return lib.folio_float_set_margin(self._handle, ct.c_double(margin))

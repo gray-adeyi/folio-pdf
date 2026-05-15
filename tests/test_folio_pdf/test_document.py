@@ -19,19 +19,22 @@ class DocumentTestCase(TestCase):
 
     def test_can_create_doument_instance(self):
         with Document(100, 100) as doc:
-            self.assertGreater(doc.handle.value, 0)
+            self.assertGreater(doc._handle.value, 0)
 
     def test_can_create_a4_document_instance(self):
         with Document.new_with_size(PageSizes.A4) as doc:
-            self.assertGreater(doc.handle.value, 0)
+            self.assertGreater(doc._handle.value, 0)
 
     def test_can_set_document_title(self):
         self.assertIsInstance(self.doc.title("folio test document"), Document)
 
     def test_can_save(self):
-        doc = Document.new_with_size(PageSizes.A4)
-        doc.title("folio test document")
-        doc.watermark("Folio pdf test")
+        doc = (
+            Document.new_with_size(PageSizes.A4)
+            .title("folio test document")
+            .watermark("Folio pdf test")
+        )
+
         page = doc.add_page()
         font = Font(StandardPDFFonts.HELVETICA_BOLD)
         page.add_text("I love folio pdf", font, 14, 100, 100)

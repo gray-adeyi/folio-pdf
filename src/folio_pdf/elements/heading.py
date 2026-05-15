@@ -40,23 +40,23 @@ class Heading(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, text: str, level: HeadingLevels):
-        self._heading_handle = lib.folio_heading_new(
+        self.__handle = lib.folio_heading_new(
             ct.c_char_p(text.encode()), ct.c_int32(level.value)
         )
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._heading_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     @classmethod
     def new_with_font(
         cls, text: str, level: HeadingLevels, font: Font, font_size: float
     ):
         obj = cls.__new__(cls)
-        obj._heading_handle = lib.folio_heading_new_with_font(
+        obj.__handle = lib.folio_heading_new_with_font(
             ct.c_char_p(text.encode()),
             ct.c_int32(level.value),
-            font.handle,
+            font._handle,
             ct.c_double(font_size),
         )
         return obj
@@ -64,18 +64,18 @@ class Heading(AbstractFolioObject):
     @classmethod
     def new_embedded(cls, text: str, level: HeadingLevels, font: Font):
         obj = cls.__new__(cls)
-        obj._heading_handle = lib.folio_heading_new_embedded(
-            ct.c_char_p(text.encode()), ct.c_int32(level.value), font.handle
+        obj.__handle = lib.folio_heading_new_embedded(
+            ct.c_char_p(text.encode()), ct.c_int32(level.value), font._handle
         )
         return obj
 
     def close(self):
-        lib.folio_heading_free(self.handle)
+        lib.folio_heading_free(self._handle)
 
     @_with_error_handling(HeadingException)
     def align(self, align: Alignments):
-        return lib.folio_heading_set_align(self.handle, ct.c_int32(align.value))
+        return lib.folio_heading_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(HeadingException)
     def runs(self, run_list: RunList):
-        return lib.folio_heading_set_runs(self.handle, run_list.handle)
+        return lib.folio_heading_set_runs(self._handle, run_list._handle)

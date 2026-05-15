@@ -16,14 +16,14 @@ class List(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self, font: Font, font_size: float):
-        self._list_handle = lib.folio_list_new(font.handle, ct.c_double(font_size))
+        self.__handle = lib.folio_list_new(font._handle, ct.c_double(font_size))
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._list_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_list_free(self.handle)
+        lib.folio_list_free(self._handle)
 
     @classmethod
     def new_embedded(
@@ -32,36 +32,34 @@ class List(AbstractFolioObject):
         font_size: float,
     ):
         obj = cls.__new__(cls)
-        obj._list_handle = lib.folio_list_new_embedded(
-            font.handle, ct.c_double(font_size)
-        )
+        obj.__handle = lib.folio_list_new_embedded(font._handle, ct.c_double(font_size))
         return obj
 
     @classmethod
     def _new_from_handle(cls, handle: int):
         obj = cls.__new__(cls)
-        obj._list_handle = handle
+        obj.__handle = handle
         return obj
 
     @_with_error_handling(ListException)
     def style(self, style: ListStyles):
-        return lib.folio_list_set_style(self.handle, ct.c_int32(style))
+        return lib.folio_list_set_style(self._handle, ct.c_int32(style))
 
     @_with_error_handling(ListException)
     def indent(self, indent: float):
-        return lib.folio_list_set_indent(self.handle, ct.c_double(indent))
+        return lib.folio_list_set_indent(self._handle, ct.c_double(indent))
 
     @_with_error_handling(ListException)
     def leading(self, leading: float):
-        return lib.folio_list_set_leading(self.handle, ct.c_double(leading))
+        return lib.folio_list_set_leading(self._handle, ct.c_double(leading))
 
     @_with_error_handling(ListException)
     def direction(self, dir: Directions):
-        return lib.folio_list_set_direction(self.handle, ct.c_int32(dir.value))
+        return lib.folio_list_set_direction(self._handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ListException)
     def add_item(self, text: str):
-        return lib.folio_list_add_item(self.handle, ct.c_char_p(text.encode()))
+        return lib.folio_list_add_item(self._handle, ct.c_char_p(text.encode()))
 
     def add_nested_item(
         self, text: str
@@ -69,8 +67,10 @@ class List(AbstractFolioObject):
 
     @_with_error_handling(ListException)
     def add_item_runs(self, run_list: RunList):
-        return lib.folio_list_add_item_runs(self.handle, run_list.handle)
+        return lib.folio_list_add_item_runs(self._handle, run_list._handle)
 
     def add_item_runs_with_sublist(self, run_list: RunList) -> "List":
-        handle = lib.folio_list_add_item_runs_with_sublist(self.handle, run_list.handle)
+        handle = lib.folio_list_add_item_runs_with_sublist(
+            self._handle, run_list._handle
+        )
         return self._new_from_handle(handle)

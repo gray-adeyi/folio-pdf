@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 from .area_break import AreaBreak
 from .barcode import Barcode, BarcodeElement
-from .columns import Column
+from .columns import Columns
 from .div import Div
 from .flex import Flex, FlexItem
 from .float import Float

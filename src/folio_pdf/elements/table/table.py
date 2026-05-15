@@ -16,52 +16,52 @@ class Table(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._table_handle = lib.folio_table_new()
+        self.__handle = lib.folio_table_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._table_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_table_free(self.handle)
+        lib.folio_table_free(self._handle)
 
     @_with_error_handling(TableException)
     def column_widths(self, widths: list[float]):
         DoubleArray = ct.c_double * len(widths)
         return lib.folio_table_set_column_widths(
-            self.handle, DoubleArray(widths), ct.c_int32(len(widths))
+            self._handle, DoubleArray(widths), ct.c_int32(len(widths))
         )
 
     @_with_error_handling(TableException)
     def border_collapse(self, enabled: bool):
-        return lib.folio_table_set_border_collapse(self.handle, ct.c_bool(enabled))
+        return lib.folio_table_set_border_collapse(self._handle, ct.c_bool(enabled))
 
     @_with_error_handling(TableException)
     def cell_spacing(self, h: float, v: float):
         return lib.folio_table_set_cell_spacing(
-            self.handle, ct.c_double(h), ct.c_double(v)
+            self._handle, ct.c_double(h), ct.c_double(v)
         )
 
     @_with_error_handling(TableException)
     def auto_column_widths(self):
-        return lib.folio_table_set_auto_column_widths(self.handle)
+        return lib.folio_table_set_auto_column_widths(self._handle)
 
     @_with_error_handling(TableException)
     def direction(self, dir: Directions):
-        return lib.folio_table_set_direction(self.handle, ct.c_int32(dir.value))
+        return lib.folio_table_set_direction(self._handle, ct.c_int32(dir.value))
 
     @_with_error_handling(TableException)
     def min_width(self, pts: float):
         return lib.folio_table_set_min_width(ct.c_double(pts))
 
     def add_row(self) -> TableRow:
-        row_handle = lib.folio_table_add_row(self.handle)
+        row_handle = lib.folio_table_add_row(self._handle)
         return TableRow._new_from_handle(row_handle)
 
     def add_header_row(self) -> TableRow:
-        row_handle = lib.folio_table_add_header_row(self.handle)
+        row_handle = lib.folio_table_add_header_row(self._handle)
         return TableRow._new_from_handle(row_handle)
 
     def add_footer_row(self) -> TableRow:
-        row_handle = lib.folio_table_add_footer_row(self.handle)
+        row_handle = lib.folio_table_add_footer_row(self._handle)
         return TableRow._new_from_handle(row_handle)

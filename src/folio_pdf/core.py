@@ -80,8 +80,8 @@ class AbstractFolioObject:
 
     @property
     @abstractmethod
-    def handle(self) -> ct.c_uint64:
-        """Returns the object handle"""
+    def _handle(self) -> ct.c_uint64:
+        """Returns the native object handle"""
         ...
 
     def close(self):

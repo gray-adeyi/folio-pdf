@@ -16,14 +16,14 @@ class TabbedLine(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self._tabbed_line_handle = lib.folio_tabbed_line_new()
+        self.__handle = lib.folio_tabbed_line_new()
 
     @property
-    def handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self._tabbed_line_handle)
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
 
     def close(self):
-        lib.folio_tabbed_line_free(self.handle)
+        lib.folio_tabbed_line_free(self._handle)
 
     @classmethod
     def new_embedded(
@@ -36,7 +36,7 @@ class TabbedLine(AbstractFolioObject):
     ):  # TODO: Find out
         obj = cls.__new__(cls)
         obj._tabbed_line_handle = lib.folio_tabbed_line_new_embedded(
-            font.handle,
+            font._handle,
             ct.c_double(font_size),
         )
         return obj
@@ -45,13 +45,13 @@ class TabbedLine(AbstractFolioObject):
     def segments(self, segments: list[str]):
         CharPArray = ct.c_char_p * len(segments)
         return lib.folio_tabbed_line_set_segments(
-            self.handle, CharPArray(segments), ct.c_int32(len(segments))
+            self._handle, CharPArray(segments), ct.c_int32(len(segments))
         )
 
     @_with_error_handling(TabbedLineException)
     def color(self, color: Color):
         return lib.folio_tabbed_line_set_color(
-            self.handle,
+            self._handle,
             ct.c_double(color.r),
             ct.c_double(color.g),
             ct.c_double(color.b),
@@ -59,4 +59,4 @@ class TabbedLine(AbstractFolioObject):
 
     @_with_error_handling(TabbedLineException)
     def leading(self, leading: float):
-        return lib.folio_tabbed_line_set_leading(self.handle, ct.c_double(leading))
+        return lib.folio_tabbed_line_set_leading(self._handle, ct.c_double(leading))

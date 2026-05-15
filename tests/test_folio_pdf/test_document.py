@@ -17,7 +17,7 @@ class DocumentTestCase(TestCase):
     def tearDownClass(cls):
         cls.doc.close()
 
-    def test_can_create_doument_instance(self):
+    def test_can_create_document_instance(self):
         with Document(100, 100) as doc:
             self.assertGreater(doc._handle.value, 0)
 
@@ -42,6 +42,6 @@ class DocumentTestCase(TestCase):
         doc.save(filename)
         filepath = Path(filename)
         self.assertTrue(filepath.exists())  # saved pdf does exist
-        self.assertTrue(filepath.is_file())  # saved pdf is file
+        self.assertTrue(filepath.is_file())  # saved pdf is a file
         self.assertGreater(filepath.stat().st_size, 0)  # saved pdf is non-empty
         os.remove(filepath)

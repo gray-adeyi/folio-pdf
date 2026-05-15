@@ -7,6 +7,7 @@ import ctypes as ct
 from io import BytesIO
 from pathlib import Path
 
+from folio_pdf.color import Color
 from folio_pdf.document import Document
 from folio_pdf.font import Font
 from folio_pdf.merger import PDFMerger
@@ -27,6 +28,7 @@ __all__ = [
     "PDFReader",
     "RedactorOptions",
     "SignerOptions",
+    "Color",
 ]
 
 

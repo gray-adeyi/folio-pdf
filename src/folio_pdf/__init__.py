@@ -84,12 +84,20 @@ def html_parse_css_length(s: str, font_size: float, relative_to: float) -> float
     """Parses a CSS length string and returns its value in points.
 
     Args:
-        s: the CSS length expression
-        font_size: the current font size in points (used for {@code em}/{@code rem})
-        relative_to: the reference length in points (used for {@code %})
+        s: the CSS length expression (e.g., `"1in"`, `"16px"`, `"50%"`, `"2em"`)
+        font_size: the current font size in points (used for `em`/`rem`)
+        relative_to: the reference length in points (used for `%`)
 
     Returns:
         the parsed length in points
+
+
+    Example:
+        ```python
+        pts = html_parse_css_length("1in", 12, 0) # 72.0
+        em = html_parse_css_length("2em", 16,0) # 32.0
+        pct = html_parse_css_length("50%", 12, 100) # 50.0
+        ```
     """
     return lib.folio_html_parse_css_length(
         ct.c_char_p(s.encode()),

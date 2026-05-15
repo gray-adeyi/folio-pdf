@@ -10,7 +10,7 @@ class Color:
 
     Common colors are available via the `Colors` enum that can be used to call
     the `from_named` class method. New colors can be created from
-    normalised floats from instantiating the color class, 8-bit integers via `from_rgb`
+    normalized floats from instantiating the color class, 8-bit integers via `from_rgb`
     class method, or a CSS hex string via `from_hex` class method.
 
     Examples:

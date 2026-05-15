@@ -33,7 +33,7 @@ __all__ = [
     "Flex",
     "FlexItem",
     "AreaBreak",
-    "Column",
+    "Columns",
     "Div",
     "Float",
     "Grid",

@@ -13,6 +13,9 @@ from .barcode import Barcode
 
 
 class BarcodeElement(AbstractFolioObject):
+    """A barcode element that renders QR codes, Code 128, or
+    EAN-13 barcodes into a PDF document."""
+
     _requires_close = True
 
     def __init__(self, bc: Barcode, width: float):
@@ -28,15 +31,15 @@ class BarcodeElement(AbstractFolioObject):
         lib.folio_barcode_element_free(self.handle)
 
     @_with_error_handling(BarcodeElementException)
-    def set_height(self, height: float):
+    def height(self, height: float):
         return lib.folio_barcode_element_set_height(self.handle, ct.c_double(height))
 
     @_with_error_handling(BarcodeElementException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_barcode_element_set_align(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(BarcodeElementException)
-    def set_alt_text(self, text: str):
+    def alt_text(self, text: str):
         return lib.folio_barcode_element_set_alt_text(
             self.handle, ct.c_char_p(text.encode())
         )

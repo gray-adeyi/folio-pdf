@@ -9,6 +9,8 @@ from folio_pdf.core import AbstractFolioObject, lib
 
 
 class AreaBreak(AbstractFolioObject):
+    """A page-break element that forces subsequent content onto a new page."""
+
     _requires_close = False
 
     def __init__(self):

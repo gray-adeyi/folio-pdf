@@ -26,29 +26,29 @@ class ImageElement(AbstractFolioObject):
         lib.folio_image_element_free(self.handle)
 
     @_with_error_handling(ImageElementException)
-    def set_size(self, width: float, height: float):
+    def size(self, width: float, height: float):
         return lib.folio_image_element_set_size(
             self.handle, ct.c_double(width), ct.c_double(height)
         )
 
     @_with_error_handling(ImageElementException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_image_element_set_align(self.handle, ct.c_int32(align))
 
     @_with_error_handling(ImageElementException)
-    def set_alt_text(self, text: str):
+    def alt_text(self, text: str):
         return lib.folio_image_element_set_align(
             self.handle, ct.c_char_p(text.encode())
         )
 
     @_with_error_handling(ImageElementException)
-    def set_object_fit(self, fit: str):
+    def object_fit(self, fit: str):
         return lib.folio_image_element_set_object_fit(
             self.handle, ct.c_char_p(fit.encode())
         )
 
     @_with_error_handling(ImageElementException)
-    def set_object_position(self, pos: str):
+    def object_position(self, pos: str):
         return lib.folio_image_element_set_object_position(
             self.handle, ct.c_char_p(pos.encode())
         )

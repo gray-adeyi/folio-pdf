@@ -29,25 +29,25 @@ class SignerOptions(AbstractFolioObject):
         lib.folio_sign_opts_free(self.handle)
 
     @_with_error_handling(SignerOptionsException)
-    def set_name(self, name: str):
+    def name(self, name: str):
         return lib.folio_sign_opts_set_name(ct.c_char_p(name.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def set_reason(self, reason: str):
+    def reason(self, reason: str):
         return lib.folio_sign_opts_set_reason(ct.c_char_p(reason.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def set_location(self, location: str):
+    def location(self, location: str):
         return lib.folio_sign_opts_set_location(ct.c_char_p(location.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def set_contact_info(self, info: str):
+    def contact_info(self, info: str):
         return lib.folio_sign_opts_set_contact_info(ct.c_char_p(info.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def set_tsa(self, tsa: TSAClient):
+    def tsa(self, tsa: TSAClient):
         return lib.folio_sign_opts_set_tsa(tsa.handle)
 
     @_with_error_handling(SignerOptionsException)
-    def set_ocsp(self, ocsp: OCSPClient):
+    def ocsp(self, ocsp: OCSPClient):
         return lib.folio_sign_opts_set_ocsp(ocsp.handle)

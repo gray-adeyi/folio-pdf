@@ -28,5 +28,5 @@ class Float(AbstractFolioObject):
         lib.folio_float_free(self.handle)
 
     @_with_error_handling(FloatException)
-    def set_margin(self, margin: float):
+    def margin(self, margin: float):
         return lib.folio_float_set_margin(self.handle, ct.c_double(margin))

@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import RunListException
 from folio_pdf.font import Font
@@ -24,31 +25,33 @@ class RunList(AbstractFolioObject):
         lib.folio_run_list_free(self.handle)
 
     @_with_error_handling(RunListException)
-    def add(
-        self, text: str, font: Font, font_size: float, r: float, g: float, b: float
-    ):
+    def add(self, text: str, font: Font, font_size: float, color: Color):
         return lib.folio_run_list_add(
             self.handle,
             ct.c_char_p(text.encode()),
             font.handle,
             ct.c_double(font_size),
-            ct.c_double(r),
-            ct.c_double(g),
-            ct.c_double(b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(RunListException)
     def add_embedded(
-        self, text: str, font: Font, font_size: float, r: float, g: float, b: float
+        self,
+        text: str,
+        font: Font,
+        font_size: float,
+        color: Color,
     ):
         return lib.folio_run_list_add_embedded(
             self.handle,
             ct.c_char_p(text.encode()),
             font.handle,
             ct.c_double(font_size),
-            ct.c_double(r),
-            ct.c_double(g),
-            ct.c_double(b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(RunListException)
@@ -72,7 +75,10 @@ class RunList(AbstractFolioObject):
         )
 
     @_with_error_handling(RunListException)
-    def last_set_background_color(self, r: float, g: float, b: float):
+    def last_set_background_color(self, color: Color):
         return lib.folio_run_list_last_set_background_color(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )

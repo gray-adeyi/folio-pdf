@@ -40,15 +40,18 @@ class PDFMerger(AbstractFolioObject):
         )
         return obj
 
-    def set_info(self, title: str, author: str):
+    @_with_error_handling(PDFMergerException)
+    def info(self, title: str, author: str):
         return lib.folio_merge_set_info(
             ct.c_char_p(title.encode()),
             ct.c_char_p(author.encode()),
         )
 
+    @_with_error_handling(PDFMergerException)
     def add_blank_page(self, width: float, height: float):
         return lib.folio_merge_add_blank_page(ct.c_double(width), ct.c_double(height))
 
+    @_with_error_handling(PDFMergerException)
     def add_page_with_text(
         self,
         width: float,

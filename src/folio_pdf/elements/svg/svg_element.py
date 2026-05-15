@@ -26,17 +26,17 @@ class SVGElement(AbstractFolioObject):
         lib.folio_svg_element_free(self.handle)
 
     @_with_error_handling(SVGElementException)
-    def set_size(self, w: float, h: float):
+    def size(self, w: float, h: float):
         return lib.folio_svg_element_set_size(
             self.handle, ct.c_double(w), ct.c_double(h)
         )
 
     @_with_error_handling(SVGElementException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_svg_element_set_align(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(SVGElementException)
-    def set_alt_text(self, text: str):
+    def alt_text(self, text: str):
         return lib.folio_svg_element_set_alt_text(
             self.handle, ct.c_char_p(text.encode())
         )

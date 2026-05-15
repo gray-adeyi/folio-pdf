@@ -3,9 +3,12 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
+from folio_pdf.color import Color
+
 import ctypes as ct
 
-from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.exceptions import FormFieldException
 
 
 class FormField(AbstractFolioObject):
@@ -52,3 +55,33 @@ class FormField(AbstractFolioObject):
             ct.c_int32(checked),
         )
         return obj
+
+    @_with_error_handling(FormFieldException)
+    def value(self, value: str):
+        return lib.folio_form_field_set_value(ct.c_char_p(value.encode()))
+
+    @_with_error_handling(FormFieldException)
+    def read_only(self):
+        return lib.folio_form_field_set_read_only()
+
+    @_with_error_handling(FormFieldException)
+    def required(self):
+        return lib.folio_form_field_set_required()
+
+    @_with_error_handling(FormFieldException)
+    def background_color(self, color: Color):
+        return lib.folio_form_field_set_background_color(
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
+        )
+
+    @_with_error_handling(FormFieldException)
+    def border_color(self, color: Color):
+        return lib.folio_form_field_set_border_color(
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
+        )

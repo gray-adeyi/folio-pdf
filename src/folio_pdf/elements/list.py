@@ -44,19 +44,19 @@ class List(AbstractFolioObject):
         return obj
 
     @_with_error_handling(ListException)
-    def set_style(self, style: ListStyles):
+    def style(self, style: ListStyles):
         return lib.folio_list_set_style(self.handle, ct.c_int32(style))
 
     @_with_error_handling(ListException)
-    def set_indent(self, indent: float):
+    def indent(self, indent: float):
         return lib.folio_list_set_indent(self.handle, ct.c_double(indent))
 
     @_with_error_handling(ListException)
-    def set_leading(self, leading: float):
+    def leading(self, leading: float):
         return lib.folio_list_set_leading(self.handle, ct.c_double(leading))
 
     @_with_error_handling(ListException)
-    def set_direction(self, dir: Directions):
+    def direction(self, dir: Directions):
         return lib.folio_list_set_direction(self.handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ListException)

@@ -28,23 +28,23 @@ class FlexItem(AbstractFolioObject):
         lib.folio_flex_item_free(self.handle)
 
     @_with_error_handling(FlexItemException)
-    def set_grow(self, grow: float):
+    def grow(self, grow: float):
         return lib.folio_flex_item_set_grow(self.handle, ct.c_double(grow))
 
     @_with_error_handling(FlexItemException)
-    def set_shrink(self, shrink: float):
+    def shrink(self, shrink: float):
         return lib.folio_flex_item_set_shrink(self.handle, ct.c_double(shrink))
 
     @_with_error_handling(FlexItemException)
-    def set_basis(self, basis: float):
+    def basis(self, basis: float):
         return lib.folio_flex_item_set_basis(self.handle, ct.c_double(basis))
 
     @_with_error_handling(FlexItemException)
-    def set_align_self(self, align: Alignments):
+    def align_self(self, align: Alignments):
         return lib.folio_flex_item_set_align_self(self.handle, ct.c_int32(align))
 
     @_with_error_handling(FlexItemException)
-    def set_margin(self, top: float, right: float, bottom: float, left: float):
+    def margin(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_flex_item_set_margins(
             self.handle,
             ct.c_double(top),

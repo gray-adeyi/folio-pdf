@@ -6,16 +6,18 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import (
     Alignments,
     EncryptionAlgorithms,
     EncryptionPermissions,
+    PageSizes,
     PDFALevels,
 )
-from folio_pdf.exceptions import DocumentException, _NOT_IMPLEMENTED_ERROR
+from folio_pdf.exceptions import _NOT_IMPLEMENTED_ERROR, DocumentException
 from folio_pdf.font import Font
 from folio_pdf.forms import Form
 from folio_pdf.outline import Outline
@@ -24,6 +26,10 @@ from folio_pdf.write_options import WriteOptions
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
+
+# def page_decorator_fn(page_index: int, total_pages: int,
+# page_handle: ct.c_uint64,user_data: bytes) -> None: ...
+PageDecoratorFn = Callable[[int, int, ct.c_uint64, bytes], None]
 
 lib.folio_document_new.argtypes = [ct.c_double, ct.c_double]
 lib.folio_document_new.restype = ct.c_uint64
@@ -293,11 +299,19 @@ class Document(AbstractFolioObject):
         return ct.c_uint64(self._doc_handle)
 
     @classmethod
-    def new_a4(cls) -> "Document":
+    def new_with_size(cls, size: PageSizes) -> "Document":
         """Creates a new PDF document with A4 dimensions"""
-        obj = cls.__new__(cls)
-        cls._doc_handle = lib.folio_document_new_a4()
-        return obj
+        match size:
+            case PageSizes.A4:
+                obj = cls.__new__(cls)
+                cls._doc_handle = lib.folio_document_new_a4()
+                return obj
+            case PageSizes.LETTER:
+                return cls(612, 792)
+            case PageSizes.LEGAL:
+                return cls(612, 1008)
+            case PageSizes.TABLOID:
+                return cls(792, 1224)
 
     @classmethod
     def _new_from_handle(cls, doc_handle: int) -> "Document":
@@ -306,17 +320,17 @@ class Document(AbstractFolioObject):
         return obj
 
     @_with_error_handling(DocumentException)
-    def set_title(self, value: str):
+    def title(self, value: str):
         """Sets the title of the PDF document"""
         return lib.folio_document_set_title(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
-    def set_author(self, value: str):
+    def author(self, value: str):
         """Sets the author of the PDF document"""
         return lib.folio_document_author(self.handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
-    def set_margins(self, top: float, right: float, bottom: float, left: float):
+    def margins(self, top: float, right: float, bottom: float, left: float):
         """
         It sets the page margins used by the layout engine (in PDF points).
 
@@ -383,7 +397,7 @@ class Document(AbstractFolioObject):
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
-    def set_tagged(self, enabled: bool):
+    def tagged(self, enabled: bool):
         """
         Enables tagged PDF output (PDF/UA foundation).
 
@@ -395,11 +409,11 @@ class Document(AbstractFolioObject):
         return lib.folio_set_tagged(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def set_pdfa(self, level: PDFALevels):
+    def pdfa(self, level: PDFALevels):
         return lib.folio_document_set_pdfa(self.handle, ct.c_int32(level.value))
 
     @_with_error_handling(DocumentException)
-    def set_actual_text(self, enabled: bool):
+    def actual_text(self, enabled: bool):
         """
         It controls whether the document wraps shaped Arabic words in
         ISO 32000-2 §14.9.4 /Span /ActualText marked-content sequences. When
@@ -412,7 +426,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_actual_text(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def set_encryption(
+    def encryption(
         self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithms
     ):
         return lib.folio_document_set_encryption(
@@ -423,7 +437,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_encryption_with_permissions(
+    def encryption_with_permissions(
         self,
         user_password: str,
         owner_password: str,
@@ -448,7 +462,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_validate_pdfa(self.handle)
 
     @_with_error_handling(DocumentException)
-    def set_auto_bookmarks(self, enabled: bool):
+    def auto_bookmarks(self, enabled: bool):
         """
         It Enables automatic bookmark/outline generation from
         layout headings (H1-H6). When enabled, each Heading element in the
@@ -457,17 +471,12 @@ class Document(AbstractFolioObject):
         """
         return lib.folio_document_set_auto_bookmarks(self.handle, ct.c_int32(enabled))
 
-    def set_form(self, form: Form):
-        raise _NOT_IMPLEMENTED_ERROR
-
-    def set_header(self):
-        raise _NOT_IMPLEMENTED_ERROR
-
-    def set_footer(self):
-        raise _NOT_IMPLEMENTED_ERROR
+    @_with_error_handling(DocumentException)
+    def form(self, form: Form):
+        return lib.folio_document_set_form(self.handle, form.handle)
 
     @_with_error_handling(DocumentException)
-    def set_header_text(self, value: str, font: Font, size: float, align: Alignments):
+    def header_text(self, value: str, font: Font, size: float, align: Alignments):
         return lib.folio_document_set_header_text(
             self.handle,
             ct.c_char_p(value.encode()),
@@ -477,7 +486,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_footer_text(self, value: str, font: Font, size: float, align: Alignments):
+    def footer_text(self, value: str, font: Font, size: float, align: Alignments):
         return lib.folio_document_set_footer_text(
             self.handle,
             ct.c_char_p(value.encode()),
@@ -487,17 +496,15 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_watermark(self, text: str):
+    def watermark(self, text: str):
         return lib.folio_document_set_watermark(self.handle, ct.c_char_p(text.encode()))
 
     @_with_error_handling(DocumentException)
-    def set_watermark_config(
+    def watermark_config(
         self,
         text: str,
         font_size: float,
-        color_r: float,
-        color_g: float,
-        color_b: float,
+        color: Color,
         angle: float,
         opacity: float,
     ):
@@ -505,9 +512,9 @@ class Document(AbstractFolioObject):
             self.handle,
             ct.c_char_p(text.encode()),
             ct.c_double(font_size),
-            ct.c_double(color_r),
-            ct.c_double(color_g),
-            ct.c_double(color_b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
             ct.c_double(angle),
             ct.c_double(opacity),
         )
@@ -554,7 +561,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_viewer_preferences(
+    def viewer_preferences(
         self,
         page_layout: str,
         page_mode: str,
@@ -622,7 +629,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_first_margins(self, top: float, right: float, bottom: float, left: float):
+    def first_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_first_margins(
             self.handle,
             ct.c_double(top),
@@ -632,7 +639,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_left_margins(self, top: float, right: float, bottom: float, left: float):
+    def left_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_left_margins(
             self.handle,
             ct.c_double(top),
@@ -642,7 +649,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def set_right_margins(self, top: float, right: float, bottom: float, left: float):
+    def right_margins(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_document_set_right_margins(
             self.handle,
             ct.c_double(top),

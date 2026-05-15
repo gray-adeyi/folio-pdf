@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments, VerticalAlignments
 from folio_pdf.exceptions import TableCellException
@@ -30,15 +31,15 @@ class TableCell(AbstractFolioObject):
         return obj
 
     @_with_error_handling(TableCellException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_cell_set_align(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(TableCellException)
-    def set_padding(self, padding: float):
+    def padding(self, padding: float):
         return lib.folio_cell_set_padding(self.handle, ct.c_double(padding))
 
     @_with_error_handling(TableCellException)
-    def set_padding_sides(self, top: float, right: float, bottom: float, left: float):
+    def padding_sides(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_cell_set_padding_sides(
             self.handle,
             ct.c_double(top),
@@ -48,35 +49,38 @@ class TableCell(AbstractFolioObject):
         )
 
     @_with_error_handling(TableCellException)
-    def set_valign(self, valign: VerticalAlignments):
+    def valign(self, valign: VerticalAlignments):
         return lib.folio_cell_set_valign(self.handle, ct.c_int32(valign))
 
     @_with_error_handling(TableCellException)
-    def set_background(self, r: float, g: float, b: float):
+    def background(self, color: Color):
         return lib.folio_cell_set_background(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(TableCellException)
-    def set_colspan(self, n: int):
+    def colspan(self, n: int):
         return lib.folio_cell_set_colspan(self.handle, ct.c_int32(n))
 
     @_with_error_handling(TableCellException)
-    def set_rowspan(self, n: int):
+    def rowspan(self, n: int):
         return lib.folio_cell_set_rowspan(self.handle, ct.c_int32(n))
 
     @_with_error_handling(TableCellException)
-    def set_border(self, width: float, r: float, g: float, b: float):
+    def border(self, width: float, color: Color):
         return lib.folio_cell_set_border(
             self.handle,
             ct.c_double(width),
-            ct.c_double(r),
-            ct.c_double(g),
-            ct.c_double(b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(TableCellException)
-    def set_borders(
+    def borders(
         self,
         top_width: float,
         top_red: float,
@@ -115,15 +119,15 @@ class TableCell(AbstractFolioObject):
         )
 
     @_with_error_handling(TableCellException)
-    def set_width_hint(self, pts: float):
+    def width_hint(self, pts: float):
         return lib.folio_cell_set_width_hint(self.handle, ct.c_double(pts))
 
     @_with_error_handling(TableCellException)
-    def set_border_radius(self, radius: float):
+    def border_radius(self, radius: float):
         return lib.folio_cell_set_border_radius(self.handle, ct.c_double(radius))
 
     @_with_error_handling(TableCellException)
-    def set_border_radius_per_corner(
+    def border_radius_per_corner(
         self, top_left: float, top_right: float, bottom_right: float, bottom_left: float
     ):
         return lib.folio_cell_set_border_radius_per_corner(

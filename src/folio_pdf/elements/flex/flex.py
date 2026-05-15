@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 from typing import TYPE_CHECKING
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import (
     Alignments,
@@ -43,59 +44,62 @@ class Flex(AbstractFolioObject):
         return lib.folio_flex_add_item(self.handle, item.handle)
 
     @_with_error_handling(FlexException)
-    def set_direction(self, direction: FlexDirections):
+    def direction(self, direction: FlexDirections):
         return lib.folio_flex_set_direction(self.handle, ct.c_int32(direction.value))
 
     @_with_error_handling(FlexException)
-    def set_justify_content(self, justify: JustifyContents):
+    def justify_content(self, justify: JustifyContents):
         return lib.folio_flex_set_justify_content(
             self.handle, ct.c_int32(justify.value)
         )
 
     @_with_error_handling(FlexException)
-    def set_align_items(self, align: Alignments):
+    def align_items(self, align: Alignments):
         return lib.folio_flex_set_align_items(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(FlexException)
-    def set_wrap(self, wrap: FlexWraps):
+    def wrap(self, wrap: FlexWraps):
         return lib.folio_flex_set_wrap(self.handle, ct.c_int32(wrap.value))
 
     @_with_error_handling(FlexException)
-    def set_gap(self, gap: float):
+    def gap(self, gap: float):
         return lib.folio_flex_set_gap(self.handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
-    def set_padding(self, padding: float):
+    def padding(self, padding: float):
         return lib.folio_flex_set_padding(self.handle, ct.c_double(padding))
 
     @_with_error_handling(FlexException)
-    def set_background(self, r: float, g: float, b: float):
+    def background(self, color: Color):
         return lib.folio_flex_set_background(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(FlexException)
-    def set_space_before(self, pts: float):
+    def space_before(self, pts: float):
         return lib.folio_flex_set_space_before(self.handle, ct.c_double(pts))
 
     @_with_error_handling(FlexException)
-    def set_space_after(self, pts: float):
+    def space_after(self, pts: float):
         return lib.folio_flex_set_space_after(self.handle, ct.c_double(pts))
 
     @_with_error_handling(FlexException)
-    def set_row_gap(self, gap: float):
+    def row_gap(self, gap: float):
         return lib.folio_flex_set_row_gap(self.handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
-    def set_column_gap(self, gap: float):
+    def column_gap(self, gap: float):
         return lib.folio_flex_set_column_gap(self.handle, ct.c_double(gap))
 
     @_with_error_handling(FlexException)
-    def set_align_content(self, align: Alignments):
+    def align_content(self, align: Alignments):
         return lib.folio_flex_set_align_content(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(FlexException)
-    def set_borders(
+    def borders(
         self,
         top_width: float,
         top_red: float,
@@ -135,7 +139,7 @@ class Flex(AbstractFolioObject):
         )
 
     @_with_error_handling(FlexException)
-    def set_padding_all(self, top: float, right: float, bottom: float, left: float):
+    def padding_all(self, top: float, right: float, bottom: float, left: float):
         return lib.folio_flex_set_padding_all(
             self.handle,
             ct.c_double(top),
@@ -145,7 +149,7 @@ class Flex(AbstractFolioObject):
         )
 
     @_with_error_handling(FlexException)
-    def set_border(self, width: float, red: float, green: float, blue: float):
+    def border(self, width: float, red: float, green: float, blue: float):
         return lib.folio_flex_set_border(
             self.handle,
             ct.c_double(width),

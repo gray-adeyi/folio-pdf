@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import RedactorOptionsException
 
@@ -23,22 +24,25 @@ class RedactorOptions(AbstractFolioObject):
         lib.folio_redact_opts_free(self.handle)
 
     @_with_error_handling(RedactorOptionsException)
-    def set_fill_color(self, r: float, g: float, b: float):
+    def fill_color(self, color: Color):
         return lib.folio_redact_opts_set_fill_color(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(RedactorOptionsException)
-    def set_overlay(self, text: str, font_size: float, r: float, g: float, b: float):
+    def overlay(self, text: str, font_size: float, color: Color):
         return lib.folio_redact_opts_set_overlay(
             self.handle,
             ct.c_char_p(text.encode()),
             ct.c_double(font_size),
-            ct.c_double(r),
-            ct.c_double(g),
-            ct.c_double(b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(RedactorOptionsException)
-    def set_strip_metadata(self, strip: bool):
+    def strip_metadata(self, strip: bool):
         return lib.folio_redact_opts_set_strip_metadata(self.handle, ct.c_int32(strip))

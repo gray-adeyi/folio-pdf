@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments, Directions
 from folio_pdf.exceptions import ParagraphException
@@ -103,60 +104,63 @@ class Paragraph(AbstractFolioObject):
         lib.folio_paragraph_free(self.handle)
 
     @_with_error_handling(ParagraphException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_paragraph_set_align(self.handle, ct.c_int32(align.value))
 
     @_with_error_handling(ParagraphException)
-    def set_leading(self, leading: float):
+    def leading(self, leading: float):
         return lib.folio_paragraph_set_leading(self.handle, ct.c_double(leading))
 
     @_with_error_handling(ParagraphException)
-    def set_space_before(self, pts: float):
+    def space_before(self, pts: float):
         return lib.folio_paragraph_set_space_before(self.handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
-    def set_space_after(self, pts: float):
+    def space_after(self, pts: float):
         return lib.folio_paragraph_set_space_after(self.handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
-    def set_background(self, r: float, g: float, b: float):
+    def background(self, color: Color):
         return lib.folio_paragraph_set_background(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(ParagraphException)
-    def set_first_indent(self, pts: float):
+    def first_indent(self, pts: float):
         return lib.folio_paragraph_set_first_indent(self.handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
-    def set_direction(self, dir: Directions):
+    def direction(self, dir: Directions):
         return lib.folio_paragraph_set_direction(self.handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ParagraphException)
-    def set_orphans(self, n: int):
+    def orphans(self, n: int):
         return lib.folio_paragraph_set_orphans(self.handle, ct.c_int32(n))
 
     @_with_error_handling(ParagraphException)
-    def set_widows(self, n: int):
+    def widows(self, n: int):
         return lib.folio_paragraph_set_widows(self.handle, ct.c_int32(n))
 
     @_with_error_handling(ParagraphException)
-    def set_ellipsis(self, enabled: bool):
+    def ellipsis(self, enabled: bool):
         return lib.folio_paragraph_set_ellipsis(self.handle, ct.c_int32(enabled))
 
     @_with_error_handling(ParagraphException)
-    def set_word_break(self, mode: str):
+    def word_break(self, mode: str):
         return lib.folio_paragraph_set_word_break(
             self.handle,
             ct.c_char_p(mode.encode()),
         )
 
     @_with_error_handling(ParagraphException)
-    def set_hyphens(self, mode: str):
+    def hyphens(self, mode: str):
         return lib.folio_paragraph_set_hyphens(self.handle, ct.c_char_p(mode.encode()))
 
     @_with_error_handling(ParagraphException)
-    def set_text_align_last(self, align: Alignments):
+    def text_align_last(self, align: Alignments):
         return lib.folio_paragraph_set_text_align_last(
             self.handle, ct.c_int32(align.value)
         )
@@ -167,16 +171,14 @@ class Paragraph(AbstractFolioObject):
         text: str,
         font: Font,
         font_size: float,
-        r: float,
-        g: float,
-        b: float,
+        color: Color,
     ):
         return lib.folio_paragraph_add_run(
             self.handle,
             ct.c_char_p(text.encode()),
             font.handle,
             ct.c_double(font_size),
-            ct.c_double(r),
-            ct.c_double(g),
-            ct.c_double(b),
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )

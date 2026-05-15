@@ -5,7 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
-from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.exceptions import FormFillerException
 from folio_pdf.reader import PDFReader
 
 
@@ -22,10 +23,24 @@ class FormFiller(AbstractFolioObject):
     def close(self):
         lib.folio_form_filler_free(self.handle)
 
-    def field_names(self): ...
+    def field_names(self):
+        buf = lib.folio_form_filler_field_names(self.handle)
+        return self._read_from_obj_buffer(buf)
 
-    def get_value(self): ...
+    def get_value(self, field_name: str):
+        buf = lib.folio_form_filler_get_value(
+            self.handle, ct.c_char_p(field_name.encode())
+        )
+        return self._read_from_obj_buffer(buf)
 
-    def set_value(self): ...
+    @_with_error_handling(FormFillerException)
+    def value(self, field_name: str, value: str):
+        return lib.folio_form_filler_set_value(
+            self.handle, ct.c_char_p(field_name.encode()), ct.c_char_p(value.encode())
+        )
 
-    def set_checkbox(self): ...
+    @_with_error_handling(FormFillerException)
+    def checkbox(self, field_name: str, checked: bool):
+        return lib.folio_form_filler_set_checkbox(
+            self.handle, ct.c_char_p(field_name.encode()), ct.c_int32(checked)
+        )

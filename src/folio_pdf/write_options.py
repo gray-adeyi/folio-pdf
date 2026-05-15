@@ -23,43 +23,43 @@ class WriteOptions(AbstractFolioObject):
         lib.folio_write_options_free(self.handle)
 
     @_with_error_handling(WriteOptionsException)
-    def set_use_xref_stream(self, enabled: bool):
+    def use_xref_stream(self, enabled: bool):
         return lib.folio_write_options_set_use_xref_stream(
             self.handle, ct.c_int32(enabled)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_use_object_streams(self, enabled: bool):
+    def use_object_streams(self, enabled: bool):
         return lib.folio_write_options_set_use_object_streams(
             self.handle, ct.c_int32(enabled)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_object_stream_capacity(self, capacity: int):
+    def object_stream_capacity(self, capacity: int):
         return lib.folio_write_options_set_object_stream_capacity(
             self.handle, ct.c_int32(capacity)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_orphan_sweep(self, enabled: bool):
+    def orphan_sweep(self, enabled: bool):
         return lib.folio_write_options_set_orphan_sweep(
             self.handle, ct.c_int32(enabled)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_clean_content_streams(self, enabled: bool):
+    def clean_content_streams(self, enabled: bool):
         return lib.folio_write_options_set_clean_content_streams(
             self.handle, ct.c_int32(enabled)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_deduplicate_objects(self, enabled: bool):
+    def deduplicate_objects(self, enabled: bool):
         return lib.folio_write_options_set_deduplicate_objects(
             self.handle, ct.c_int32(enabled)
         )
 
     @_with_error_handling(WriteOptionsException)
-    def set_recompress_streams(self, enabled: bool):
+    def recompress_streams(self, enabled: bool):
         return lib.folio_write_options_set_recompress_streams(
             self.handle, ct.c_int32(enabled)
         )

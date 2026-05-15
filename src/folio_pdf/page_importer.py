@@ -22,7 +22,9 @@ class PageImporter(AbstractFolioObject):
         lib.folio_page_import_free(self.handle)
 
     @property
-    def width(self): ...
+    def width(self):
+        return lib.folio_page_import_width(self.handle)
 
     @property
-    def height(self): ...
+    def height(self):
+        return lib.folio_page_import_height(self.handle)

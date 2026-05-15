@@ -26,32 +26,32 @@ class Table(AbstractFolioObject):
         lib.folio_table_free(self.handle)
 
     @_with_error_handling(TableException)
-    def set_column_widths(self, widths: list[float]):
+    def column_widths(self, widths: list[float]):
         DoubleArray = ct.c_double * len(widths)
         return lib.folio_table_set_column_widths(
             self.handle, DoubleArray(widths), ct.c_int32(len(widths))
         )
 
     @_with_error_handling(TableException)
-    def set_border_collapse(self, enabled: bool):
+    def border_collapse(self, enabled: bool):
         return lib.folio_table_set_border_collapse(self.handle, ct.c_bool(enabled))
 
     @_with_error_handling(TableException)
-    def set_cell_spacing(self, h: float, v: float):
+    def cell_spacing(self, h: float, v: float):
         return lib.folio_table_set_cell_spacing(
             self.handle, ct.c_double(h), ct.c_double(v)
         )
 
     @_with_error_handling(TableException)
-    def set_auto_column_widths(self):
+    def auto_column_widths(self):
         return lib.folio_table_set_auto_column_widths(self.handle)
 
     @_with_error_handling(TableException)
-    def set_direction(self, dir: Directions):
+    def direction(self, dir: Directions):
         return lib.folio_table_set_direction(self.handle, ct.c_int32(dir.value))
 
     @_with_error_handling(TableException)
-    def set_min_width(self, pts: float):
+    def min_width(self, pts: float):
         return lib.folio_table_set_min_width(ct.c_double(pts))
 
     def add_row(self) -> TableRow:

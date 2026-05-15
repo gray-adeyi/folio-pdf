@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
+from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments
 from folio_pdf.exceptions import LinkException
@@ -51,15 +52,18 @@ class Link(AbstractFolioObject):
         )
 
     @_with_error_handling(LinkException)
-    def set_color(self, r: float, g: float, b: float):
+    def color(self, color: Color):
         return lib.folio_link_set_color(
-            self.handle, ct.c_double(r), ct.c_double(g), ct.c_double(b)
+            self.handle,
+            ct.c_double(color.r),
+            ct.c_double(color.g),
+            ct.c_double(color.b),
         )
 
     @_with_error_handling(LinkException)
-    def set_underline(self):
+    def underline(self):
         return lib.folio_link_set_underline(self.handle)
 
     @_with_error_handling(LinkException)
-    def set_align(self, align: Alignments):
+    def align(self, align: Alignments):
         return lib.folio_link_set_align(self.handle, ct.c_int32(align.value))

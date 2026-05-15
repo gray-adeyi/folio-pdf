@@ -4,8 +4,13 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+from typing import TYPE_CHECKING
 
-from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
+from folio_pdf.exceptions import ColumnException
+
+if TYPE_CHECKING:
+    from folio_pdf.folio_pdf import Element
 
 
 class Column(AbstractFolioObject):
@@ -21,10 +26,21 @@ class Column(AbstractFolioObject):
     def close(self):
         lib.folio_columns_free(self.handle)
 
-    def set_gap(self, gap: float): ...
+    @_with_error_handling(ColumnException)
+    def gap(self, gap: float):
+        return lib.folio_columns_set_gap(self.handle, ct.c_double(gap))
 
-    def set_widths(self): ...
+    @_with_error_handling(ColumnException)
+    def widths(self, widths: list[float]):
+        DoubleArray = ct.c_double * len(widths)
+        return lib.folio_columns_set_widths(
+            self.handle, DoubleArray(widths), ct.c_int32(len(widths))
+        )
 
-    def set_balanced(self): ...
+    @_with_error_handling(ColumnException)
+    def balanced(self, enabled: bool):
+        return lib.folio_columns_set_balanced(self.handle, ct.c_int32(enabled))
 
-    def add(self): ...
+    @_with_error_handling(ColumnException)
+    def add(self, col_index: int, element: "Element"):
+        return lib.folio_columns_add(self.handle, ct.c_int32(col_index), element.handle)

@@ -1,5 +1,4 @@
 from unittest import TestCase
-from folio_pdf import html_to_pdf, html_to_buffer
 
 
 class FolioTestCase(TestCase):

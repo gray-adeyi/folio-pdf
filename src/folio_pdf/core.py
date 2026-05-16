@@ -15,21 +15,43 @@ THIS_FILE_PATH = Path(__file__).parent
 
 
 def _load_lib() -> ct.CDLL:
-    operating_system = platform.system()
-    architecture = platform.machine()
-    if operating_system == "Windows" and architecture == "x86_64":
-        return ct.CDLL((THIS_FILE_PATH / "libs/folio-windows-x86_64.dll").as_posix())
-    if operating_system == "Linux" and architecture == "x86_64":
-        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-linux-x86_64.so").as_posix())
-    if operating_system == "Linux" and architecture == "aarch64":
-        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-linux-aarch64.so").as_posix())
-    if operating_system == "Darwin" and architecture == "x86_64":
-        return ct.CDLL((THIS_FILE_PATH / "libs/libfolio-macos-x86_64.dylib").as_posix())
-    if operating_system == "Darwin" and architecture == "aarch64":
-        return ct.CDLL(
-            (THIS_FILE_PATH / "libs/libfolio-macos-aarch64.dylib").as_posix()
-        )
-    raise RuntimeError("OS or CPU architecture not supported")
+    os_name = platform.system()
+    arch = platform.machine().lower()
+
+    arch_aliases = {
+        "amd64": "x86_64",
+        "x86_64": "x86_64",
+        "arm64": "aarch64",
+        "aarch64": "aarch64",
+    }
+
+    arch = arch_aliases.get(arch, arch)
+
+    extensions = {
+        "Windows": "dll",
+        "Linux": "so",
+        "Darwin": "dylib",
+    }
+
+    prefixes = {
+        "Windows": "",
+        "Linux": "lib",
+        "Darwin": "lib",
+    }
+
+    if os_name not in extensions:
+        raise RuntimeError(f"Unsupported OS: {os_name} Arch: {arch}")
+
+    filename = (
+        f"{prefixes[os_name]}folio-{os_name.lower()}-{arch}.{extensions[os_name]}"
+    )
+
+    lib_path = THIS_FILE_PATH / "libs" / filename
+
+    if not lib_path.exists():
+        raise RuntimeError(f"folio shared library not found at: {lib_path}")
+
+    return ct.CDLL(str(lib_path))
 
 
 lib = _load_lib()

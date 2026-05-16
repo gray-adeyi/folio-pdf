@@ -289,10 +289,6 @@ class Document(AbstractFolioObject):
     def __init__(self, width: float, height: float):
         self.__handle = lib.folio_document_new(ct.c_double(width), ct.c_double(height))
 
-    @property
-    def _handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self.__handle)
-
     @classmethod
     def new_with_size(cls, size: PageSizes) -> "Document":
         """Creates a new PDF document with page size provided"""
@@ -307,12 +303,6 @@ class Document(AbstractFolioObject):
                 return cls(612, 1008)
             case PageSizes.TABLOID:
                 return cls(792, 1224)
-
-    @classmethod
-    def _new_from_handle(cls, doc_handle: int) -> "Document":
-        obj = cls.__new__(cls)
-        cls.__handle = doc_handle
-        return obj
 
     @_with_error_handling(DocumentException)
     def title(self, value: str) -> "Document":
@@ -339,7 +329,9 @@ class Document(AbstractFolioObject):
         return lib.folio_document_author(self._handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
-    def margins(self, top: float, right: float, bottom: float, left: float):
+    def margins(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> "Document":
         """
         It sets the page margins used by the layout engine (in PDF points).
 
@@ -377,7 +369,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_page_count(self._handle)
 
     @_with_error_handling(DocumentException)
-    def add(self, element: "Element"):
+    def add(self, element: "Element") -> "Document":
         """Appends a layout element (e.g. Paragraph) to the document.
 
         Elements are laid out automatically with word wrapping and page breaks
@@ -392,8 +384,12 @@ class Document(AbstractFolioObject):
         return lib.folio_document_add(self._handle, element._handle)
 
     @_with_error_handling(DocumentException)
-    def save(self, destination: str | Path):
+    def save(self, destination: str | Path) -> "Document":
         """Writes the document to a file at the given path
+
+        Args:
+            destination: where to save the resulting PDF to e.g.
+            `"result.pdf"`
 
         Returns:
             this document, for chaining
@@ -404,6 +400,13 @@ class Document(AbstractFolioObject):
         return lib.folio_document_save(self._handle, ct.c_char_p(_destination.encode()))
 
     def to_buffer(self) -> BytesIO:
+        """
+        Renders the document to an in-memory buffer using the default
+        writer options.
+
+        Returns:
+            a buffer containing the PDF bytes
+        """
         buf = lib.folio_document_write_to_buffer(self._handle)
         data = self._read_from_obj_buffer(buf)
         return BytesIO(data)
@@ -417,15 +420,25 @@ class Document(AbstractFolioObject):
             self._handle, ct.c_char_p(_destination.encode()), opts._handle
         )
 
-    def to_buffer_with_options(self, opts: WriteOptions) -> BytesIO:
+    def to_buffer_with_options(self, options: WriteOptions) -> BytesIO:
+        """
+        Renders the document to an in-memory buffer using explicit writer
+        options.
+
+        Args:
+            options: the writer options, or {@code null} for defaults
+
+        Returns:
+            a buffer containing the PDF bytes
+        """
         buf = lib.folio_document_write_to_buffer_with_options(
-            self._handle, opts._handle
+            self._handle, options._handle
         )
         data = self._read_from_obj_buffer(buf)
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
-    def tagged(self, enabled: bool):
+    def tagged(self, enabled: bool) -> "Document":
         """
         Enables tagged PDF output (PDF/UA foundation).
 
@@ -437,11 +450,20 @@ class Document(AbstractFolioObject):
         return lib.folio_set_tagged(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def pdfa(self, level: PDFALevels):
+    def pdfa(self, level: PDFALevels) -> "Document":
+        """
+        Sets the PDF/A conformance level for archival output.
+
+        Args:
+            level: the `PdfALevels` variant to target
+
+        Returns:
+            this document, for chaining
+        """
         return lib.folio_document_set_pdfa(self._handle, ct.c_int32(level.value))
 
     @_with_error_handling(DocumentException)
-    def actual_text(self, enabled: bool):
+    def actual_text(self, enabled: bool) -> "Document":
         """
         Toggles emission of `/ActualText` entries in the marked-content
         sequences of tagged PDFs (ISO 32000-1 §14.9.4).
@@ -462,7 +484,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def encryption(
         self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithms
-    ):
+    ) -> "Document":
         """
         Applies password-based encryption to the output PDF.
 
@@ -488,7 +510,7 @@ class Document(AbstractFolioObject):
         owner_password: str,
         algorithm: EncryptionAlgorithms,
         permissions: EncryptionPermissions,
-    ):
+    ) -> "Document":
         """
         Applies password-based encryption with granular permission flags.
 
@@ -515,7 +537,7 @@ class Document(AbstractFolioObject):
         return self._read_from_obj_buffer(buf)
 
     @_with_error_handling(DocumentException)
-    def validate_pdfa(self):
+    def validate_pdfa(self) -> "Document":
         """Validates the document against its configured PDF/A conformance level.
 
         Returns:
@@ -524,7 +546,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_validate_pdfa(self._handle)
 
     @_with_error_handling(DocumentException)
-    def auto_bookmarks(self, enabled: bool):
+    def auto_bookmarks(self, enabled: bool) -> "Document":
         """
         Enables or disables automatic bookmark generation from headings.
 
@@ -973,3 +995,13 @@ class Document(AbstractFolioObject):
 
     def close(self):
         lib.folio_document_free(self._handle)
+
+    @property
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
+
+    @classmethod
+    def _new_from_handle(cls, doc_handle: int) -> "Document":
+        obj = cls.__new__(cls)
+        cls.__handle = doc_handle
+        return obj

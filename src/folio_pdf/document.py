@@ -304,6 +304,11 @@ class Document(AbstractFolioObject):
             case PageSizes.TABLOID:
                 return cls(792, 1224)
 
+    @property
+    def page_count(self) -> int:
+        """Returns the number of pages in the document."""
+        return lib.folio_document_page_count(self._handle)
+
     @_with_error_handling(DocumentException)
     def title(self, value: str) -> "Document":
         """Sets the title of the PDF document
@@ -362,11 +367,6 @@ class Document(AbstractFolioObject):
         """
         pg_ptr = lib.folio_document_add_page(self._handle)
         return Page._new_from_handle(pg_ptr)
-
-    @property
-    def page_count(self) -> int:
-        """Returns the number of pages in the document."""
-        return lib.folio_document_page_count(self._handle)
 
     @_with_error_handling(DocumentException)
     def add(self, element: "Element") -> "Document":

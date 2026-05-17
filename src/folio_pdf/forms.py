@@ -71,6 +71,9 @@ lib.folio_form_add_password_field.argtypes = [
 ]
 lib.folio_form_add_password_field.restype = ct.c_int32
 
+lib.folio_form_add_field.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_form_add_field.restype = ct.c_int32
+
 
 class Form(AbstractFolioObject):
     """

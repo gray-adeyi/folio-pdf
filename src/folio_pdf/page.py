@@ -237,7 +237,9 @@ class Page(AbstractFolioObject):
         self.__handle = 0
 
     @_with_error_handling(PageException)
-    def add_text(self, text: str, font: Font, size: float, x: float, y: float):
+    def add_text(
+        self, text: str, font: Font, size: float, x: float, y: float
+    ) -> "Page":
         """
         Places text at an absolute position on this page using a standard font.
 
@@ -261,7 +263,9 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def add_text_embedded(self, text: str, font: Font, size: float, x: float, y: float):
+    def add_text_embedded(
+        self, text: str, font: Font, size: float, x: float, y: float
+    ) -> "Page":
         """
         Places text at an absolute position using a font whose subset is embedded.
 
@@ -285,7 +289,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def add_image(self, img: Image, x: float, y: float, w: float, h: float):
+    def add_image(self, img: Image, x: float, y: float, w: float, h: float) -> "Page":
         """
         Draws an image at an absolute position and size on this page.
 
@@ -309,7 +313,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def add_link(self, x1: float, y1: float, x2: float, y2: float, uri: str):
+    def add_link(self, x1: float, y1: float, x2: float, y2: float, uri: str) -> "Page":
         """
         Adds a URI hyperlink annotation over the specified rectangle.
 
@@ -335,7 +339,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_internal_link(
         self, x1: float, y1: float, x2: float, y2: float, dest_name: str
-    ):
+    ) -> "Page":
         """
         Adds an internal link annotation that navigates to a named destination.
 
@@ -361,7 +365,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_text_annotation(
         self, x1: float, y1: float, x2: float, y2: float, text: str, icon: str
-    ):
+    ) -> "Page":
         """
         Adds a text (sticky-note) annotation on this page.
 
@@ -387,7 +391,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def opacity(self, alpha: float):
+    def opacity(self, alpha: float) -> "Page":
         """
         Sets a uniform opacity for all content drawn on this page.
 
@@ -400,7 +404,7 @@ class Page(AbstractFolioObject):
         return lib.folio_page_set_opacity(self._handle, ct.c_double(alpha))
 
     @_with_error_handling(PageException)
-    def rotate(self, degress: int):
+    def rotate(self, degress: int) -> "Page":
         """
         Rotates this page by the given number of degrees (must be a multiple of 90).
 
@@ -419,7 +423,7 @@ class Page(AbstractFolioObject):
         y1: float,
         x2: float,
         y2: float,
-    ):
+    ) -> "Page":
         """
         Sets the crop box for this page, defining the visible region.
 
@@ -441,7 +445,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def trim_box(self, x1: float, y1: float, x2: float, y2: float):
+    def trim_box(self, x1: float, y1: float, x2: float, y2: float) -> "Page":
         """
         Sets the trim box for this page, defining the intended
         final size after trimming.
@@ -464,7 +468,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def bleed_box(self, x1: float, y1: float, x2: float, y2: float):
+    def bleed_box(self, x1: float, y1: float, x2: float, y2: float) -> "Page":
         """
         Sets the bleed box for this page, defining the region to
         which content may bleed.
@@ -487,7 +491,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def art_box(self, x1: float, y1: float, x2: float, y2: float):
+    def art_box(self, x1: float, y1: float, x2: float, y2: float) -> "Page":
         """
         Sets the art box for this page, defining the extent of meaningful content.
 
@@ -509,7 +513,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def size(self, width: float, height: float):
+    def size(self, width: float, height: float) -> "Page":
         """
         Sets the media box dimensions (page size) for this page.
 
@@ -527,7 +531,7 @@ class Page(AbstractFolioObject):
     @_with_error_handling(PageException)
     def add_page_link(
         self, x1: float, y1: float, x2: float, y2: float, target_page: int
-    ):
+    ) -> "Page":
         """
         Adds a page-navigation link that jumps to another page in the document.
 
@@ -551,7 +555,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def opacity_fill_stroke(self, fill_alpha: float, stroke_alpha: float):
+    def opacity_fill_stroke(self, fill_alpha: float, stroke_alpha: float) -> "Page":
         """
         Sets independent fill and stroke opacity for content drawn on this page.
 
@@ -575,7 +579,7 @@ class Page(AbstractFolioObject):
         y2: float,
         color: Color,
         quad_points: list[float],
-    ):
+    ) -> "Page":
         """
         Adds a highlight markup annotation over the specified area.
 
@@ -614,7 +618,7 @@ class Page(AbstractFolioObject):
         y2: float,
         color: Color,
         quad_points: list[float],
-    ):
+    ) -> "Page":
         """
         Adds an underline markup annotation over the specified area.
 
@@ -652,7 +656,7 @@ class Page(AbstractFolioObject):
         y2: float,
         color: Color,
         quad_points: list[float],
-    ):
+    ) -> "Page":
         """
         Adds a squiggly underline markup annotation over the specified area.
 
@@ -690,7 +694,7 @@ class Page(AbstractFolioObject):
         y2: float,
         color: Color,
         quad_points: list[float],
-    ):
+    ) -> "Page":
         """
         Adds a strikeout markup annotation over the specified area.
 
@@ -720,7 +724,7 @@ class Page(AbstractFolioObject):
         )
 
     @_with_error_handling(PageException)
-    def import_apply(self, imp: PageImporter):
+    def import_apply(self, imp: PageImporter) -> "Page":
         """
         Stamps the imported page content onto this page.
 
@@ -741,7 +745,7 @@ class Page(AbstractFolioObject):
         y2: float,
         width: float,
         color: Color,
-    ):
+    ) -> "Page":
         """
         Draws a straight line between two points on this page.
 
@@ -777,7 +781,7 @@ class Page(AbstractFolioObject):
         h: float,
         stroke_width: float,
         color: Color,
-    ):
+    ) -> "Page":
         """
         Draws a stroked rectangle on this page.
 
@@ -812,7 +816,7 @@ class Page(AbstractFolioObject):
         w: float,
         h: float,
         color: Color,
-    ):
+    ) -> "Page":
         """
         Draws a filled rectangle on this page.
 

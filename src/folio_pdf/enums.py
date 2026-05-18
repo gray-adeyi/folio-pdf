@@ -32,6 +32,23 @@ class PageSizes(IntEnum):
     LEGAL = 2
     TABLOID = 3
 
+    @property
+    def dimensions(self) -> tuple[float, float]:
+        """
+        Returns the dimensions for the page size variant in the form (width,height)
+
+        The units of the width and height are in points.
+        """
+        match self:
+            case PageSizes.LETTER:
+                return (612, 792)
+            case PageSizes.A4:
+                return (595.28, 841.89)
+            case PageSizes.LEGAL:
+                return (612, 1008)
+            case PageSizes.TABLOID:
+                return (792, 1224)
+
 
 class ErrorCodes(IntEnum):
     OK = 0

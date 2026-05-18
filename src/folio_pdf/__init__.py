@@ -73,6 +73,19 @@ def html_to_buffer(html: str, page_width: float, page_height: float) -> BytesIO:
 
     Returns:
         the generated PDF in a buffer
+
+    Example:
+        ```python
+        from folio_pdf import html_to_buffer
+        from folio_pdf.enums import PageSizes
+
+        # Using the dimensions of an A4 page size
+        width, height = PageSizes.A4.dimensions
+        result = html_to_buffer(
+            html='<h1>Folio PDF is awesome!</h1>',
+            page_width=width,
+            page_height=height)
+        ```
     """
     buf = lib.folio_html_to_buffer(
         ct.c_char_p(html.encode()),
@@ -100,6 +113,19 @@ def html_convert(html: str, page_width: float, page_height: float) -> Document:
 
     Returns:
         a new `Document` representing the converted HTML
+
+    Example:
+        ```python
+        from folio_pdf import html_convert
+        from folio_pdf.enums import PageSizes
+
+        # Using the dimensions of a Letter page size
+        width, height = PageSizes.LETTER.dimensions
+        doc = html_convert(
+            html='<h1>Folio PDF is awesome!</h1>',
+            page_width=width,
+            page_height=height)
+        ```
     """
     doc_handle = lib.folio_html_convert(
         ct.c_char_p(html.encode()),

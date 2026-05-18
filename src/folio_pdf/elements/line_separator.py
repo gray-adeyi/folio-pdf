@@ -7,8 +7,15 @@ import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, lib
 
+lib.folio_line_separator_new.argtypes = []
+lib.folio_line_separator_new.restype = ct.c_uint64
+
 
 class LineSeparator(AbstractFolioObject):
+    """
+    A horizontal rule element that draws a full-width dividing line across the page.
+    """
+
     _requires_close = False
 
     def __init__(self):

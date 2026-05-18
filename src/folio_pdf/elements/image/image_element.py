@@ -45,7 +45,7 @@ class ImageElement(AbstractFolioObject):
         self.__handle = lib.folio_image_element_new(img._handle)
 
     @_with_error_handling(ImageElementException)
-    def size(self, width: float, height: float):
+    def size(self, width: float, height: float) -> "ImageElement":
         """
         Sets the rendered size of the image in the document.
 
@@ -61,7 +61,7 @@ class ImageElement(AbstractFolioObject):
         )
 
     @_with_error_handling(ImageElementException)
-    def align(self, align: Alignments):
+    def align(self, align: Alignments) -> "ImageElement":
         """
         Sets the horizontal alignment of the image on the page.
 
@@ -74,7 +74,7 @@ class ImageElement(AbstractFolioObject):
         return lib.folio_image_element_set_align(self._handle, ct.c_int32(align))
 
     @_with_error_handling(ImageElementException)
-    def alt_text(self, text: str):
+    def alt_text(self, text: str) -> "ImageElement":
         """
         Sets alternative text for PDF/UA accessibility.
 
@@ -91,7 +91,7 @@ class ImageElement(AbstractFolioObject):
     @_with_error_handling(ImageElementException)
     def object_fit(
         self, fit: Literal["contain", "cover", "fill", "none", "scale-down"]
-    ):
+    ) -> "ImageElement":
         """
         Sets the CSS-style `object-fit` behaviour for this image.
 
@@ -107,7 +107,7 @@ class ImageElement(AbstractFolioObject):
         )
 
     @_with_error_handling(ImageElementException)
-    def object_position(self, pos: str):
+    def object_position(self, pos: str) -> "ImageElement":
         """
         Sets the CSS-style `object-position` for this image
         (e.g., `"center"`, `"top left"`).

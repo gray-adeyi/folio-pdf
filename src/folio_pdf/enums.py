@@ -189,7 +189,17 @@ class Directions(IntEnum):
     RTL = 2
 
 
-class Pades(IntEnum):
+class PadesLevels(IntEnum):
+    """
+    PAdES (PDF Advanced Electronic Signatures) conformance levels.
+
+    Attributes:
+        BB: basic signature
+        BT: basic + timestamp
+        BLT: + revocation data (long-term validation)
+        BLTA: + document timestamp (long-term archival)
+    """
+
     BB = 0
     BT = 1
     BLT = 2

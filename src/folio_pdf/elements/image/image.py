@@ -42,7 +42,7 @@ class Image(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self.__handle = -1
+        self.__handle = 0
 
     @classmethod
     def load(cls, path: str | Path) -> "Image":

@@ -19,7 +19,7 @@ class TableRow(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
-        self.__handle = -1
+        self.__handle = 0
 
     @property
     def _handle(self) -> ct.c_uint64:

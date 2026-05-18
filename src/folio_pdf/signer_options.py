@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Pades
+from folio_pdf.enums import PadesLevels
 from folio_pdf.exceptions import SignerOptionsException
 from folio_pdf.ocsp_client import OCSPClient
 from folio_pdf.signer import Signer
@@ -16,7 +16,7 @@ from folio_pdf.tsa_client import TSAClient
 class SignerOptions(AbstractFolioObject):
     _requires_close = True
 
-    def __init__(self, signer: Signer, level: Pades):
+    def __init__(self, signer: Signer, level: PadesLevels):
         self.__handle = lib.folio_sign_opts_new(signer._handle, ct.c_int32(level.value))
 
     @property

@@ -15,6 +15,92 @@ if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
 
+lib.folio_grid_new.argtypes = []
+lib.folio_grid_new.restype = ct.c_uint64
+
+lib.folio_grid_free.argtypes = [ct.c_uint64]
+lib.folio_grid_free.restype = None
+
+lib.folio_grid_add_child.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_grid_add_child.restype = ct.c_int32
+
+lib.folio_grid_set_border.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_grid_set_border.restype = ct.c_int32
+
+lib.folio_grid_set_borders.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_grid_set_borders.restype = ct.c_int32
+
+lib.folio_grid_set_gap.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_grid_set_gap.restype = ct.c_int32
+
+lib.folio_grid_set_placement.argtypes = [
+    ct.c_uint64,
+    ct.c_int32,
+    ct.c_int32,
+    ct.c_int32,
+    ct.c_int32,
+    ct.c_int32,
+]
+lib.folio_grid_set_placement.restype = ct.c_int32
+
+lib.folio_grid_set_padding.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_grid_set_padding.restype = ct.c_int32
+
+lib.folio_grid_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_grid_set_background.restype = ct.c_int32
+
+lib.folio_grid_set_justify_items.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_grid_set_justify_items.restype = ct.c_int32
+
+lib.folio_grid_set_align_items.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_grid_set_align_items.restype = ct.c_int32
+
+lib.folio_grid_set_justify_content.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_grid_set_justify_content.restype = ct.c_int32
+
+lib.folio_grid_set_align_content.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_grid_set_align_content.restype = ct.c_int32
+
+lib.folio_grid_set_space_before.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_grid_set_space_before.restype = ct.c_int32
+
+lib.folio_grid_set_space_after.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_grid_set_space_after.restype = ct.c_int32
+
+
 class Grid(AbstractFolioObject):
     """
     A CSS grid-style layout container that arranges child elements into explicit
@@ -57,6 +143,13 @@ class Grid(AbstractFolioObject):
         """
         Int32Array = ct.c_int32 * len(types)
         DoubleArray = ct.c_double * len(values)
+        lib.folio_grid_set_template_columns.argtypes = [
+            ct.c_uint64,
+            Int32Array,
+            DoubleArray,
+            ct.c_int32,
+        ]
+        lib.folio_grid_set_template_columns.restype = ct.c_int32
         return lib.folio_grid_set_template_columns(
             self._handle,
             Int32Array([type_.value for type_ in types]),
@@ -82,6 +175,13 @@ class Grid(AbstractFolioObject):
         """
         Int32Array = ct.c_int32 * len(types)
         DoubleArray = ct.c_double * len(values)
+        lib.folio_grid_set_template_rows.argtypes = [
+            ct.c_uint64,
+            Int32Array,
+            DoubleArray,
+            ct.c_int32,
+        ]
+        lib.folio_grid_set_template_rows.restype = ct.c_int32
         return lib.folio_grid_set_template_rows(
             self._handle,
             Int32Array([type_.value for type_ in types]),
@@ -179,6 +279,13 @@ class Grid(AbstractFolioObject):
 
         CharPArray = ct.c_char_p * len(rows)
         Int32Array = ct.c_int32 * len(cols)
+        lib.folio_grid_set_template_areas.argtypes = [
+            ct.c_int64,
+            CharPArray,
+            Int32Array,
+            ct.c_int32,
+        ]
+        lib.folio_grid_set_template_areas.restype = ct.c_int32
         return lib.folio_grid_set_template_areas(
             self._handle, CharPArray(rows), Int32Array(cols), ct.c_int32(len(rows))
         )
@@ -198,6 +305,13 @@ class Grid(AbstractFolioObject):
         """
         Int32Array = ct.c_int32 * len(types)
         DoubleArray = ct.c_double * len(values)
+        lib.folio_grid_set_auto_rows.argtypes = [
+            ct.c_uint64,
+            Int32Array,
+            DoubleArray,
+            ct.c_int32,
+        ]
+        lib.folio_grid_set_auto_rows.restype = ct.c_int32
         return lib.folio_grid_set_auto_rows(
             self._handle,
             Int32Array([type_.value for type_ in types]),

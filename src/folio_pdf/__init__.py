@@ -36,13 +36,21 @@ lib.folio_html_to_pdf.argtypes = [ct.c_char_p, ct.c_char_p]
 lib.folio_html_to_pdf.restype = ct.c_int32
 
 
-def html_to_pdf(html: str, destination: str | Path):
+def html_to_pdf(html: str, destination: str | Path) -> None:
+    """
+    Converts an HTML string to a PDF file and writes it to the given path.
+
+     Args:
+        html: the HTML content to render
+        destination: the destination file path for the generated PDF
+    """
     _destination = destination
     if isinstance(_destination, Path):
         _destination = _destination.as_posix()
     if not _destination.endswith("pdf"):
         _destination += ".pdf"
-    return lib.folio_html_to_pdf(
+    # TODO: Handle result code
+    lib.folio_html_to_pdf(
         ct.c_char_p(html.encode()), ct.c_char_p(_destination.encode())
     )
 
@@ -54,6 +62,18 @@ lib.folio_buffer_data.restype = ct.c_void_p
 
 
 def html_to_buffer(html: str, page_width: float, page_height: float) -> BytesIO:
+    """
+    Converts an HTML string to a PDF with custom page dimensions and returns
+    the raw bytes in an in memory buffer.
+
+    Args:
+        html: the HTML content to render
+        page_width: page width in points
+        page_height: page height in points
+
+    Returns:
+        the generated PDF in a buffer
+    """
     buf = lib.folio_html_to_buffer(
         ct.c_char_p(html.encode()),
         ct.c_double(page_width),
@@ -68,6 +88,19 @@ lib.folio_html_convert.restype = ct.c_uint64
 
 
 def html_convert(html: str, page_width: float, page_height: float) -> Document:
+    """
+    Converts an HTML string to a `Document` with custom page dimensions.
+
+    The caller is responsible for closing the returned document.
+
+    Args:
+        html: the HTML content to render
+        page_width: page width in points
+        page_height: page height in points
+
+    Returns:
+        a new `Document` representing the converted HTML
+    """
     doc_handle = lib.folio_html_convert(
         ct.c_char_p(html.encode()),
         ct.c_double(page_width),

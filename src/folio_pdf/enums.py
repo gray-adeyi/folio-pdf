@@ -182,3 +182,10 @@ class Pades(IntEnum):
 class FloatSides(IntEnum):
     LEFT = 0
     RIGHT = 1
+
+
+class GridTrackTypes(IntEnum):
+    PX = 0
+    PERCENT = 1
+    FR = 2
+    AUTO = 3

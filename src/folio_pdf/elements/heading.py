@@ -61,7 +61,7 @@ class Heading(AbstractFolioObject):
     @classmethod
     def new_with_font(
         cls, text: str, level: HeadingLevels, font: Font, font_size: float
-    ):
+    ) -> "Heading":
         """
         Creates a heading with a custom font and font size.
 
@@ -84,7 +84,7 @@ class Heading(AbstractFolioObject):
         return obj
 
     @classmethod
-    def new_embedded(cls, text: str, level: HeadingLevels, font: Font):
+    def new_embedded(cls, text: str, level: HeadingLevels, font: Font) -> "Heading":
         """
         Creates a heading that embeds the font subset in the PDF output.
 
@@ -103,7 +103,7 @@ class Heading(AbstractFolioObject):
         return obj
 
     @_with_error_handling(HeadingException)
-    def align(self, align: Alignments):
+    def align(self, align: Alignments) -> "Heading":
         """
         Sets the text alignment for this heading.
 
@@ -116,7 +116,7 @@ class Heading(AbstractFolioObject):
         return lib.folio_heading_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(HeadingException)
-    def runs(self, run_list: RunList):
+    def runs(self, run_list: RunList) -> "Heading":
         """
         Replaces the heading text with styled runs from a `RunList`.
 

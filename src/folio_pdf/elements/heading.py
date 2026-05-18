@@ -37,21 +37,43 @@ lib.folio_heading_set_align.restype = ct.c_int32
 
 
 class Heading(AbstractFolioObject):
+    """
+    Represents a section heading at a specified level (H1–H6).
+    """
+
     _requires_close = True
 
     def __init__(self, text: str, level: HeadingLevels):
+        """
+        Creates a heading with the given text and level using the default font.
+
+        Args:
+            text: the heading text
+            level: the {@link HeadingLevel} (H1–H6)
+
+        Returns:
+            a new `Heading`
+        """
         self.__handle = lib.folio_heading_new(
             ct.c_char_p(text.encode()), ct.c_int32(level.value)
         )
-
-    @property
-    def _handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self.__handle)
 
     @classmethod
     def new_with_font(
         cls, text: str, level: HeadingLevels, font: Font, font_size: float
     ):
+        """
+        Creates a heading with a custom font and font size.
+
+        Args:
+            text: the heading text
+            level: the {@link HeadingLevel} (H1–H6)
+            font: the font to use
+            font_size: the font size in points
+
+        Returns:
+            a new `Heading`
+        """
         obj = cls.__new__(cls)
         obj.__handle = lib.folio_heading_new_with_font(
             ct.c_char_p(text.encode()),
@@ -63,19 +85,52 @@ class Heading(AbstractFolioObject):
 
     @classmethod
     def new_embedded(cls, text: str, level: HeadingLevels, font: Font):
+        """
+        Creates a heading that embeds the font subset in the PDF output.
+
+        Args:
+            text  the heading text
+            level the {@link HeadingLevel} (H1–H6)
+            font  the font to embed
+
+        Returns:
+            a new `Heading` with an embedded font
+        """
         obj = cls.__new__(cls)
         obj.__handle = lib.folio_heading_new_embedded(
             ct.c_char_p(text.encode()), ct.c_int32(level.value), font._handle
         )
         return obj
 
-    def close(self):
-        lib.folio_heading_free(self._handle)
-
     @_with_error_handling(HeadingException)
     def align(self, align: Alignments):
+        """
+        Sets the text alignment for this heading.
+
+        Args:
+            align: the desired `Align` value
+
+        Returns:
+            this heading, for chaining
+        """
         return lib.folio_heading_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(HeadingException)
     def runs(self, run_list: RunList):
+        """
+        Replaces the heading text with styled runs from a `RunList`.
+
+        Args:
+            run_list: the run list containing styled text segments
+
+        Returns:
+            this heading, for chaining
+        """
         return lib.folio_heading_set_runs(self._handle, run_list._handle)
+
+    def close(self):
+        lib.folio_heading_free(self._handle)
+
+    @property
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)

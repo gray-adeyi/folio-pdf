@@ -81,6 +81,10 @@ lib.folio_paragraph_add_run.restype = ct.c_int32
 
 
 class Paragraph(AbstractFolioObject):
+    """
+    Represents a styled paragraph of text.
+    """
+
     _requires_close = True
 
     def __init__(self, text: str, font: Font, font_size: float):
@@ -88,39 +92,88 @@ class Paragraph(AbstractFolioObject):
             ct.c_char_p(text.encode()), font._handle, ct.c_double(font_size)
         )
 
-    @property
-    def _handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self.__handle)
-
     @classmethod
     def new_embedded(cls, text: str, font: Font, font_size: float):
+        """
+        Creates a paragraph that embeds the font subset in the PDF output.
+
+        Args:
+            text: the paragraph text
+            font: the font to embed
+            font_size: the font size in points
+
+        Returns:
+            a new `Paragraph` with an embedded font
+        """
         obj = cls.__new__(cls)
         obj.__handle = lib.folio_paragraph_new_embedded(
             ct.c_char_p(text.encode()), font._handle, ct.c_double(font_size)
         )
         return obj
 
-    def close(self):
-        lib.folio_paragraph_free(self._handle)
-
     @_with_error_handling(ParagraphException)
     def align(self, align: Alignments):
+        """
+        Sets the text alignment for this paragraph.
+
+        Args:
+            align: the desired `Alignments` value
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(ParagraphException)
     def leading(self, leading: float):
+        """
+        Sets the line-height multiplier for this paragraph.
+
+        Args:
+            leading: line height as a multiple of the font size (e.g., `1.5`)
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_leading(self._handle, ct.c_double(leading))
 
     @_with_error_handling(ParagraphException)
     def space_before(self, pts: float):
+        """
+        Sets the amount of space to add before this paragraph.
+
+        Args:
+            pts: vertical space in points
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_space_before(self._handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
     def space_after(self, pts: float):
+        """
+        Sets the amount of space to add after this paragraph.
+
+        Args:
+            pts: vertical space in points
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_space_after(self._handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
     def background(self, color: Color):
+        """
+        Sets the background color behind the paragraph text.
+
+        Args:
+            color: the background `Color`
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_background(
             self._handle,
             ct.c_double(color.r),
@@ -130,26 +183,86 @@ class Paragraph(AbstractFolioObject):
 
     @_with_error_handling(ParagraphException)
     def first_indent(self, pts: float):
+        """
+        Sets the first-line indent for this paragraph.
+
+        Args:
+            pts indent in points
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_first_indent(self._handle, ct.c_double(pts))
 
     @_with_error_handling(ParagraphException)
     def direction(self, dir: Directions):
+        """
+        Sets the writing direction (LTR, RTL, or AUTO) for this paragraph.
+
+        `Directions.AUTO` runs the Unicode Bidi algorithm over the
+        paragraph contents to infer direction from the dominant script.
+        Direction influences the {@code /Lang} entry and structure attributes
+        in tagged-PDF output (ISO 32000-2 §14.8.2).
+
+        Args:
+            dir: the desired `Directions` variant.
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_direction(self._handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ParagraphException)
     def orphans(self, n: int):
+        """
+        Sets the minimum number of lines to keep at the bottom
+        of a page (orphan control).
+
+        Args:
+            n: minimum orphan lines
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_orphans(self._handle, ct.c_int32(n))
 
     @_with_error_handling(ParagraphException)
     def widows(self, n: int):
+        """
+        Sets the minimum number of lines to keep at the top of a page (widow control).
+
+        Args:
+            n: minimum widow lines
+
+        Returns
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_widows(self._handle, ct.c_int32(n))
 
     @_with_error_handling(ParagraphException)
     def ellipsis(self, enabled: bool):
+        """
+        Enables or disables ellipsis truncation when text overflows.
+
+        Args:
+            enabled: `True` to append an ellipsis on overflow
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_ellipsis(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(ParagraphException)
     def word_break(self, mode: str):
+        """
+        Sets the word-break mode for this paragraph.
+
+        Args:
+            mode: word-break mode string (e.g., `"break-all"`)
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_word_break(
             self._handle,
             ct.c_char_p(mode.encode()),
@@ -157,10 +270,28 @@ class Paragraph(AbstractFolioObject):
 
     @_with_error_handling(ParagraphException)
     def hyphens(self, mode: str):
+        """
+        Sets the hyphenation mode for this paragraph.
+
+        Args:
+            mode: hyphenation mode string (e.g., `"auto"`)
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_hyphens(self._handle, ct.c_char_p(mode.encode()))
 
     @_with_error_handling(ParagraphException)
     def text_align_last(self, align: Alignments):
+        """
+        Controls the alignment of the last line in a justified paragraph.
+
+        Args:
+            align: alignment to apply to the final line
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_set_text_align_last(
             self._handle, ct.c_int32(align.value)
         )
@@ -173,6 +304,18 @@ class Paragraph(AbstractFolioObject):
         font_size: float,
         color: Color,
     ):
+        """
+        Appends a styled text run to this paragraph.
+
+        Args:
+            text: the run text
+            font: the font for this run
+            font_size: the font size in points
+            color: the text color
+
+        Returns:
+            this paragraph, for chaining
+        """
         return lib.folio_paragraph_add_run(
             self._handle,
             ct.c_char_p(text.encode()),
@@ -182,3 +325,10 @@ class Paragraph(AbstractFolioObject):
             ct.c_double(color.g),
             ct.c_double(color.b),
         )
+
+    def close(self):
+        lib.folio_paragraph_free(self._handle)
+
+    @property
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)

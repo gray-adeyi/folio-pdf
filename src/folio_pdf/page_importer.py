@@ -45,14 +45,14 @@ class PageImporter(AbstractFolioObject):
         )
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         Returns the source page width in points.
         """
         return lib.folio_page_import_width(self._handle)
 
     @property
-    def height(self):
+    def height(self) -> float:
         """
         Returns the source page height in points.
         """

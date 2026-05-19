@@ -71,7 +71,7 @@ class PDFMerger(AbstractFolioObject):
 
     def __init__(self, readers: list[PDFReader]):
         """
-        Merges multiple {@link PdfReader} instances into a single document.
+        Merges multiple `PDFReader` instances into a single document.
 
         Args:
             readers: the PDF readers to merge (in order)

@@ -184,7 +184,18 @@ def sign_pdf(pdf_data: bytes, opts: SignerOptions):
     return _read_from_obj_buffer(buf)
 
 
-def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions):
+def redact_text(reader: PDFReader, targets: list[str], opts: RedactorOptions) -> bytes:
+    """
+    Redacts every occurrence of each target string in the given PDF reader.
+
+    Args:
+        reader: source PDF reader
+        targets: literal strings to match and redact
+        opts: redaction appearance options
+
+    Returns:
+        the redacted PDF bytes
+    """
     CharPArray = ct.c_char_p * len(targets)
 
     lib.folio_redact_text.argtypes = [
@@ -206,6 +217,17 @@ lib.folio_redact_pattern.restype = ct.c_uint64
 
 
 def redact_pattern(reader: PDFReader, pattern: str, opts: RedactorOptions):
+    """
+    Redacts every match of the given regular expression pattern.
+
+    Args:
+        reader: source PDF reader
+        pattern: a regular expression used to locate redaction targets
+        opts: redaction appearance options
+
+    Returns:
+        the redacted PDF bytes
+    """
     buf = lib.folio_redact_pattern(
         reader._handle, ct.c_char_p(pattern.encode()), opts._handle
     )
@@ -221,6 +243,17 @@ def redact_regions(
     y2s: list[float],
     opts: RedactorOptions,
 ):  # TODO: Make this more python friendly
+    """
+    Redacts the explicit rectangular regions supplied by the caller.
+
+    Args:
+        reader: source PDF reader
+        regions: list of page regions to black out
+        opts: redaction appearance options
+
+    Returns:
+        the redacted PDF bytes
+    """
     assert len(x1s) == len(y1s) == len(x2s) == len(y2s), (
         "The lists x1s,y1s,x2s & y2s must all be of the same length"
     )

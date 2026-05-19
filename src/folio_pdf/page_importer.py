@@ -5,8 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 
 import ctypes as ct
 
-from folio_pdf import PDFReader
 from folio_pdf.core import AbstractFolioObject, lib
+from folio_pdf.reader import PDFReader
 
 lib.folio_extract_page_import.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_extract_page_import.restype = ct.c_uint64

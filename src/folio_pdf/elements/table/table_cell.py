@@ -10,25 +10,92 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignments, VerticalAlignments
 from folio_pdf.exceptions import TableCellException
 
+lib.folio_cell_free.argtypes = [ct.c_uint64]
+lib.folio_cell_free.restype = None
+
+lib.folio_cell_set_align.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_cell_set_align.restype = ct.c_int32
+
+lib.folio_cell_set_padding.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_cell_set_padding.restype = ct.c_int32
+
+lib.folio_cell_set_padding_sides.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_cell_set_padding_sides.restype = ct.c_int32
+
+lib.folio_cell_set_valign.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_cell_set_valign.restype = ct.c_int32
+
+lib.folio_cell_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_cell_set_background.restype = ct.c_int32
+
+lib.folio_cell_set_colspan.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_cell_set_colspan.restype = ct.c_int32
+
+lib.folio_cell_set_rowspan.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_cell_set_rowspan.restype = ct.c_int32
+
+lib.folio_cell_set_border.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_cell_set_border.restype = ct.c_int32
+
+lib.folio_cell_set_borders.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_cell_set_borders.restype = ct.c_int32
+
+lib.folio_cell_set_width_hint.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_cell_set_width_hint.restype = ct.c_int32
+
+lib.folio_cell_set_border_radius.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_cell_set_border_radius.restype = ct.c_int32
+
+lib.folio_cell_set_border_radius_per_corner.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_cell_set_border_radius_per_corner.restype = ct.c_int32
+
 
 class TableCell(AbstractFolioObject):
     _requires_close = True
 
     def __init__(self):
         self.__handle = 0
-
-    @property
-    def _handle(self) -> ct.c_uint64:
-        return ct.c_uint64(self.__handle)
-
-    def close(self):
-        lib.folio_cell_free(self._handle)
-
-    @classmethod
-    def _new_from_handle(cls, cell_handle: int):
-        obj = cls.__new__(cls)
-        cls.__handle = cell_handle
-        return obj
 
     @_with_error_handling(TableCellException)
     def align(self, align: Alignments):
@@ -137,3 +204,16 @@ class TableCell(AbstractFolioObject):
             ct.c_double(bottom_right),
             ct.c_double(bottom_left),
         )
+
+    def close(self):
+        lib.folio_cell_free(self._handle)
+
+    @property
+    def _handle(self) -> ct.c_uint64:
+        return ct.c_uint64(self.__handle)
+
+    @classmethod
+    def _new_from_handle(cls, cell_handle: int):
+        obj = cls.__new__(cls)
+        cls.__handle = cell_handle
+        return obj

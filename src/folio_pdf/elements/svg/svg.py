@@ -19,8 +19,8 @@ lib.folio_svg_width.restype = ct.c_double
 lib.folio_svg_height.argtypes = [ct.c_uint64]
 lib.folio_svg_height.restype = ct.c_double
 
-lib.foli_svg_free.argtypes = [ct.c_uint64]
-lib.foli_svg_free.restype = None
+lib.folio_svg_free.argtypes = [ct.c_uint64]
+lib.folio_svg_free.restype = None
 
 
 class SVG(AbstractFolioObject):

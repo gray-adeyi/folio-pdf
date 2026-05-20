@@ -318,6 +318,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_title(self._handle, ct.c_char_p(value.encode()))
 
@@ -330,6 +334,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_author(self._handle, ct.c_char_p(value.encode()))
 
@@ -350,6 +358,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_margins(
             self._handle,
@@ -380,6 +392,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add(self._handle, element._handle)
 
@@ -393,6 +409,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         _destination = destination
         if isinstance(_destination, Path):
@@ -430,6 +450,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             a buffer containing the PDF bytes
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         buf = lib.folio_document_write_to_buffer_with_options(
             self._handle, options._handle
@@ -446,6 +470,16 @@ class Document(AbstractFolioObject):
         (P, H1-H6, Table, Figure, etc.) and marked content operators in the
         content streams. This enables screen readers, text extraction, and
         accessibility compliance (Section 508, EN 301 549).
+
+        Args:
+            enabled: `True` to enable tagged PDF output
+
+        Returns:
+            this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_set_tagged(self._handle, ct.c_int32(enabled))
 
@@ -459,6 +493,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_pdfa(self._handle, ct.c_int32(level.value))
 
@@ -478,6 +516,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_actual_text(self._handle, ct.c_int32(enabled))
 
@@ -495,6 +537,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_encryption(
             self._handle,
@@ -522,6 +568,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_encryption_with_permissions(
             self._handle,
@@ -542,6 +592,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_validate_pdfa(self._handle)
 
@@ -555,6 +609,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_auto_bookmarks(self._handle, ct.c_int32(enabled))
 
@@ -568,6 +626,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_form(self._handle, form._handle)
 
@@ -587,6 +649,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_header_text(
             self._handle,
@@ -612,6 +678,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_footer_text(
             self._handle,
@@ -630,6 +700,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_watermark(
             self._handle, ct.c_char_p(text.encode())
@@ -656,6 +730,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_watermark_config(
             self._handle,
@@ -732,6 +810,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add_named_dest(
             self._handle,
@@ -770,6 +852,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_viewer_preferences(
             self._handle,
@@ -798,6 +884,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add_page_label(
             self._handle,
@@ -817,6 +907,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_remove_page(self._handle, ct.c_int32(index))
 
@@ -834,6 +928,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add_absolute(
             self._handle,
@@ -843,6 +941,7 @@ class Document(AbstractFolioObject):
             ct.c_double(width),
         )
 
+    @_with_error_handling(DocumentException)
     def attach_file(
         self,
         data: bytes,
@@ -863,6 +962,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_attach_file(
             self._handle,
@@ -884,6 +987,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add_html(self._handle, ct.c_char_p(html.encode()))
 
@@ -910,6 +1017,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_add_html_with_options(
             self._handle,
@@ -936,6 +1047,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_first_margins(
             self._handle,
@@ -960,6 +1075,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_left_margins(
             self._handle,
@@ -984,6 +1103,10 @@ class Document(AbstractFolioObject):
 
         Returns:
             this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_document_set_right_margins(
             self._handle,

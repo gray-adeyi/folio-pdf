@@ -252,6 +252,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_text(
             self._handle,
@@ -278,6 +282,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_text_embedded(
             self._handle,
@@ -302,6 +310,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_image(
             self._handle,
@@ -326,6 +338,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_link(
             self._handle,
@@ -352,6 +368,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_internal_link(
             self._handle,
@@ -379,6 +399,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_text_annotation(
             self._handle,
@@ -400,6 +424,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_opacity(self._handle, ct.c_double(alpha))
 
@@ -413,6 +441,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_rotate(self._handle, ct.c_int32(degress))
 
@@ -435,6 +467,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_crop_box(
             self._handle,
@@ -458,6 +494,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_trim_box(
             self._handle,
@@ -481,6 +521,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_bleed_box(
             self._handle,
@@ -503,6 +547,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_art_box(
             self._handle,
@@ -523,6 +571,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_size(
             self._handle, ct.c_double(width), ct.c_double(height)
@@ -544,6 +596,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_page_link(
             self._handle,
@@ -565,6 +621,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_set_opacity(
             self._handle, ct.c_double(fill_alpha), ct.c_double(stroke_alpha)
@@ -594,6 +654,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_highlight(
@@ -632,6 +696,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_underline_annotation(
@@ -670,6 +738,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_squiggly(
@@ -708,6 +780,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         DoubleArray = ct.c_double * len(quad_points)
         return lib.folio_page_add_strikeout(
@@ -733,6 +809,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_import_apply(self._handle, imp._handle)
 
@@ -759,6 +839,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_line(
             self._handle,
@@ -795,6 +879,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_rect(
             self._handle,
@@ -829,6 +917,10 @@ class Page(AbstractFolioObject):
 
         Returns:
             this page, for chaining
+
+        Raises:
+            PageException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
         """
         return lib.folio_page_add_rect_filled(
             self._handle,

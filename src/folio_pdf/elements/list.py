@@ -38,6 +38,12 @@ lib.folio_list_add_item.restype = ct.c_int32
 lib.folio_list_add_nested_item.argtypes = [ct.c_uint64, ct.c_char_p]
 lib.folio_list_add_nested_item.restype = ct.c_uint64
 
+lib.folio_list_add_item_runs.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_list_add_item_runs.restype = ct.c_int32
+
+lib.folio_list_add_item_runs_with_sublist.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_list_add_item_runs_with_sublist.restype = ct.c_uint64
+
 
 class List(AbstractFolioObject):
     """

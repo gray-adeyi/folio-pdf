@@ -35,6 +35,9 @@ lib.folio_heading_free.restype = None
 lib.folio_heading_set_align.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_heading_set_align.restype = ct.c_int32
 
+lib.folio_heading_set_runs.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_heading_set_runs.restype = ct.c_int32
+
 
 class Heading(AbstractFolioObject):
     """

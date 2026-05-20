@@ -34,7 +34,7 @@ class Color:
     def from_named(cls, color: str | Colors):
         _color = color
         if isinstance(_color, str):
-            _color = Colors(_color)
+            _color = Colors(_color.lower())
         match _color:
             case Colors.BLACK:
                 return cls(0, 0, 0)

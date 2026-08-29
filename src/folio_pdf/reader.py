@@ -86,7 +86,7 @@ class PDFReader(AbstractFolioObject):
             a new `PDFReader` for the in-memory PDF
         """
         obj = cls.__new__(cls)
-        obj._reader_handle = lib.folo_reader_parse(
+        obj._reader_handle = lib.folio_reader_parse(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
         return obj

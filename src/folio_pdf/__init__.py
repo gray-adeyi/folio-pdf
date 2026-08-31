@@ -17,7 +17,7 @@ from folio_pdf.reader import PDFReader
 from folio_pdf.redactor_options import RedactorOptions
 from folio_pdf.signer_options import SignerOptions
 
-from .core import _read_from_obj_buffer, lib
+from .core import _read_from_obj_buffer, get_folio_version, lib
 
 __all__ = [
     "Document",
@@ -29,6 +29,7 @@ __all__ = [
     "RedactorOptions",
     "SignerOptions",
     "Color",
+    "get_folio_version",
 ]
 
 

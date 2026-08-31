@@ -13,12 +13,21 @@
  *
  * 3. Strings returned FROM the library:
  *    - folio_version(): persistent pointer, do NOT free.
- *    - folio_last_error(): library-owned, valid until the next C ABI call.
+ *    - folio_last_error(): returns a fresh copy owned by the CALLER; release
+ *      it with folio_string_free(). Returns NULL when no error is set.
  *    - All other string data is returned as buffer handles (see below).
  *
  * 4. Buffer handles (folio_buffer_data / folio_buffer_len / folio_buffer_free):
  *    The library allocates the buffer; the caller MUST call folio_buffer_free()
  *    when done. The data pointer is valid until folio_buffer_free() is called.
+ *    For buffers that can exceed 2 GiB use folio_buffer_len64; folio_buffer_len
+ *    saturates at INT32_MAX and sets the last error.
+ *
+ * 5. Array arguments (pointer + count): the pointer must reference at least
+ *    `count` elements, valid for the duration of the call; the library reads,
+ *    never retains, them. count must be in [0, 1048576]; larger counts are
+ *    rejected with FOLIO_ERR_ARG (or a 0 handle) and set the last error.
+ *    A NULL pointer with count > 0 is rejected the same way.
  *
  * ERROR CONVENTION
  * ----------------
@@ -87,6 +96,10 @@ extern "C" {
 #define FOLIO_PDFA_3B          3
 #define FOLIO_PDFA_1B          4
 #define FOLIO_PDFA_1A          5
+#define FOLIO_PDFA_3A          6   /* ISO 19005-3:2012 Level A */
+#define FOLIO_PDFA_4           7   /* ISO 19005-4:2020 base, PDF 2.0 */
+#define FOLIO_PDFA_4F          8   /* ISO 19005-4:2020 with files */
+#define FOLIO_PDFA_4E          9   /* ISO 19005-4:2020 engineering */
 
 /* Encryption algorithms (document.EncryptionAlgorithm) */
 #define FOLIO_ENCRYPT_RC4_128  0
@@ -149,11 +162,13 @@ typedef void (*folio_page_decorator_fn)(
 
 const char *folio_version(void);
 const char *folio_last_error(void);
+void        folio_string_free(const char *s);
 
 /* ── Buffer ────────────────────────────────────────────────────────── */
 
 void    *folio_buffer_data(uint64_t buf);
-int32_t  folio_buffer_len(uint64_t buf);
+int32_t  folio_buffer_len(uint64_t buf);     /* saturates at INT32_MAX; see folio_buffer_len64 */
+int64_t  folio_buffer_len64(uint64_t buf);
 void     folio_buffer_free(uint64_t buf);
 
 /* ── Document ──────────────────────────────────────────────────────── */
@@ -165,6 +180,7 @@ void     folio_document_free(uint64_t doc);
 
 int32_t  folio_document_set_title(uint64_t doc, const char *title);
 int32_t  folio_document_set_author(uint64_t doc, const char *author);
+int32_t  folio_document_set_language(uint64_t doc, const char *lang);
 int32_t  folio_document_set_margins(uint64_t doc, double top, double right, double bottom, double left);
 
 uint64_t folio_document_add_page(uint64_t doc);
@@ -316,6 +332,7 @@ uint64_t folio_font_zapf_dingbats(void);
 
 uint64_t folio_font_load_ttf(const char *path);
 uint64_t folio_font_parse_ttf(const void *data, int32_t length);
+uint64_t folio_font_parse_for_language(const void *data, int32_t length, const char *lang);
 void     folio_font_free(uint64_t font);
 
 /* ── Paragraph ─────────────────────────────────────────────────────── */
@@ -339,6 +356,10 @@ int32_t  folio_paragraph_set_hyphens(uint64_t para, const char *mode);
 int32_t  folio_paragraph_set_text_align_last(uint64_t para, int32_t align);
 
 int32_t  folio_paragraph_add_run(uint64_t para, const char *text, uint64_t font, double font_size, double r, double g, double b);
+
+int32_t  folio_paragraph_measure_lines(uint64_t para, double max_width);
+double   folio_paragraph_measure_height(uint64_t para, double max_width);
+int32_t  folio_paragraph_split_after_line(uint64_t para, int32_t n, double max_width, uint64_t *out_head, uint64_t *out_tail);
 
 /* ── Heading ───────────────────────────────────────────────────────── */
 

@@ -2,14 +2,21 @@
 Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
-
 import ctypes as ct
+import sys
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Directions, ListStyles
+from folio_pdf.enums import Direction, ListStyle
 from folio_pdf.exceptions import ListException
 from folio_pdf.font import Font
 from folio_pdf.run_list import RunList
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_list_new.argtypes = [ct.c_uint64, ct.c_double]
 lib.folio_list_new.restype = ct.c_uint64
@@ -51,8 +58,10 @@ class List(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_list_free
 
     def __init__(self, font: Font, font_size: float):
+        self._is_closed = False
         self.__handle = lib.folio_list_new(font._handle, ct.c_double(font_size))
 
     @classmethod
@@ -60,19 +69,21 @@ class List(AbstractFolioObject):
         cls,
         font: Font,
         font_size: float,
-    ):
+    ) -> Self:
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_list_new_embedded(font._handle, ct.c_double(font_size))
         return obj
 
     @classmethod
-    def _new_from_handle(cls, handle: int):
+    def _new_from_handle(cls, handle: int) -> Self:
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = handle
         return obj
 
     @_with_error_handling(ListException)
-    def style(self, style: ListStyles) -> "List":
+    def style(self, style: ListStyle) -> _ErrorCode:
         """
         Sets the bullet or numbering style for this list.
 
@@ -85,7 +96,7 @@ class List(AbstractFolioObject):
         return lib.folio_list_set_style(self._handle, ct.c_int32(style))
 
     @_with_error_handling(ListException)
-    def indent(self, indent: float) -> "List":
+    def indent(self, indent: float) -> _ErrorCode:
         """
         Sets the left indent for list items in points.
 
@@ -98,7 +109,7 @@ class List(AbstractFolioObject):
         return lib.folio_list_set_indent(self._handle, ct.c_double(indent))
 
     @_with_error_handling(ListException)
-    def leading(self, leading: float) -> "List":
+    def leading(self, leading: float) -> _ErrorCode:
         """
         Sets the line-height multiplier for list items.
 
@@ -111,7 +122,7 @@ class List(AbstractFolioObject):
         return lib.folio_list_set_leading(self._handle, ct.c_double(leading))
 
     @_with_error_handling(ListException)
-    def direction(self, dir: Directions) -> "List":
+    def direction(self, dir: Direction) -> _ErrorCode:
         """
         Sets the writing direction (LTR, RTL, or AUTO) for this list.
 
@@ -129,7 +140,7 @@ class List(AbstractFolioObject):
         return lib.folio_list_set_direction(self._handle, ct.c_int32(dir.value))
 
     @_with_error_handling(ListException)
-    def add_item(self, text: str) -> "List":
+    def add_item(self, text: str) -> _ErrorCode:
         """
         Adds a list item to the list
 
@@ -141,7 +152,7 @@ class List(AbstractFolioObject):
         """
         return lib.folio_list_add_item(self._handle, ct.c_char_p(text.encode()))
 
-    def add_nested_item(self, text: str) -> "List":
+    def add_nested_item(self, text: str) -> Self:
         """
         Appends a nested (indented) sub-list item and returns the new sub-list.
 
@@ -157,7 +168,7 @@ class List(AbstractFolioObject):
         return self._new_from_handle(handle)
 
     @_with_error_handling(ListException)
-    def add_item_runs(self, run_list: RunList) -> "List":
+    def add_item_runs(self, run_list: RunList) -> _ErrorCode:
         """
         Adds a list item with styled text runs from a {@link RunList}.
 
@@ -169,7 +180,7 @@ class List(AbstractFolioObject):
         """
         return lib.folio_list_add_item_runs(self._handle, run_list._handle)
 
-    def add_item_runs_with_sublist(self, run_list: RunList) -> "List":
+    def add_item_runs_with_sublist(self, run_list: RunList) -> Self:
         """
         Adds a list item with styled runs and returns a nested sub-list.
 
@@ -183,9 +194,6 @@ class List(AbstractFolioObject):
             self._handle, run_list._handle
         )
         return self._new_from_handle(handle)
-
-    def close(self):
-        lib.folio_list_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

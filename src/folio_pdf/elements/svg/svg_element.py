@@ -6,10 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Alignments
+from folio_pdf.enums import Alignment
 from folio_pdf.exceptions import SVGElementException
 
 from .svg import SVG
+
+_ErrorCode = int
 
 lib.folio_svg_element_new.argtypes = [ct.c_uint64]
 lib.folio_svg_element_new.restype = ct.c_uint64
@@ -33,12 +35,14 @@ class SVGElement(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_svg_element_free
 
     def __init__(self, svg: SVG):
+        self._is_closed = False
         self.__handle = lib.folio_svg_element_new(svg._handle)
 
     @_with_error_handling(SVGElementException)
-    def size(self, w: float, h: float) -> "SVGElement":
+    def size(self, width: float, height: float) -> _ErrorCode:
         """
         Sets the rendered dimensions of this SVG element in points.
 
@@ -50,11 +54,11 @@ class SVGElement(AbstractFolioObject):
             this instance for chaining
         """
         return lib.folio_svg_element_set_size(
-            self._handle, ct.c_double(w), ct.c_double(h)
+            self._handle, ct.c_double(width), ct.c_double(height)
         )
 
     @_with_error_handling(SVGElementException)
-    def align(self, align: Alignments) -> "SVGElement":
+    def align(self, align: Alignment) -> _ErrorCode:
         """
         Sets the horizontal alignment of this SVG element within its container.
 
@@ -67,7 +71,7 @@ class SVGElement(AbstractFolioObject):
         return lib.folio_svg_element_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(SVGElementException)
-    def alt_text(self, text: str) -> "SVGElement":
+    def alt_text(self, text: str) -> _ErrorCode:
         """Sets alternative text for PDF/UA accessibility.
 
         Args:
@@ -83,6 +87,3 @@ class SVGElement(AbstractFolioObject):
     @property
     def _handle(self) -> ct.c_uint64:
         return ct.c_uint64(self.__handle)
-
-    def close(self):
-        lib.folio_svg_element_free(self._handle)

@@ -7,11 +7,14 @@ import ctypes as ct
 from typing import TYPE_CHECKING
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Alignments
+from folio_pdf.enums import Alignment
 from folio_pdf.exceptions import FlexItemException
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
+
+
+_ErrorCode = int
 
 
 lib.folio_flex_item_new.argtypes = [ct.c_uint64]
@@ -50,12 +53,14 @@ class FlexItem(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_flex_item_free
 
     def __init__(self, element: "Element"):
+        self._is_closed = False
         self.__handle = lib.folio_flex_item_new(element._handle)
 
     @_with_error_handling(FlexItemException)
-    def grow(self, grow: float) -> "FlexItem":
+    def grow(self, grow: float) -> _ErrorCode:
         """
         Sets the flex-grow factor, controlling how much this item expands to
         fill available space.
@@ -69,7 +74,7 @@ class FlexItem(AbstractFolioObject):
         return lib.folio_flex_item_set_grow(self._handle, ct.c_double(grow))
 
     @_with_error_handling(FlexItemException)
-    def shrink(self, shrink: float) -> "FlexItem":
+    def shrink(self, shrink: float) -> _ErrorCode:
         """
         Sets the flex-shrink factor, controlling how much this item contracts
         when space is limited.
@@ -83,7 +88,7 @@ class FlexItem(AbstractFolioObject):
         return lib.folio_flex_item_set_shrink(self._handle, ct.c_double(shrink))
 
     @_with_error_handling(FlexItemException)
-    def basis(self, basis: float) -> "FlexItem":
+    def basis(self, basis: float) -> _ErrorCode:
         """
         Sets the flex-basis, specifying the initial main-axis size of
         this item in points.
@@ -97,7 +102,7 @@ class FlexItem(AbstractFolioObject):
         return lib.folio_flex_item_set_basis(self._handle, ct.c_double(basis))
 
     @_with_error_handling(FlexItemException)
-    def align_self(self, align: Alignments) -> "FlexItem":
+    def align_self(self, align: Alignment) -> _ErrorCode:
         """
         Overrides the container's {@code alignItems} setting for this individual item.
 
@@ -112,7 +117,7 @@ class FlexItem(AbstractFolioObject):
     @_with_error_handling(FlexItemException)
     def margin(
         self, top: float, right: float, bottom: float, left: float
-    ) -> "FlexItem":
+    ) -> _ErrorCode:
         """
         Sets individual margins around this flex item.
 
@@ -132,9 +137,6 @@ class FlexItem(AbstractFolioObject):
             ct.c_double(bottom),
             ct.c_double(left),
         )
-
-    def close(self):
-        lib.folio_flex_item_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

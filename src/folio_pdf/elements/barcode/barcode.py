@@ -4,9 +4,16 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.core import AbstractFolioObject, lib
-from folio_pdf.enums import ECCLevels
+from folio_pdf.enums import ECCLevel
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 lib.folio_barcode_qr.argtypes = [ct.c_char_p]
 lib.folio_barcode_qr.restype = ct.c_uint64
@@ -37,6 +44,7 @@ class Barcode(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_barcode_free
 
     def __init__(self, data: str):
         """
@@ -48,10 +56,11 @@ class Barcode(AbstractFolioObject):
         Returns:
             a new `Barcode` instance
         """
+        self._is_closed = False
         self.__handle = lib.folio_barcode_qr(ct.c_char_p(data.encode()))
 
     @classmethod
-    def new_qr_ecc(cls, data: str, level: ECCLevels) -> "Barcode":
+    def new_qr_ecc(cls, data: str, level: ECCLevel) -> Self:
         """
            Creates a QR code barcode element with the specified error correction level.
 
@@ -63,13 +72,14 @@ class Barcode(AbstractFolioObject):
             a new `Barcode` instance
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_barcode_qr_ecc(
             ct.c_char_p(data.encode()), ct.c_int32(level.value)
         )
         return obj
 
     @classmethod
-    def new_code128(cls, data: str) -> "Barcode":
+    def new_code128(cls, data: str) -> Self:
         """
         Creates a Code 128 barcode.
 
@@ -80,11 +90,12 @@ class Barcode(AbstractFolioObject):
             a new `Barcode` instance
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_barcode_code128(ct.c_char_p(data.encode()))
         return obj
 
     @classmethod
-    def new_ean13(cls, data: str) -> "Barcode":
+    def new_ean13(cls, data: str) -> Self:
         """
         Creates an EAN-13 barcode element.
 
@@ -95,6 +106,7 @@ class Barcode(AbstractFolioObject):
             a new `Barcode` instance
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_barcode_ean13(ct.c_char_p(data.encode()))
         return obj
 

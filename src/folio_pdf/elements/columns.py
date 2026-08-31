@@ -13,27 +13,31 @@ if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
 
-class Columns(AbstractFolioObject):
-    """A multi-column layout container that places child elements into independently sized columns.
 
-    Content is assigned to a specific column by index, allowing side-by-side layout without
+_ErrorCode = int
+
+class Columns(AbstractFolioObject):
+    """A multi-column layout container that places child elements into independently
+    sized columns.
+
+    Content is assigned to a specific column by index,
+    allowing side-by-side layout without
     requiring a full grid setup.
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_columns_free
 
     def __init__(self, cols: int):
+        self._is_closed = False
         self.__handle = lib.folio_columns_new(ct.c_int32(cols))
 
     @property
     def _handle(self) -> ct.c_uint64:
         return ct.c_uint64(self.__handle)
 
-    def close(self):
-        lib.folio_columns_free(self._handle)
-
     @_with_error_handling(ColumnsException)
-    def gap(self, gap: float):
+    def gap(self, gap: float) -> _ErrorCode:
         """Sets the gap between columns in points.
 
         Args:
@@ -45,7 +49,7 @@ class Columns(AbstractFolioObject):
         return lib.folio_columns_set_gap(self._handle, ct.c_double(gap))
 
     @_with_error_handling(ColumnsException)
-    def widths(self, widths: list[float]):
+    def widths(self, widths: list[float]) -> _ErrorCode:
         """Sets the width of each column in points.
 
         The number of values should match the column count `cols` used to
@@ -63,7 +67,7 @@ class Columns(AbstractFolioObject):
         )
 
     @_with_error_handling(ColumnsException)
-    def balanced(self, enabled: bool):
+    def balanced(self, enabled: bool) -> _ErrorCode:
         """Toggles balanced column fill. When balanced, the engine sequentially
         fills columns to roughly equal heights instead of overflowing the
         first column before starting the next. When disabled, content fills
@@ -81,7 +85,7 @@ class Columns(AbstractFolioObject):
         return lib.folio_columns_set_balanced(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(ColumnsException)
-    def add(self, col_index: int, element: "Element"):
+    def add(self, col_index: int, element: "Element") -> _ErrorCode:
         """Adds an element to the specified column.
 
         Args:

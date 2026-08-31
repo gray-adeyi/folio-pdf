@@ -8,12 +8,19 @@ from typing import TYPE_CHECKING
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import AlignItems, GridTrackTypes, JustifyContents
+from folio_pdf.enums import AlignItem, GridTrackType, JustifyContent
 from folio_pdf.exceptions import GridException
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_grid_new.argtypes = []
 lib.folio_grid_new.restype = ct.c_uint64
@@ -108,12 +115,14 @@ class Grid(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_grid_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_grid_new()
 
     @_with_error_handling(GridException)
-    def add_child(self, element: "Element") -> "Grid":
+    def add_child(self, element: "Element") -> _ErrorCode:
         """
         Adds an element as the next child in this grid.
 
@@ -127,8 +136,8 @@ class Grid(AbstractFolioObject):
 
     @_with_error_handling(GridException)
     def template_columns(
-        self, types: list[GridTrackTypes], values: list[float]
-    ) -> "Grid":
+        self, types: list[GridTrackType], values: list[float]
+    ) -> _ErrorCode:
         """
         Defines the explicit column track sizes for the grid.
 
@@ -160,7 +169,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def template_rows(self, types: list[GridTrackTypes], values: list[float]) -> "Grid":
+    def template_rows(self, types: list[GridTrackType], values: list[float]) -> _ErrorCode:
         """
         Defines the explicit row track sizes for the grid.
 
@@ -192,7 +201,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def border(self, width: float, color: Color) -> "Grid":
+    def border(self, width: float, color: Color) -> _ErrorCode:
         """
         Sets a uniform border around this grid container.
 
@@ -222,7 +231,7 @@ class Grid(AbstractFolioObject):
         bottom_color: Color,
         left_width: float,
         left_color: Color,
-    ) -> "Grid":
+    ) -> _ErrorCode:
         """
         Sets individual borders for each edge of the grid container.
 
@@ -260,7 +269,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def template_areas(self, rows: list[str]) -> "Grid":
+    def template_areas(self, rows: list[str]) -> _ErrorCode:
         """
         Defines CSS-style named grid areas. Each row string lists area names
         separated by whitespace (e.g., `"header header"`, `"nav main"`).
@@ -293,7 +302,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def auto_rows(self, types: list[GridTrackTypes], values: list[float]) -> "Grid":
+    def auto_rows(self, types: list[GridTrackType], values: list[float]) -> _ErrorCode:
         """
         Sets the implicit row track sizes used for rows created outside
         the explicit template.
@@ -322,7 +331,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def gap(self, row_gap: float, col_gap: float) -> "Grid":
+    def gap(self, row_gap: float, col_gap: float) -> _ErrorCode:
         """
         Sets the row and column gaps between grid cells.
 
@@ -345,7 +354,7 @@ class Grid(AbstractFolioObject):
         col_end: int,
         row_start: int,
         row_end: int,
-    ) -> "Grid":
+    ) -> _ErrorCode:
         """
         Explicitly places a child element into a specific grid area.
 
@@ -371,7 +380,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def padding(self, padding: float) -> "Grid":
+    def padding(self, padding: float) -> _ErrorCode:
         """
         Sets uniform padding on all sides of this grid container.
 
@@ -384,7 +393,7 @@ class Grid(AbstractFolioObject):
         return lib.folio_grid_set_padding(self._handle, ct.c_double(padding))
 
     @_with_error_handling(GridException)
-    def background(self, color: Color) -> "Grid":
+    def background(self, color: Color) -> _ErrorCode:
         """
         Sets the background color of this grid container.
 
@@ -402,7 +411,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def justify_items(self, align: AlignItems) -> "Grid":
+    def justify_items(self, align: AlignItem) -> _ErrorCode:
         """
         Sets the default horizontal alignment of items within their grid cells.
 
@@ -415,7 +424,7 @@ class Grid(AbstractFolioObject):
         return lib.folio_grid_set_justify_items(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(GridException)
-    def align_items(self, align: AlignItems) -> "Grid":
+    def align_items(self, align: AlignItem) -> _ErrorCode:
         """
         Sets the default vertical alignment of items within their grid cells.
 
@@ -428,7 +437,7 @@ class Grid(AbstractFolioObject):
         return lib.folio_grid_set_align_items(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(GridException)
-    def justify_content(self, justify: JustifyContents) -> "Grid":
+    def justify_content(self, justify: JustifyContent) -> _ErrorCode:
         """
         Sets how the grid tracks are distributed along the inline (column) axis.
 
@@ -443,7 +452,7 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def align_content(self, align: JustifyContents) -> "Grid":
+    def align_content(self, align: JustifyContent) -> _ErrorCode:
         """
         Sets how the grid tracks are distributed along the block (row) axis.
 
@@ -456,7 +465,7 @@ class Grid(AbstractFolioObject):
         return lib.folio_grid_set_align_content(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(GridException)
-    def space_before(self, pts: float) -> "Grid":
+    def space_before(self, pts: float) -> _ErrorCode:
         """
         Sets extra vertical space before this grid container in the document flow.
 
@@ -469,7 +478,7 @@ class Grid(AbstractFolioObject):
         return lib.folio_grid_set_space_before(self._handle, ct.c_double(pts))
 
     @_with_error_handling(GridException)
-    def space_after(self, pts: float) -> "Grid":
+    def space_after(self, pts: float) -> _ErrorCode:
         """
         Sets extra vertical space after this grid container in the document flow.
 
@@ -480,9 +489,6 @@ class Grid(AbstractFolioObject):
             this instance for chaining
         """
         return lib.folio_grid_set_space_after(self._handle, ct.c_double(pts))
-
-    def close(self):
-        lib.folio_grid_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

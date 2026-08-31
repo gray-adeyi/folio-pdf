@@ -6,10 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Directions
+from folio_pdf.enums import Direction
 from folio_pdf.exceptions import TableException
 
 from .table_row import TableRow
+
+_ErrorCode = int
 
 lib.folio_table_new.argtypes = []
 lib.folio_table_new.restype = ct.c_uint64
@@ -48,12 +50,14 @@ class Table(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_table_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_table_new()
 
     @_with_error_handling(TableException)
-    def column_widths(self, widths: list[float]):
+    def column_widths(self, widths: list[float]) -> _ErrorCode:
         """
         Sets explicit column widths in points.
 
@@ -76,7 +80,7 @@ class Table(AbstractFolioObject):
         )
 
     @_with_error_handling(TableException)
-    def border_collapse(self, enabled: bool):
+    def border_collapse(self, enabled: bool) -> _ErrorCode:
         """
         Enables or disables border-collapse mode (adjacent borders share a single line).
 
@@ -89,7 +93,7 @@ class Table(AbstractFolioObject):
         return lib.folio_table_set_border_collapse(self._handle, ct.c_bool(enabled))
 
     @_with_error_handling(TableException)
-    def cell_spacing(self, h: float, v: float):
+    def cell_spacing(self, h: float, v: float) -> _ErrorCode:
         """
         Sets the horizontal and vertical spacing between cells.
 
@@ -105,7 +109,7 @@ class Table(AbstractFolioObject):
         )
 
     @_with_error_handling(TableException)
-    def auto_column_widths(self):
+    def auto_column_widths(self) -> _ErrorCode:
         """
         Enables automatic column width calculation based on cell content.
 
@@ -115,7 +119,7 @@ class Table(AbstractFolioObject):
         return lib.folio_table_set_auto_column_widths(self._handle)
 
     @_with_error_handling(TableException)
-    def direction(self, dir: Directions):
+    def direction(self, dir: Direction) -> _ErrorCode:
         """
         Sets the writing direction (LTR, RTL, or AUTO) for this table.
 
@@ -133,7 +137,7 @@ class Table(AbstractFolioObject):
         return lib.folio_table_set_direction(self._handle, ct.c_int32(dir.value))
 
     @_with_error_handling(TableException)
-    def min_width(self, pts: float):
+    def min_width(self, pts: float) -> _ErrorCode:
         """
         Sets the minimum total table width in points.
 
@@ -174,9 +178,6 @@ class Table(AbstractFolioObject):
         """
         row_handle = lib.folio_table_add_footer_row(self._handle)
         return TableRow._new_from_handle(row_handle)
-
-    def close(self):
-        lib.folio_table_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

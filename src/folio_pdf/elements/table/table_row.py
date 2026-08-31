@@ -2,8 +2,8 @@
 Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
-
 import ctypes as ct
+import sys
 from typing import TYPE_CHECKING
 
 from folio_pdf.core import AbstractFolioObject, lib
@@ -13,6 +13,13 @@ from .table_cell import TableCell
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
+
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 lib.folio_row_free.argtypes = [ct.c_uint64]
 lib.folio_row_free.restype = None
@@ -38,8 +45,10 @@ class TableRow(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_row_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = 0
 
     def add_cell(self, text: str, font: Font, font_size: float) -> TableCell:
@@ -95,15 +104,13 @@ class TableRow(AbstractFolioObject):
         handle = lib.folio_row_add_cell_element(self._handle, element._handle)
         return TableCell._new_from_handle(handle)
 
-    def close(self):
-        lib.folio_row_free(self._handle)
-
     @property
     def _handle(self) -> ct.c_uint64:
         return ct.c_uint64(self.__handle)
 
     @classmethod
-    def _new_from_handle(cls, row_handle: int):
+    def _new_from_handle(cls, row_handle: int) -> Self:
         obj = cls.__new__(cls)
-        cls.__handle = row_handle
+        obj._is_closed = False
+        obj.__handle = row_handle
         return obj

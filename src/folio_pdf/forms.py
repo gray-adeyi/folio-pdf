@@ -9,6 +9,8 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import FormException
 from folio_pdf.form_field import FormField
 
+_ErrorCode = int
+
 lib.folio_form_new.argtypes = []
 lib.folio_form_new.restype = ct.c_uint64
 
@@ -82,14 +84,16 @@ class Form(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_form_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_form_new()
 
     @_with_error_handling(FormException)
     def add_text_field(
         self, name: str, x1: float, y1: float, x2: float, y2: float, page_index: int
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a single-line text field to the form.
 
@@ -124,7 +128,7 @@ class Form(AbstractFolioObject):
         y2: float,
         page_index: int,
         checked: bool,
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a checkbox field to the form.
 
@@ -161,7 +165,7 @@ class Form(AbstractFolioObject):
         y2: float,
         page_index: int,
         options: list[str],
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a dropdown (combo box) field with the given options to the form.
 
@@ -211,7 +215,7 @@ class Form(AbstractFolioObject):
         x2: float,
         y2: float,
         page_index: int,
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a digital signature field to the form.
 
@@ -245,7 +249,7 @@ class Form(AbstractFolioObject):
         x2: float,
         y2: float,
         page_index: int,
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a multi-line text area field to the form.
 
@@ -279,7 +283,7 @@ class Form(AbstractFolioObject):
         x2: float,
         y2: float,
         page_index: int,
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a password input field (masked text) to the form.
 
@@ -314,7 +318,7 @@ class Form(AbstractFolioObject):
         y2: float,
         page_index: int,
         options: list[str],
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a scrollable list box field with the given options to the form.
 
@@ -358,7 +362,7 @@ class Form(AbstractFolioObject):
     @_with_error_handling(FormException)
     def add_radio_group(
         self, name: str, values: list[str], rects: list[float], page_indices: list[int]
-    ) -> "Form":
+    ) -> _ErrorCode:
         """
         Adds a radio button group to the form. Each radio button is defined by a
         value, a bounding rectangle (four doubles in {@code rects}), and a page index.
@@ -394,7 +398,7 @@ class Form(AbstractFolioObject):
         )
 
     @_with_error_handling(FormException)
-    def add_field(self, field: FormField) -> "Form":
+    def add_field(self, field: FormField) -> _ErrorCode:
         """
         Adds a pre-configured {@link FormField} to this form.
 
@@ -405,9 +409,6 @@ class Form(AbstractFolioObject):
             this form, for chaining
         """
         return lib.folio_form_add_field(self._handle, field._handle)
-
-    def close(self):
-        lib.folio_form_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

@@ -9,6 +9,8 @@ from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import RedactorOptionsException
 
+_ErrorCode = int
+
 lib.folio_redact_opts_new.argtypes = []
 lib.folio_redact_opts_new.restype = ct.c_uint64
 
@@ -44,12 +46,14 @@ class RedactorOptions(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_redact_opts_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_redact_opts_new()
 
     @_with_error_handling(RedactorOptionsException)
-    def fill_color(self, color: Color):
+    def fill_color(self, color: Color) -> _ErrorCode:
         """
         Sets the fill color for the redaction rectangles.
 
@@ -67,7 +71,7 @@ class RedactorOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(RedactorOptionsException)
-    def overlay(self, text: str, font_size: float, color: Color):
+    def overlay(self, text: str, font_size: float, color: Color) -> _ErrorCode:
         """
         Sets overlay text drawn on top of each redaction rectangle.
 
@@ -89,7 +93,7 @@ class RedactorOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(RedactorOptionsException)
-    def strip_metadata(self, strip: bool):
+    def strip_metadata(self, strip: bool) -> _ErrorCode:
         """
         Controls whether document metadata (author, title, etc.) is stripped.
 
@@ -100,9 +104,6 @@ class RedactorOptions(AbstractFolioObject):
             this options object, for chaining
         """
         return lib.folio_redact_opts_set_strip_metadata(self._handle, ct.c_int32(strip))
-
-    def close(self):
-        lib.folio_redact_opts_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

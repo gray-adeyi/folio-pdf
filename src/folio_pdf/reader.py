@@ -4,6 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 from pathlib import Path
 
 from folio_pdf.core import AbstractFolioObject, lib
@@ -50,6 +51,11 @@ lib.folio_reader_images.restype = ct.c_uint64
 lib.folio_reader_paths.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_reader_paths.restype = ct.c_uint64
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 class PDFReader(AbstractFolioObject):
     """
@@ -58,6 +64,7 @@ class PDFReader(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_reader_free
 
     def __init__(self, path: str | Path):
         """
@@ -69,13 +76,14 @@ class PDFReader(AbstractFolioObject):
         Returns:
             a new `PDFReader` for the file
         """
+        self._is_closed = False
         _path = path
         if isinstance(_path, Path):
             _path = _path.as_posix()
         self.__handle = lib.folio_reader_open(ct.c_char_p(_path.encode()))
 
     @classmethod
-    def parse(cls, data: bytes) -> "PDFReader":
+    def parse(cls, data: bytes) -> Self:
         """
         Parses a PDF from raw bytes.
 
@@ -86,9 +94,8 @@ class PDFReader(AbstractFolioObject):
             a new `PDFReader` for the in-memory PDF
         """
         obj = cls.__new__(cls)
-        obj._reader_handle = lib.folio_reader_parse(
-            ct.c_char_p(data), ct.c_int32(len(data))
-        )
+        obj._is_closed = False
+        obj.__handle = lib.folio_reader_parse(ct.c_char_p(data), ct.c_int32(len(data)))
         return obj
 
     @property
@@ -214,9 +221,6 @@ class PDFReader(AbstractFolioObject):
         """
         buf = lib.folio_reader_paths(self._handle, ct.c_int32(page_index))
         return self._read_from_obj_buffer(buf)
-
-    def close(self):
-        lib.folio_reader_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

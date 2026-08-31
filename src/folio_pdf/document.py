@@ -4,6 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -11,11 +12,11 @@ from typing import TYPE_CHECKING
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import (
-    Alignments,
-    EncryptionAlgorithms,
-    EncryptionPermissions,
-    PageSizes,
-    PDFALevels,
+    Alignment,
+    EncryptionAlgorithm,
+    EncryptionPermission,
+    PageSize,
+    PDFALevel,
 )
 from folio_pdf.exceptions import DocumentException
 from folio_pdf.font import Font
@@ -27,12 +28,22 @@ from folio_pdf.write_options import WriteOptions
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
+
 
 lib.folio_document_new.argtypes = [ct.c_double, ct.c_double]
 lib.folio_document_new.restype = ct.c_uint64
 
 lib.folio_document_new_letter.argtypes = []
 lib.folio_document_new_letter.restype = ct.c_uint64
+
+lib.folio_document_new_a4.argtypes = []
+lib.folio_document_new_a4.restype = ct.c_uint64
 
 lib.folio_document_free.argtypes = [ct.c_uint64]
 lib.folio_document_free.restype = None
@@ -42,6 +53,9 @@ lib.folio_document_set_title.restype = ct.c_int32
 
 lib.folio_document_set_author.argtypes = [ct.c_uint64, ct.c_char_p]
 lib.folio_document_set_author.restype = ct.c_int32
+
+lib.folio_document_set_language.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_document_set_language.restype = ct.c_int32
 
 lib.folio_document_set_margins.argtypes = [
     ct.c_uint64,
@@ -285,23 +299,29 @@ class Document(AbstractFolioObject):
     """Document is the top-level API for building a PDF."""
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_document_free
 
     def __init__(self, width: float, height: float):
+        self._is_closed = False
         self.__handle = lib.folio_document_new(ct.c_double(width), ct.c_double(height))
 
     @classmethod
-    def new_with_size(cls, size: PageSizes) -> "Document":
+    def new_with_size(cls, size: PageSize) -> Self:
         """Creates a new PDF document with page size provided"""
         match size:
-            case PageSizes.A4:
+            case PageSize.A4:
                 obj = cls.__new__(cls)
-                cls.__handle = lib.folio_document_new_a4()
+                obj._is_closed = False
+                obj.__handle = lib.folio_document_new_a4()
                 return obj
-            case PageSizes.LETTER:
-                return cls(612, 792)
-            case PageSizes.LEGAL:
+            case PageSize.LETTER:
+                obj = cls.__new__(cls)
+                obj._is_closed = False
+                obj.__handle = lib.folio_document_new_letter()
+                return obj
+            case PageSize.LEGAL:
                 return cls(612, 1008)
-            case PageSizes.TABLOID:
+            case PageSize.TABLOID:
                 return cls(792, 1224)
 
     @property
@@ -310,7 +330,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_page_count(self._handle)
 
     @_with_error_handling(DocumentException)
-    def title(self, value: str) -> "Document":
+    def title(self, value: str) -> _ErrorCode:
         """Sets the title of the PDF document
 
         Args:
@@ -326,7 +346,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_title(self._handle, ct.c_char_p(value.encode()))
 
     @_with_error_handling(DocumentException)
-    def author(self, value: str) -> "Document":
+    def author(self, value: str) -> _ErrorCode:
         """Sets the author of the PDF document
 
         Args:
@@ -339,12 +359,30 @@ class Document(AbstractFolioObject):
             DocumentException: a subclass of `FolioPDFException` when an error
             occurs while calling the underlying native code.
         """
-        return lib.folio_document_author(self._handle, ct.c_char_p(value.encode()))
+        return lib.folio_document_set_author(self._handle, ct.c_char_p(value.encode()))
+
+    @_with_error_handling(DocumentException)
+    def language(self, value: str) -> _ErrorCode:
+        """Sets the language of the PDF document
+
+        Args:
+            value: what to set the language to
+
+        Returns:
+            this document, for chaining
+
+        Raises:
+            DocumentException: a subclass of `FolioPDFException` when an error
+            occurs while calling the underlying native code.
+        """
+        return lib.folio_document_set_lanugage(
+            self._handle, ct.c_char_p(value.encode())
+        )
 
     @_with_error_handling(DocumentException)
     def margins(
         self, top: float, right: float, bottom: float, left: float
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         It sets the page margins used by the layout engine (in PDF points).
 
@@ -381,7 +419,7 @@ class Document(AbstractFolioObject):
         return Page._new_from_handle(pg_ptr)
 
     @_with_error_handling(DocumentException)
-    def add(self, element: "Element") -> "Document":
+    def add(self, element: "Element") -> _ErrorCode:
         """Appends a layout element (e.g. Paragraph) to the document.
 
         Elements are laid out automatically with word wrapping and page breaks
@@ -400,7 +438,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_add(self._handle, element._handle)
 
     @_with_error_handling(DocumentException)
-    def save(self, destination: str | Path) -> "Document":
+    def save(self, destination: str | Path) -> _ErrorCode:
         """Writes the document to a file at the given path
 
         Args:
@@ -432,7 +470,9 @@ class Document(AbstractFolioObject):
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
-    def save_with_options(self, destination: str | Path, opts: WriteOptions):
+    def save_with_options(
+        self, destination: str | Path, opts: WriteOptions
+    ) -> _ErrorCode:
         _destination = destination
         if isinstance(_destination, Path):
             _destination = _destination.as_posix()
@@ -462,7 +502,7 @@ class Document(AbstractFolioObject):
         return BytesIO(data)
 
     @_with_error_handling(DocumentException)
-    def tagged(self, enabled: bool) -> "Document":
+    def tagged(self, enabled: bool) -> _ErrorCode:
         """
         Enables tagged PDF output (PDF/UA foundation).
 
@@ -484,7 +524,7 @@ class Document(AbstractFolioObject):
         return lib.folio_set_tagged(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def pdfa(self, level: PDFALevels) -> "Document":
+    def pdfa(self, level: PDFALevel) -> _ErrorCode:
         """
         Sets the PDF/A conformance level for archival output.
 
@@ -501,7 +541,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_pdfa(self._handle, ct.c_int32(level.value))
 
     @_with_error_handling(DocumentException)
-    def actual_text(self, enabled: bool) -> "Document":
+    def actual_text(self, enabled: bool) -> _ErrorCode:
         """
         Toggles emission of `/ActualText` entries in the marked-content
         sequences of tagged PDFs (ISO 32000-1 §14.9.4).
@@ -525,8 +565,8 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def encryption(
-        self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithms
-    ) -> "Document":
+        self, user_password: str, owner_password: str, algorithm: EncryptionAlgorithm
+    ) -> _ErrorCode:
         """
         Applies password-based encryption to the output PDF.
 
@@ -554,9 +594,9 @@ class Document(AbstractFolioObject):
         self,
         user_password: str,
         owner_password: str,
-        algorithm: EncryptionAlgorithms,
-        permissions: EncryptionPermissions,
-    ) -> "Document":
+        algorithm: EncryptionAlgorithm,
+        permissions: EncryptionPermission,
+    ) -> _ErrorCode:
         """
         Applies password-based encryption with granular permission flags.
 
@@ -587,7 +627,7 @@ class Document(AbstractFolioObject):
         return self._read_from_obj_buffer(buf)
 
     @_with_error_handling(DocumentException)
-    def validate_pdfa(self) -> "Document":
+    def validate_pdfa(self) -> _ErrorCode:
         """Validates the document against its configured PDF/A conformance level.
 
         Returns:
@@ -600,7 +640,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_validate_pdfa(self._handle)
 
     @_with_error_handling(DocumentException)
-    def auto_bookmarks(self, enabled: bool) -> "Document":
+    def auto_bookmarks(self, enabled: bool) -> _ErrorCode:
         """
         Enables or disables automatic bookmark generation from headings.
 
@@ -617,7 +657,7 @@ class Document(AbstractFolioObject):
         return lib.folio_document_set_auto_bookmarks(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DocumentException)
-    def form(self, form: Form) -> "Document":
+    def form(self, form: Form) -> _ErrorCode:
         """
         Attaches an interactive {@link Form} to this document.
 
@@ -635,8 +675,8 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def header_text(
-        self, value: str, font: Font, size: float, align: Alignments
-    ) -> "Document":
+        self, value: str, font: Font, size: float, align: Alignment
+    ) -> _ErrorCode:
         """Sets a simple text header rendered on every page.
 
         The text may contain `{page}` and `{pages}` placeholders.
@@ -664,8 +704,8 @@ class Document(AbstractFolioObject):
 
     @_with_error_handling(DocumentException)
     def footer_text(
-        self, value: str, font: Font, size: float, align: Alignments
-    ) -> "Document":
+        self, value: str, font: Font, size: float, align: Alignment
+    ) -> _ErrorCode:
         """Sets a simple text footer rendered on every page.
 
         The text may contain `{page}` and `{pages}` placeholders.
@@ -692,7 +732,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def watermark(self, text: str) -> "Document":
+    def watermark(self, text: str) -> _ErrorCode:
         """Adds a simple text watermark to every page using default styling.
 
         Args:
@@ -717,7 +757,7 @@ class Document(AbstractFolioObject):
         color: Color,
         angle: float,
         opacity: float,
-    ) -> "Document":
+    ) -> _ErrorCode:
         """Adds a text watermark to every page with custom font size, color,
         angle, and opacity.
 
@@ -797,7 +837,7 @@ class Document(AbstractFolioObject):
         top: float,
         left: float,
         zoom: float,
-    ) -> "Document":
+    ) -> _ErrorCode:
         """Adds a named destination that can be targeted by internal links.
 
         Args:
@@ -836,7 +876,7 @@ class Document(AbstractFolioObject):
         fit_window: bool,
         center_window: bool,
         display_doc_title: bool,
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Configures PDF viewer preferences for how the document is displayed when opened.
 
@@ -872,7 +912,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def add_page_label(
         self, page_index: int, style: str, prefix: str, start: int
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Adds a page label range starting at the given page index.
 
@@ -898,7 +938,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def remove_page(self, index: int) -> "Document":
+    def remove_page(self, index: int) -> _ErrorCode:
         """
         Removes the page at the given zero-based index from the document.
 
@@ -917,7 +957,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def add_absolute(
         self, element: "Element", x: float, y: float, width: float
-    ) -> "Document":
+    ) -> _ErrorCode:
         """Adds an element handle at an absolute position on the current page.
 
         Args:
@@ -949,7 +989,7 @@ class Document(AbstractFolioObject):
         mime_type: str,
         description: str,
         af_relationship: str,
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Attaches a file as an embedded file stream in the PDF.
 
@@ -978,7 +1018,7 @@ class Document(AbstractFolioObject):
         )
 
     @_with_error_handling(DocumentException)
-    def add_html(self, html: str) -> "Document":
+    def add_html(self, html: str) -> _ErrorCode:
         """
         Appends an HTML fragment to the document using default rendering options.
 
@@ -1003,7 +1043,7 @@ class Document(AbstractFolioObject):
         page_height: float,
         base_path: str,
         fallback_font_path: str,
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Appends an HTML fragment with explicit rendering options.
 
@@ -1035,7 +1075,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def first_margins(
         self, top: float, right: float, bottom: float, left: float
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Sets custom margins for the first page of the document.
 
@@ -1063,7 +1103,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def left_margins(
         self, top: float, right: float, bottom: float, left: float
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Sets custom margins for left (even-numbered) pages in a duplex layout.
 
@@ -1091,7 +1131,7 @@ class Document(AbstractFolioObject):
     @_with_error_handling(DocumentException)
     def right_margins(
         self, top: float, right: float, bottom: float, left: float
-    ) -> "Document":
+    ) -> _ErrorCode:
         """
         Sets custom margins for right (odd-numbered) pages in a duplex layout.
 
@@ -1115,9 +1155,6 @@ class Document(AbstractFolioObject):
             ct.c_double(bottom),
             ct.c_double(left),
         )
-
-    def close(self):
-        lib.folio_document_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

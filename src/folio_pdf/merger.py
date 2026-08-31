@@ -4,6 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -11,6 +12,13 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import PDFMergerException
 from folio_pdf.font import Font
 from folio_pdf.reader import PDFReader
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_merge_set_info.argtypes = [ct.c_uint64, ct.c_char_p, ct.c_char_p]
 lib.folio_merge_set_info.restype = ct.c_int32
@@ -68,6 +76,7 @@ class PDFMerger(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_merge_free
 
     def __init__(self, readers: list[PDFReader]):
         """
@@ -79,6 +88,7 @@ class PDFMerger(AbstractFolioObject):
         Returns:
             a new `PDFMerger` with the combined pages
         """
+        self._is_closed = False
         readers_handles = [reader._handle for reader in readers]
         UInt64Array = ct.c_uint64 * len(readers_handles)
         lib.folio_reader_merge.argtypes = [
@@ -91,7 +101,7 @@ class PDFMerger(AbstractFolioObject):
         )
 
     @classmethod
-    def merge_files(cls, paths: list[str | Path]) -> "PDFMerger":
+    def merge_files(cls, paths: list[str | Path]) -> Self:
         """
         Merges PDF files by path.
 
@@ -108,13 +118,14 @@ class PDFMerger(AbstractFolioObject):
         CharPArray = ct.c_char_p * len(_paths)
         lib.folio_merge_files.argtypes = [CharPArray, ct.c_int32]
         lib.folio_merge_files.restype = ct.c_uint64
-        obj._merger_handle = lib.folio_merge_files(
+        obj._is_closed = False
+        obj.__handle = lib.folio_merge_files(
             CharPArray(_paths), ct.c_int32(len(_paths))
         )
         return obj
 
     @_with_error_handling(PDFMergerException)
-    def info(self, title: str, author: str) -> "PDFMerger":
+    def info(self, title: str, author: str) -> _ErrorCode:
         """
         Sets the title and author metadata on the merged document.
 
@@ -131,7 +142,7 @@ class PDFMerger(AbstractFolioObject):
         )
 
     @_with_error_handling(PDFMergerException)
-    def add_blank_page(self, width: float, height: float) -> "PDFMerger":
+    def add_blank_page(self, width: float, height: float) -> _ErrorCode:
         """
         Appends a blank page with the given dimensions.
 
@@ -154,7 +165,7 @@ class PDFMerger(AbstractFolioObject):
         font_size: float,
         x: float,
         y: float,
-    ) -> "PDFMerger":
+    ) -> _ErrorCode:
         """
         Appends a page with text at a specific position.
 
@@ -181,7 +192,7 @@ class PDFMerger(AbstractFolioObject):
         )
 
     @_with_error_handling(PDFMergerException)
-    def save(self, path: str | Path) -> "PDFMerger":
+    def save(self, path: str | Path) -> _ErrorCode:
         """
         Saves the merged document to a file.
 
@@ -205,7 +216,7 @@ class PDFMerger(AbstractFolioObject):
         return BytesIO(data)
 
     @_with_error_handling(PDFMergerException)
-    def flatten_forms(self) -> "PDFMerger":
+    def flatten_forms(self) -> _ErrorCode:
         """
         Flattens all interactive form fields into static content.
 
@@ -224,7 +235,7 @@ class PDFMerger(AbstractFolioObject):
         return lib.folio_merge_page_count()
 
     @_with_error_handling(PDFMergerException)
-    def remove_page(self, index: int) -> "PDFMerger":
+    def remove_page(self, index: int) -> _ErrorCode:
         """
         Removes the page at the given zero-based index.
 
@@ -237,7 +248,7 @@ class PDFMerger(AbstractFolioObject):
         return lib.folio_merge_remove_page(self._handle, ct.c_int32(index))
 
     @_with_error_handling(PDFMergerException)
-    def rotate_page(self, index: int, degrees: int) -> "PDFMerger":
+    def rotate_page(self, index: int, degrees: int) -> _ErrorCode:
         """
         Rotates the page at the given index by the specified degrees (90, 180, 270).
 
@@ -253,7 +264,7 @@ class PDFMerger(AbstractFolioObject):
         )
 
     @_with_error_handling(PDFMergerException)
-    def reorder_pages(self, order: list[int]) -> "PDFMerger":
+    def reorder_pages(self, order: list[int]) -> _ErrorCode:
         """
         Reorders pages.
 
@@ -277,7 +288,7 @@ class PDFMerger(AbstractFolioObject):
     @_with_error_handling(PDFMergerException)
     def crop_page(
         self, index: float, x1: float, y1: float, x2: float, y2: float
-    ) -> "PDFMerger":
+    ) -> _ErrorCode:
         """
         Crops the page at the given index to the specified rectangle.
 
@@ -299,9 +310,6 @@ class PDFMerger(AbstractFolioObject):
             ct.c_double(x2),
             ct.c_double(y2),
         )
-
-    def close(self):
-        lib.folio_merge_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

@@ -4,24 +4,33 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.core import AbstractFolioObject, lib
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 
 class Outline(AbstractFolioObject):
     _requires_close = False
+
+    def __init__(self):
+        self.__handle = 0
 
     @property
     def _handle(self) -> ct.c_uint64:
         return ct.c_uint64(self.__handle)
 
     @classmethod
-    def _new_from_handle(cls, handle: int):
+    def _new_from_handle(cls, handle: int) -> Self:
         obj = cls.__new__(cls)
-        cls.__handle = handle
+        obj.__handle = handle
         return obj
 
-    def add_child(self, title: str, page_index: int) -> "Outline":
+    def add_child(self, title: str, page_index: int) -> Self:
         """Adds a child bookmark under an existing outline entry.
 
         Args:
@@ -40,7 +49,7 @@ class Outline(AbstractFolioObject):
 
     def add_child_xyz(
         self, title: str, page_index: int, left: float, top: float, zoom: float
-    ) -> "Outline":
+    ) -> Self:
         """Adds a child bookmark under an existing outline entry with an
         explicit XYZ destination.
 

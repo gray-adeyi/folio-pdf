@@ -9,6 +9,8 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import FormFillerException
 from folio_pdf.reader import PDFReader
 
+_ErrorCode = int
+
 lib.folio_form_filler_new.argtypes = [ct.c_uint64]
 lib.folio_form_filler_new.restype = ct.c_uint64
 
@@ -34,8 +36,10 @@ class FormFiller(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_form_filler_free
 
     def __init__(self, reader: PDFReader):
+        self._is_closed = False
         self.__handle = lib.folio_form_filler_new(reader._handle)
 
     def field_names(self) -> str:
@@ -64,7 +68,7 @@ class FormFiller(AbstractFolioObject):
         return str(self._read_from_obj_buffer(buf))
 
     @_with_error_handling(FormFillerException)
-    def value(self, field_name: str, value: str):
+    def value(self, field_name: str, value: str) -> _ErrorCode:
         """
         Sets the value of a text form field.
 
@@ -80,7 +84,7 @@ class FormFiller(AbstractFolioObject):
         )
 
     @_with_error_handling(FormFillerException)
-    def checkbox(self, field_name: str, checked: bool):
+    def checkbox(self, field_name: str, checked: bool) -> _ErrorCode:
         """
         Sets the checked state of a checkbox form field.
 
@@ -94,9 +98,6 @@ class FormFiller(AbstractFolioObject):
         return lib.folio_form_filler_set_checkbox(
             self._handle, ct.c_char_p(field_name.encode()), ct.c_int32(checked)
         )
-
-    def close(self):
-        lib.folio_form_filler_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

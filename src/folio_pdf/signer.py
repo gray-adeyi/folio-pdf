@@ -4,8 +4,15 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.core import AbstractFolioObject, lib
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 lib.folio_signer_new_pem.argtypes = [ct.c_void_p, ct.c_int32, ct.c_void_p, ct.c_int32]
 lib.folio_signer_new_pem.restype = ct.c_uint64
@@ -28,6 +35,7 @@ class Signer(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_signer_free
 
     def __init__(self, key: bytes, cert_pem: bytes):
         """
@@ -40,6 +48,7 @@ class Signer(AbstractFolioObject):
         Returns:
             a new `PDFSigner`
         """
+        self._is_closed = False
         self.__handle = lib.folio_signer_new_pem(
             ct.c_char_p(key),
             ct.c_int32(len(key)),
@@ -48,7 +57,7 @@ class Signer(AbstractFolioObject):
         )
 
     @classmethod
-    def new_pkcs12(cls, data: bytes, password: str):
+    def new_pkcs12(cls, data: bytes, password: str) -> Self:
         """
         Creates a signer from a PKCS#12 (.p12 / .pfx) keystore.
 
@@ -60,13 +69,11 @@ class Signer(AbstractFolioObject):
             a new `PDFSigner`
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_signer_new_pkcs12(
             ct.c_char_p(data), ct.c_int32(len(data)), ct.c_char_p(password.encode())
         )
         return obj
-
-    def close(self):
-        lib.folio_signer_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

@@ -4,10 +4,18 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import FormFieldException
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_form_create_text_field.argtypes = [
     ct.c_char_p,
@@ -65,6 +73,7 @@ class FormField(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_form_field_free
 
     def __init__(
         self, name: str, x1: float, y1: float, x2: float, y2: float, page_index: int
@@ -83,6 +92,7 @@ class FormField(AbstractFolioObject):
         Returns:
             a new `FormField` representing the text field
         """
+        self._is_closed = False
         self.__handle = lib.folio_form_create_text_field(
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
@@ -102,7 +112,7 @@ class FormField(AbstractFolioObject):
         y2: float,
         page_index: int,
         checked: bool,
-    ):
+    ) -> Self:
         """
         Creates a checkbox field.
 
@@ -119,7 +129,8 @@ class FormField(AbstractFolioObject):
             a new `FormField` representing the checkbox
         """
         obj = cls.__new__(cls)
-        obj._form_field_handle = lib.folio_form_create_checkbox(
+        obj._is_closed = False
+        obj.__handle = lib.folio_form_create_checkbox(
             ct.c_char_p(name.encode()),
             ct.c_double(x1),
             ct.c_double(y1),
@@ -131,7 +142,7 @@ class FormField(AbstractFolioObject):
         return obj
 
     @_with_error_handling(FormFieldException)
-    def value(self, value: str):
+    def value(self, value: str) -> _ErrorCode:
         """
         Sets the default value for this field.
 
@@ -144,7 +155,7 @@ class FormField(AbstractFolioObject):
         return lib.folio_form_field_set_value(ct.c_char_p(value.encode()))
 
     @_with_error_handling(FormFieldException)
-    def read_only(self):
+    def read_only(self) -> _ErrorCode:
         """
         Marks this field as read-only so users cannot edit it.
 
@@ -154,7 +165,7 @@ class FormField(AbstractFolioObject):
         return lib.folio_form_field_set_read_only()
 
     @_with_error_handling(FormFieldException)
-    def required(self):
+    def required(self) -> _ErrorCode:
         """
         Marks this field as required (must be filled before submission).
 
@@ -164,7 +175,7 @@ class FormField(AbstractFolioObject):
         return lib.folio_form_field_set_required()
 
     @_with_error_handling(FormFieldException)
-    def background_color(self, color: Color):
+    def background_color(self, color: Color) -> _ErrorCode:
         """
         Sets the background fill color of this field widget.
 
@@ -182,7 +193,7 @@ class FormField(AbstractFolioObject):
         )
 
     @_with_error_handling(FormFieldException)
-    def border_color(self, color: Color):
+    def border_color(self, color: Color) -> _ErrorCode:
         """
         Sets the border color of this field widget.
 
@@ -198,9 +209,6 @@ class FormField(AbstractFolioObject):
             ct.c_double(color.g),
             ct.c_double(color.b),
         )
-
-    def close(self):
-        lib.folio_form_field_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

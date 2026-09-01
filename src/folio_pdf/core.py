@@ -107,8 +107,8 @@ def _with_error_handling(
         ) -> _Self:
             res_code = func(self, *args, **kwargs)
 
-            err = ErrorCode(res_code)
-            if err != ErrorCode.OK:
+            err_code = ErrorCode(res_code)
+            if err_code != ErrorCode.OK:
                 msg_bytes = lib.folio_last_error()
                 lib.folio_string_free(ct.c_char_p(msg_bytes))
                 raise exception(str(msg_bytes))

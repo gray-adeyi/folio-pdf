@@ -8,6 +8,8 @@ import ctypes as ct
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import WriteOptionsException
 
+_ErrorCode = int
+
 lib.folio_write_options_new.argtypes = []
 lib.folio_write_options_new.restype = ct.c_uint64
 
@@ -41,12 +43,14 @@ class WriteOptions(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_write_options_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_write_options_new()
 
     @_with_error_handling(WriteOptionsException)
-    def use_xref_stream(self, enabled: bool) -> "WriteOptions":
+    def use_xref_stream(self, enabled: bool) -> _ErrorCode:
         """
         Toggles emission of a cross-reference stream
         (ISO 32000-1 §7.5.8) in place of a classic {@code xref} table
@@ -63,7 +67,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def use_object_streams(self, enabled: bool) -> "WriteOptions":
+    def use_object_streams(self, enabled: bool) -> _ErrorCode:
         """
         Toggles packing indirect objects into compressed object streams
         (ISO 32000-1 §7.5.7). Implies `use_xref_stream`.
@@ -79,7 +83,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def object_stream_capacity(self, capacity: int) -> "WriteOptions":
+    def object_stream_capacity(self, capacity: int) -> _ErrorCode:
         """
         Sets the maximum number of indirect objects packed into a single
         object stream (ISO 32000-1 §7.5.7).
@@ -95,7 +99,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def orphan_sweep(self, enabled: bool) -> "WriteOptions":
+    def orphan_sweep(self, enabled: bool) -> _ErrorCode:
         """
         Toggles dropping indirect objects that are unreachable from the
         document catalog (ISO 32000-1 §7.7.2) before writing.
@@ -111,7 +115,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def clean_content_streams(self, enabled: bool) -> "WriteOptions":
+    def clean_content_streams(self, enabled: bool) -> _ErrorCode:
         """
         Toggles normalizing and recompressing content streams
         (ISO 32000-1 §7.8) prior to writing.
@@ -127,7 +131,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def deduplicate_objects(self, enabled: bool) -> "WriteOptions":
+    def deduplicate_objects(self, enabled: bool) -> _ErrorCode:
         """
         Toggles merging of byte-identical indirect objects so they share a
         single object number (ISO 32000-1 §7.3.10).
@@ -143,7 +147,7 @@ class WriteOptions(AbstractFolioObject):
         )
 
     @_with_error_handling(WriteOptionsException)
-    def recompress_streams(self, enabled: bool) -> "WriteOptions":
+    def recompress_streams(self, enabled: bool) -> _ErrorCode:
         """
         Toggles re-encoding existing flate streams with higher compression
         during the write pass.
@@ -157,9 +161,6 @@ class WriteOptions(AbstractFolioObject):
         return lib.folio_write_options_set_recompress_streams(
             self._handle, ct.c_int32(enabled)
         )
-
-    def close(self):
-        lib.folio_write_options_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

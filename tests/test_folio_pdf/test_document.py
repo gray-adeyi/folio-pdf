@@ -3,15 +3,14 @@ from pathlib import Path
 from unittest import TestCase
 from uuid import uuid4
 
-from folio_pdf import Font
-from folio_pdf.document import Document
-from folio_pdf.enums import PageSizes, StandardPDFFonts
+from folio_pdf import Document, Font
+from folio_pdf.enums import PageSize, StandardPDFFont
 
 
 class DocumentTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.doc = Document.new_with_size(PageSizes.A4)
+        cls.doc = Document.new_with_size(PageSize.A4)
 
     @classmethod
     def tearDownClass(cls):
@@ -22,7 +21,7 @@ class DocumentTestCase(TestCase):
             self.assertGreater(doc._handle.value, 0)
 
     def test_can_create_a4_document_instance(self):
-        with Document.new_with_size(PageSizes.A4) as doc:
+        with Document.new_with_size(PageSize.A4) as doc:
             self.assertGreater(doc._handle.value, 0)
 
     def test_can_set_document_title(self):
@@ -30,13 +29,13 @@ class DocumentTestCase(TestCase):
 
     def test_can_save(self):
         doc = (
-            Document.new_with_size(PageSizes.A4)
+            Document.new_with_size(PageSize.A4)
             .title("folio test document")
             .watermark("Folio pdf test")
         )
 
         page = doc.add_page()
-        font = Font(StandardPDFFonts.HELVETICA_BOLD)
+        font = Font(StandardPDFFont.HELVETICA_BOLD)
         page.add_text("I love folio pdf", font, 14, 100, 100)
         filename = f"{uuid4()}.pdf"
         doc.save(filename)

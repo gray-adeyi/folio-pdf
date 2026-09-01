@@ -6,11 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 import ctypes as ct
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import PadesLevels
+from folio_pdf.enums import PadesLevel
 from folio_pdf.exceptions import SignerOptionsException
 from folio_pdf.ocsp_client import OCSPClient
 from folio_pdf.signer import Signer
 from folio_pdf.tsa_client import TSAClient
+
+_ErrorCode = int
 
 lib.folio_sign_opts_new.argtypes = [ct.c_uint64, ct.c_int32]
 lib.folio_sign_opts_new.restype = ct.c_uint64
@@ -44,12 +46,14 @@ class SignerOptions(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_sign_opts_free
 
-    def __init__(self, signer: Signer, level: PadesLevels):
+    def __init__(self, signer: Signer, level: PadesLevel):
+        self._is_closed = False
         self.__handle = lib.folio_sign_opts_new(signer._handle, ct.c_int32(level.value))
 
     @_with_error_handling(SignerOptionsException)
-    def name(self, name: str):
+    def name(self, name: str) -> _ErrorCode:
         """Sets the signer's name.
 
         Args:
@@ -61,7 +65,7 @@ class SignerOptions(AbstractFolioObject):
         return lib.folio_sign_opts_set_name(ct.c_char_p(name.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def reason(self, reason: str):
+    def reason(self, reason: str) -> _ErrorCode:
         """Sets the reason for signing.
 
         Args:
@@ -73,7 +77,7 @@ class SignerOptions(AbstractFolioObject):
         return lib.folio_sign_opts_set_reason(ct.c_char_p(reason.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def location(self, location: str):
+    def location(self, location: str) -> _ErrorCode:
         """Sets the signing location.
 
         Args:
@@ -85,7 +89,7 @@ class SignerOptions(AbstractFolioObject):
         return lib.folio_sign_opts_set_location(ct.c_char_p(location.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def contact_info(self, info: str):
+    def contact_info(self, info: str) -> _ErrorCode:
         """Sets contact information.
 
         Args:
@@ -97,7 +101,7 @@ class SignerOptions(AbstractFolioObject):
         return lib.folio_sign_opts_set_contact_info(ct.c_char_p(info.encode()))
 
     @_with_error_handling(SignerOptionsException)
-    def tsa(self, tsa: TSAClient):
+    def tsa(self, tsa: TSAClient) -> _ErrorCode:
         """Sets a TSA (Time Stamp Authority) client for timestamped signatures.
 
         Args:
@@ -109,7 +113,7 @@ class SignerOptions(AbstractFolioObject):
         return lib.folio_sign_opts_set_tsa(tsa._handle)
 
     @_with_error_handling(SignerOptionsException)
-    def ocsp(self, ocsp: OCSPClient):
+    def ocsp(self, ocsp: OCSPClient) -> _ErrorCode:
         """Sets an OCSP client for revocation checking.
 
         Args:
@@ -119,9 +123,6 @@ class SignerOptions(AbstractFolioObject):
             this signer options, for chaining
         """
         return lib.folio_sign_opts_set_ocsp(ocsp._handle)
-
-    def close(self):
-        lib.folio_sign_opts_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

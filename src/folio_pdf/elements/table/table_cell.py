@@ -7,8 +7,10 @@ import ctypes as ct
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Alignments, VerticalAlignments
+from folio_pdf.enums import Alignment, VerticalAlignment
 from folio_pdf.exceptions import TableCellException
+
+_ErrorCode = int
 
 lib.folio_cell_free.argtypes = [ct.c_uint64]
 lib.folio_cell_free.restype = None
@@ -93,20 +95,24 @@ lib.folio_cell_set_border_radius_per_corner.restype = ct.c_int32
 
 class TableCell(AbstractFolioObject):
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_cell_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = 0
 
     @_with_error_handling(TableCellException)
-    def align(self, align: Alignments):
+    def align(self, align: Alignment) -> _ErrorCode:
         return lib.folio_cell_set_align(self._handle, ct.c_int32(align.value))
 
     @_with_error_handling(TableCellException)
-    def padding(self, padding: float):
+    def padding(self, padding: float) -> _ErrorCode:
         return lib.folio_cell_set_padding(self._handle, ct.c_double(padding))
 
     @_with_error_handling(TableCellException)
-    def padding_sides(self, top: float, right: float, bottom: float, left: float):
+    def padding_sides(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> _ErrorCode:
         return lib.folio_cell_set_padding_sides(
             self._handle,
             ct.c_double(top),
@@ -116,11 +122,11 @@ class TableCell(AbstractFolioObject):
         )
 
     @_with_error_handling(TableCellException)
-    def valign(self, valign: VerticalAlignments):
+    def valign(self, valign: VerticalAlignment) -> _ErrorCode:
         return lib.folio_cell_set_valign(self._handle, ct.c_int32(valign))
 
     @_with_error_handling(TableCellException)
-    def background(self, color: Color):
+    def background(self, color: Color) -> _ErrorCode:
         return lib.folio_cell_set_background(
             self._handle,
             ct.c_double(color.r),
@@ -129,15 +135,15 @@ class TableCell(AbstractFolioObject):
         )
 
     @_with_error_handling(TableCellException)
-    def colspan(self, n: int):
+    def colspan(self, n: int) -> _ErrorCode:
         return lib.folio_cell_set_colspan(self._handle, ct.c_int32(n))
 
     @_with_error_handling(TableCellException)
-    def rowspan(self, n: int):
+    def rowspan(self, n: int) -> _ErrorCode:
         return lib.folio_cell_set_rowspan(self._handle, ct.c_int32(n))
 
     @_with_error_handling(TableCellException)
-    def border(self, width: float, color: Color):
+    def border(self, width: float, color: Color) -> _ErrorCode:
         return lib.folio_cell_set_border(
             self._handle,
             ct.c_double(width),
@@ -165,7 +171,7 @@ class TableCell(AbstractFolioObject):
         left_red: float,
         left_green: float,
         left_blue: float,
-    ):  # TODO: Find a way to reduce number of params
+    ) -> _ErrorCode:  # TODO: Find a way to reduce number of params
         return lib.folio_cell_set_borders(
             ct.c_double(top_width),
             ct.c_double(top_red),
@@ -186,17 +192,17 @@ class TableCell(AbstractFolioObject):
         )
 
     @_with_error_handling(TableCellException)
-    def width_hint(self, pts: float):
+    def width_hint(self, pts: float) -> _ErrorCode:
         return lib.folio_cell_set_width_hint(self._handle, ct.c_double(pts))
 
     @_with_error_handling(TableCellException)
-    def border_radius(self, radius: float):
+    def border_radius(self, radius: float) -> _ErrorCode:
         return lib.folio_cell_set_border_radius(self._handle, ct.c_double(radius))
 
     @_with_error_handling(TableCellException)
     def border_radius_per_corner(
         self, top_left: float, top_right: float, bottom_right: float, bottom_left: float
-    ):
+    ) -> _ErrorCode:
         return lib.folio_cell_set_border_radius_per_corner(
             self._handle,
             ct.c_double(top_left),
@@ -204,9 +210,6 @@ class TableCell(AbstractFolioObject):
             ct.c_double(bottom_right),
             ct.c_double(bottom_left),
         )
-
-    def close(self):
-        lib.folio_cell_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

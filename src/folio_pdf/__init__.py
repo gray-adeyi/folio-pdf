@@ -9,15 +9,18 @@ from pathlib import Path
 
 from folio_pdf.color import Color
 from folio_pdf.document import Document
+from folio_pdf.enums import ErrorCode
+from folio_pdf.exceptions import FolioPDFException
 from folio_pdf.font import Font
 from folio_pdf.merger import PDFMerger
 from folio_pdf.outline import Outline
 from folio_pdf.page import Page
+from folio_pdf.page_importer import PageImporter
 from folio_pdf.reader import PDFReader
 from folio_pdf.redactor_options import RedactorOptions
 from folio_pdf.signer_options import SignerOptions
 
-from .core import _read_from_obj_buffer, lib
+from .core import _read_from_obj_buffer, get_folio_version, lib
 
 __all__ = [
     "Document",
@@ -29,6 +32,8 @@ __all__ = [
     "RedactorOptions",
     "SignerOptions",
     "Color",
+    "PageImporter",
+    "get_folio_version",
 ]
 
 
@@ -49,10 +54,14 @@ def html_to_pdf(html: str, destination: str | Path) -> None:
         _destination = _destination.as_posix()
     if not _destination.endswith("pdf"):
         _destination += ".pdf"
-    # TODO: Handle result code
-    lib.folio_html_to_pdf(
+    res_code = lib.folio_html_to_pdf(
         ct.c_char_p(html.encode()), ct.c_char_p(_destination.encode())
     )
+    err_code = ErrorCode(res_code)
+    if err_code != ErrorCode.OK:
+        msg_bytes = lib.folio_last_error()
+        lib.folio_string_free(ct.c_char_p(msg_bytes))
+        raise FolioPDFException(str(msg_bytes))
 
 
 lib.folio_html_to_buffer.argtypes = [ct.c_char_p, ct.c_double, ct.c_double]

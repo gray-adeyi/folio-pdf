@@ -7,11 +7,14 @@ import ctypes as ct
 from typing import TYPE_CHECKING
 
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import FloatSides
+from folio_pdf.enums import FloatSide
 from folio_pdf.exceptions import FloatException
 
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
+
+
+_ErrorCode = int
 
 lib.folio_float_new.argtypes = [ct.c_int32, ct.c_uint64]
 lib.folio_float_new.restype = ct.c_uint64
@@ -30,12 +33,14 @@ class Float(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_float_free
 
-    def __init__(self, side: FloatSides, element: "Element"):
+    def __init__(self, side: FloatSide, element: "Element"):
+        self._is_closed = False
         self.__handle = lib.folio_float_new(ct.c_int32(side.value), element._handle)
 
     @_with_error_handling(FloatException)
-    def margin(self, margin: float) -> "Float":
+    def margin(self, margin: float) -> _ErrorCode:
         """
         Sets the margin around the floated element, separating
         it from surrounding content.
@@ -47,9 +52,6 @@ class Float(AbstractFolioObject):
             this instance for chaining
         """
         return lib.folio_float_set_margin(self._handle, ct.c_double(margin))
-
-    def close(self):
-        lib.folio_float_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

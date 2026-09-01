@@ -14,6 +14,139 @@ if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
 
+_ErrorCode = int
+
+
+lib.folio_div_new.argtypes = []
+lib.folio_div_new.restype = ct.c_uint64
+
+lib.folio_div_free.argtypes = [ct.c_uint64]
+lib.folio_div_free.restype = None
+
+lib.folio_div_add.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_div_add.restype = ct.c_int32
+
+lib.folio_div_set_padding.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_padding.restype = ct.c_int32
+
+lib.folio_div_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_background.restype = ct.c_int32
+
+lib.folio_div_set_border.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_border.restype = ct.c_int32
+
+lib.folio_div_set_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_width.restype = ct.c_int32
+
+lib.folio_div_set_min_height.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_min_height.restype = ct.c_int32
+
+lib.folio_div_set_max_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_max_width.restype = ct.c_int32
+
+lib.folio_div_set_min_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_min_width.restype = ct.c_int32
+
+lib.folio_div_set_width_percent.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_width_percent.restype = ct.c_int32
+
+lib.folio_div_set_aspect_ratio.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_aspect_ratio.restype = ct.c_int32
+
+lib.folio_div_set_keep_together.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_keep_together.restype = ct.c_int32
+
+lib.folio_div_set_border_radius_per_corner.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_border_radius_per_corner.restype = ct.c_int32
+
+lib.folio_div_set_hcenter.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_hcenter.restype = ct.c_int32
+
+lib.folio_div_set_hright.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_hright.restype = ct.c_int32
+
+lib.folio_div_set_clear.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_clear.restype = ct.c_int32
+
+lib.folio_div_set_outline.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_char_p,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_outline.restype = ct.c_int32
+
+lib.folio_div_add_box_shadow.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_add_box_shadow.restype = ct.c_int32
+
+lib.folio_div_set_space_before.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_space_before.restype = ct.c_int32
+
+lib.folio_div_set_space_after.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_space_after.restype = ct.c_int32
+
+lib.folio_div_set_border_radius.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_border_radius.restype = ct.c_int32
+
+lib.folio_div_set_opacity.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_opacity.restype = ct.c_int32
+
+lib.folio_div_set_overflow.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_overflow.restype = ct.c_int32
+
+lib.folio_div_set_tag.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_tag.restype = ct.c_int32
+
+lib.folio_div_set_box_shadow.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_box_shadow.restype = ct.c_int32
+
+lib.folio_div_set_max_height.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_max_height.restype = ct.c_int32
+
+
 class Div(AbstractFolioObject):
     """
     A block-level container that can hold other layout elements such as
@@ -24,19 +157,18 @@ class Div(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_div_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = 0
 
     @property
     def _handle(self) -> ct.c_uint64:
         return ct.c_uint64(self.__handle)
 
-    def close(self):
-        lib.folio_div_free(self._handle)
-
     @_with_error_handling(DivException)
-    def add(self, element: "Element"):
+    def add(self, element: "Element") -> _ErrorCode:
         """Appends a {@link Paragraph} to this div.
 
         Args:
@@ -48,7 +180,9 @@ class Div(AbstractFolioObject):
         return lib.folio_div_add(self._handle, element._handle)
 
     @_with_error_handling(DivException)
-    def padding(self, top: float, right: float, bottom: float, left: float):
+    def padding(
+        self, top: float, right: float, bottom: float, left: float
+    ) -> _ErrorCode:
         """Sets individual padding values for each side of this div.
 
         Args:
@@ -69,7 +203,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def background(self, color: Color):
+    def background(self, color: Color) -> _ErrorCode:
         """
         Sets the background fill color of this div.
 
@@ -87,7 +221,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def border(self, width: float, color: Color):
+    def border(self, width: float, color: Color) -> _ErrorCode:
         """
         Sets the border width and color for this div.
 
@@ -107,7 +241,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def width(self, pts: float):
+    def width(self, pts: float) -> _ErrorCode:
         """
         Sets the explicit width of this div in points.
 
@@ -120,7 +254,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_width(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def min_height(self, pts: float):
+    def min_height(self, pts: float) -> _ErrorCode:
         """
         Sets the minimum height of this div in points.
 
@@ -133,7 +267,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_min_height(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def max_width(self, pts: float):
+    def max_width(self, pts: float) -> _ErrorCode:
         """
         Sets the maximum width of this div in points.
 
@@ -146,7 +280,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_max_width(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def min_width(self, pts: float):
+    def min_width(self, pts: float) -> _ErrorCode:
         """
         Sets the minimum width of this div in points.
 
@@ -159,7 +293,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_min_width(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def width_percent(self, pct: float):
+    def width_percent(self, pct: float) -> _ErrorCode:
         """
         Sets this div's width as a percentage of its containing block.
 
@@ -172,7 +306,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_width_percent(self._handle, ct.c_double(pct))
 
     @_with_error_handling(DivException)
-    def aspect_ratio(self, ratio: float):
+    def aspect_ratio(self, ratio: float) -> _ErrorCode:
         """
         Sets a fixed width/height aspect ratio for this div.
 
@@ -185,7 +319,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_aspect_ratio(self._handle, ct.c_double(ratio))
 
     @_with_error_handling(DivException)
-    def keep_together(self, enabled: bool):
+    def keep_together(self, enabled: bool) -> _ErrorCode:
         """
         Requests that the layout engine keep this div on a single page rather
         than splitting it across a page break.
@@ -201,7 +335,7 @@ class Div(AbstractFolioObject):
     @_with_error_handling(DivException)
     def border_radius_per_corner(
         self, top_left: float, top_right: float, bottom_right: float, bottom_left: float
-    ):
+    ) -> _ErrorCode:
         """
         Sets individual border radii for each corner.
 
@@ -223,7 +357,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def hcenter(self, enabled: bool):
+    def hcenter(self, enabled: bool) -> _ErrorCode:
         """
         Centers this div horizontally within its container.
 
@@ -236,7 +370,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_hcenter(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DivException)
-    def hright(self, enabled: bool):
+    def hright(self, enabled: bool) -> _ErrorCode:
         """
         Right-aligns this div within its container.
 
@@ -249,7 +383,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_hright(self._handle, ct.c_int32(enabled))
 
     @_with_error_handling(DivException)
-    def clear(self, value: Literal["left", "right", "both"]):
+    def clear(self, value: Literal["left", "right", "both"]) -> _ErrorCode:
         """
         Sets the CSS-style `clear` property for this div.
 
@@ -279,7 +413,7 @@ class Div(AbstractFolioObject):
         ],
         color: Color,
         offset: float,
-    ):
+    ) -> _ErrorCode:
         """
         Draws an outline around this div that sits outside the border box.
 
@@ -310,7 +444,7 @@ class Div(AbstractFolioObject):
         blur: float,
         spread: float,
         color: Color,
-    ):
+    ) -> _ErrorCode:
         """
         Adds a box shadow to this div. Multiple shadows may be layered
         with repeated calls.
@@ -337,7 +471,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def space_before(self, pts: float):
+    def space_before(self, pts: float) -> _ErrorCode:
         """
         Sets the amount of vertical space to add before this div.
 
@@ -350,7 +484,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_space_before(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def space_after(self, pts: float):
+    def space_after(self, pts: float) -> _ErrorCode:
         """
         Sets the amount of vertical space to add before this div.
 
@@ -363,7 +497,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_space_after(self._handle, ct.c_double(pts))
 
     @_with_error_handling(DivException)
-    def border_radius(self, radius: float):
+    def border_radius(self, radius: float) -> _ErrorCode:
         """
         Sets the corner radius for rounded borders on this div.
 
@@ -376,7 +510,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_boarder_radius(self._handle, ct.c_double(radius))
 
     @_with_error_handling(DivException)
-    def opacity(self, opacity: float):
+    def opacity(self, opacity: float) -> _ErrorCode:
         """
         Sets the opacity of this div and its contents.
 
@@ -389,7 +523,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_opacity(self._handle, ct.c_double(opacity))
 
     @_with_error_handling(DivException)
-    def overflow(self, mode: str):
+    def overflow(self, mode: str) -> _ErrorCode:
         """
         Sets the overflow behaviour when content exceeds this div's bounds.
 
@@ -402,7 +536,7 @@ class Div(AbstractFolioObject):
         return lib.folio_div_set_overflow(self._handle, ct.c_char_p(mode.encode()))
 
     @_with_error_handling(DivException)
-    def tag(self, tag: str):
+    def tag(self, tag: str) -> _ErrorCode:
         """
         Overrides the PDF/UA structure tag for this div (e.g., "Note", "Aside").
 
@@ -422,7 +556,7 @@ class Div(AbstractFolioObject):
         blur: float,
         spread: float,
         color: Color,
-    ):
+    ) -> _ErrorCode:
         """
         Adds a drop shadow to this div.
 
@@ -448,7 +582,7 @@ class Div(AbstractFolioObject):
         )
 
     @_with_error_handling(DivException)
-    def max_height(self, pts: float):
+    def max_height(self, pts: float) -> _ErrorCode:
         """
         Sets the maximum height of this div in points.
 

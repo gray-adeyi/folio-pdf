@@ -3,10 +3,11 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from enum import Enum, IntEnum, IntFlag
+from enum import Enum, IntEnum, IntFlag, unique
 
 
-class Colors(str, Enum):
+@unique
+class NamedColor(str, Enum):
     BLACK = "black"
     WHITE = "white"
     RED = "red"
@@ -26,7 +27,8 @@ class Colors(str, Enum):
     PINK = "pink"
 
 
-class PageSizes(IntEnum):
+@unique
+class PageSize(IntEnum):
     LETTER = 0
     A4 = 1
     LEGAL = 2
@@ -40,17 +42,18 @@ class PageSizes(IntEnum):
         The units of the width and height are in points.
         """
         match self:
-            case PageSizes.LETTER:
+            case PageSize.LETTER:
                 return (612, 792)
-            case PageSizes.A4:
+            case PageSize.A4:
                 return (595.28, 841.89)
-            case PageSizes.LEGAL:
+            case PageSize.LEGAL:
                 return (612, 1008)
-            case PageSizes.TABLOID:
+            case PageSize.TABLOID:
                 return (792, 1224)
 
 
-class ErrorCodes(IntEnum):
+@unique
+class ErrorCode(IntEnum):
     OK = 0
     HANDLE = -1  # invalid or expired handle
     ARG = -2  # invalid argument (NULL, out of range)
@@ -60,7 +63,8 @@ class ErrorCodes(IntEnum):
     INTERNAL = -6  # unexpected internal error
 
 
-class Alignments(IntEnum):
+@unique
+class Alignment(IntEnum):
     """
     Horizontal text alignment options for paragraphs, headings,
     links, and other elements.
@@ -72,13 +76,15 @@ class Alignments(IntEnum):
     JUSTIFY = 3
 
 
-class VerticalAlignments(IntEnum):
+@unique
+class VerticalAlignment(IntEnum):
     TOP = 0
     MIDDLE = 1
     BOTTOM = 2
 
 
-class HeadingLevels(IntEnum):
+@unique
+class HeadingLevel(IntEnum):
     H1 = 1
     H2 = 2
     H3 = 3
@@ -87,7 +93,8 @@ class HeadingLevels(IntEnum):
     H6 = 6
 
 
-class ListStyles(IntEnum):
+@unique
+class ListStyle(IntEnum):
     BULLET = 0
     DECIMAL = 1
     LOWER_ALPHA = 2
@@ -96,22 +103,29 @@ class ListStyles(IntEnum):
     UPPER_ROMAN = 5
 
 
-class PDFALevels(IntEnum):
+@unique
+class PDFALevel(IntEnum):
     PDFA_2B = 0
     PDFA_2U = 1
     PDFA_2A = 2
     PDFA_3B = 3
     PDFA_1B = 4
     PDFA_1A = 5
+    PDFA_3A = 6
+    PDFA_4 = 7
+    PDFA_4F = 8
+    PDFA_4E = 9
 
 
-class EncryptionAlgorithms(IntEnum):
+@unique
+class EncryptionAlgorithm(IntEnum):
     RC4_128 = 0
     AES_128 = 1
     AES_256 = 2
 
 
-class EncryptionPermissions(IntFlag):
+@unique
+class EncryptionPermission(IntFlag):
     PRINT = 1 << 2  # bit 3: print
     MODIFY = 1 << 3  # bit 4: modify contents
     EXTRACT = 1 << 4  # bit 5: copy/extract text
@@ -123,19 +137,22 @@ class EncryptionPermissions(IntFlag):
     ALL = 0x0F3C
 
 
-class ECCLevels(IntEnum):
+@unique
+class ECCLevel(IntEnum):
     L = 0  # 7% recovery
     M = 1  # 15% recovery
     Q = 2  # 25% recovery
     H = 3  # 30% recovery
 
 
-class FlexDirections(IntEnum):
+@unique
+class FlexDirection(IntEnum):
     ROW = 0
     COLUMN = 1
 
 
-class JustifyContents(IntEnum):
+@unique
+class JustifyContent(IntEnum):
     START = 0
     END = 1
     CENTER = 2
@@ -144,7 +161,8 @@ class JustifyContents(IntEnum):
     SPACE_EVENLY = 5
 
 
-class AlignItems(IntEnum):
+@unique
+class AlignItem(IntEnum):
     """
     Controls how child elements are aligned along the cross axis of a flex
     or grid container.
@@ -156,12 +174,14 @@ class AlignItems(IntEnum):
     CENTER = 3
 
 
-class FlexWraps(IntEnum):
+@unique
+class FlexWrap(IntEnum):
     NOWRAP = 0
     WRAP = 1
 
 
-class StandardPDFFonts(str, Enum):
+@unique
+class StandardPDFFont(str, Enum):
     HELVETICA = "Helvetica"
     HELVETICA_BOLD = "Helvetica-Bold"
     HELVETICA_OBLIQUE = "Helvetica-Oblique"
@@ -181,7 +201,8 @@ class StandardPDFFonts(str, Enum):
     ZAPF_DINGBATS = "ZapfDingbats"
 
 
-class Directions(IntEnum):
+@unique
+class Direction(IntEnum):
     """Writing direction for paragraphs, lists, and tables."""
 
     AUTO = 0
@@ -189,7 +210,8 @@ class Directions(IntEnum):
     RTL = 2
 
 
-class PadesLevels(IntEnum):
+@unique
+class PadesLevel(IntEnum):
     """
     PAdES (PDF Advanced Electronic Signatures) conformance levels.
 
@@ -206,13 +228,29 @@ class PadesLevels(IntEnum):
     BLTA = 3
 
 
-class FloatSides(IntEnum):
+@unique
+class FloatSide(IntEnum):
     LEFT = 0
     RIGHT = 1
 
 
-class GridTrackTypes(IntEnum):
+@unique
+class GridTrackType(IntEnum):
     PX = 0
     PERCENT = 1
     FR = 2
     AUTO = 3
+
+
+@unique
+class Decoration(IntEnum):
+    NONE = 0
+    UNDERLINE = 1
+    STRIKE_THROUGH = 2
+
+
+@unique
+class TabAlignment(IntEnum):
+    LEFT = 0
+    RIGHT = 1
+    CENTER = 2

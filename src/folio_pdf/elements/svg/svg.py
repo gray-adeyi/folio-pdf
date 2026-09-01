@@ -4,8 +4,15 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.core import AbstractFolioObject, lib
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 lib.folio_svg_parse.argtypes = [ct.c_char_p]
 lib.folio_svg_parse.restype = ct.c_uint64
@@ -30,6 +37,7 @@ class SVG(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_svg_free
 
     def __init__(self, svg_xml: str):
         """
@@ -41,10 +49,11 @@ class SVG(AbstractFolioObject):
         Returns:
             a new `SVG` instance
         """
+        self._is_closed = False
         self.__handle = lib.folio_svg_parse(ct.c_char_p(svg_xml.encode()))
 
     @classmethod
-    def parse_bytes(cls, data: bytes) -> "SVG":
+    def parse_bytes(cls, data: bytes) -> Self:
         """
         Parses an SVG document from raw bytes and creates a document element.
 
@@ -55,7 +64,8 @@ class SVG(AbstractFolioObject):
             a new `SVG` instance
         """
         obj = cls.__new__(cls)
-        obj._svg_handle = lib.folio_svg_parse_bytes(
+        obj._is_closed = False
+        obj.__handle = lib.folio_svg_parse_bytes(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
         return obj
@@ -79,9 +89,6 @@ class SVG(AbstractFolioObject):
             the SVG's natural height
         """
         return lib.folio_svg_height(self._handle)
-
-    def close(self):
-        lib.folio_svg_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

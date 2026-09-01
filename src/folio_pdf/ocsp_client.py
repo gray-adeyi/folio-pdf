@@ -21,12 +21,11 @@ class OCSPClient(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_ocsp_client_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_ocsp_client_new()
-
-    def close(self):
-        lib.folio_ocsp_client_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

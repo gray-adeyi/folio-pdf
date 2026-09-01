@@ -3,15 +3,21 @@ Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
 
-from operator import pos
-
 import ctypes as ct
+import sys
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Alignments
+from folio_pdf.enums import Alignment
 from folio_pdf.exceptions import TabbedLineException
 from folio_pdf.font import Font
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_tabbed_line_free.argtypes = [ct.c_uint64]
 lib.folio_tabbed_line_free.restype = None
@@ -37,13 +43,14 @@ class TabbedLine(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_tabbed_line_free
 
     def __init__(
         self,
         font: Font,
         font_size: float,
         positions: list[float],
-        aligns: list[Alignments],
+        aligns: list[Alignment],
         leaders: list[int],
     ):
         """
@@ -70,6 +77,7 @@ class TabbedLine(AbstractFolioObject):
             ct.c_int32,
         ]
         lib.folio_tabbed_line_new.restype = ct.c_uint64
+        self._is_closed = False
         self.__handle = lib.folio_tabbed_line_new(
             font._handle,
             ct.c_double(font_size),
@@ -85,9 +93,9 @@ class TabbedLine(AbstractFolioObject):
         font: Font,
         font_size: float,
         positions: list[float],
-        aligns: list[Alignments],
+        aligns: list[Alignment],
         leaders: list[int],
-    ) -> "TabbedLine":
+    ) -> Self:
         """
         Creates a tabbed line using an embedded (subset) font.
 
@@ -113,7 +121,8 @@ class TabbedLine(AbstractFolioObject):
         ]
         lib.folio_tabbed_line_new_embedded.restype = ct.c_uint64
         obj = cls.__new__(cls)
-        obj._tabbed_line_handle = lib.folio_tabbed_line_new_embedded(
+        obj._is_closed = False
+        obj.__handle = lib.folio_tabbed_line_new_embedded(
             font._handle,
             ct.c_double(font_size),
             DoubleArray(positions),
@@ -124,7 +133,7 @@ class TabbedLine(AbstractFolioObject):
         return obj
 
     @_with_error_handling(TabbedLineException)
-    def segments(self, segments: list[str]) -> "TabbedLine":
+    def segments(self, segments: list[str]) -> _ErrorCode:
         """
         Sets the text content of each tab segment.
 
@@ -149,7 +158,7 @@ class TabbedLine(AbstractFolioObject):
         )
 
     @_with_error_handling(TabbedLineException)
-    def color(self, color: Color) -> "TabbedLine":
+    def color(self, color: Color) -> _ErrorCode:
         """
         Sets the text color for this tabbed line.
 
@@ -167,7 +176,7 @@ class TabbedLine(AbstractFolioObject):
         )
 
     @_with_error_handling(TabbedLineException)
-    def leading(self, leading: float) -> "TabbedLine":
+    def leading(self, leading: float) -> _ErrorCode:
         """
         Sets the line-height multiplier for this tabbed line.
 
@@ -178,9 +187,6 @@ class TabbedLine(AbstractFolioObject):
             this instance for chaining
         """
         return lib.folio_tabbed_line_set_leading(self._handle, ct.c_double(leading))
-
-    def close(self):
-        lib.folio_tabbed_line_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

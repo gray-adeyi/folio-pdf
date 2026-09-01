@@ -2,14 +2,21 @@
 Copyright 2026 Gbenga Adeyi and Folio PDF Authors
 SPDX-License-Identifier: Apache-2.0
 """
-
 import ctypes as ct
+import sys
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
-from folio_pdf.enums import Alignments
+from folio_pdf.enums import Alignment
 from folio_pdf.exceptions import LinkException
 from folio_pdf.font import Font
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+_ErrorCode = int
 
 lib.folio_link_new.argtypes = [ct.c_char_p, ct.c_char_p, ct.c_uint64, ct.c_double]
 lib.folio_link_new.restype = ct.c_uint64
@@ -51,8 +58,10 @@ class Link(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_link_free
 
     def __init__(self, text: str, uri: str, font: Font, font_size: float):
+        self._is_closed = False
         self.__handle = lib.folio_link_new(
             ct.c_char_p(text.encode()),
             ct.c_char_p(uri.encode()),
@@ -61,7 +70,7 @@ class Link(AbstractFolioObject):
         )
 
     @classmethod
-    def new_embedded(cls, text: str, uri: str, font: Font, font_size: float) -> "Link":
+    def new_embedded(cls, text: str, uri: str, font: Font, font_size: float) -> Self:
         """
         Creates a link using an embedded (subset) font.
 
@@ -86,7 +95,7 @@ class Link(AbstractFolioObject):
     @classmethod
     def new_internal(
         cls, text: str, dest_name: str, font: Font, font_size: float
-    ) -> "Link":
+    ) -> Self:
         """
         Creates an internal link that navigates to a named destination within
         the same document.
@@ -110,7 +119,7 @@ class Link(AbstractFolioObject):
         return obj
 
     @_with_error_handling(LinkException)
-    def color(self, color: Color) -> "Link":
+    def color(self, color: Color) -> _ErrorCode:
         """
         Sets the text color of the link.
 
@@ -128,7 +137,7 @@ class Link(AbstractFolioObject):
         )
 
     @_with_error_handling(LinkException)
-    def underline(self) -> "Link":
+    def underline(self) -> _ErrorCode:
         """
         Enables underlining for the link text.
 
@@ -138,7 +147,7 @@ class Link(AbstractFolioObject):
         return lib.folio_link_set_underline(self._handle)
 
     @_with_error_handling(LinkException)
-    def align(self, align: Alignments) -> "Link":
+    def align(self, align: Alignment) -> _ErrorCode:
         """
         Sets the horizontal alignment of the link within its container.
 
@@ -149,9 +158,6 @@ class Link(AbstractFolioObject):
             this instance for chaining
         """
         return lib.folio_link_set_align(self._handle, ct.c_int32(align.value))
-
-    def close(self):
-        lib.folio_link_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

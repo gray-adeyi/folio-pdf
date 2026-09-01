@@ -4,10 +4,17 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 from pathlib import Path
 
 from folio_pdf.core import AbstractFolioObject, lib
 from folio_pdf.exceptions import ImageException
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 lib.folio_image_load_jpeg.argtypes = [ct.c_char_p]
 lib.folio_image_load_jpeg.restype = ct.c_uint64
@@ -40,12 +47,14 @@ class Image(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_flex_item_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = 0
 
     @classmethod
-    def load(cls, path: str | Path) -> "Image":
+    def load(cls, path: str | Path) -> Self:
         """
         Loads an image from the given file path.
 
@@ -72,7 +81,7 @@ class Image(AbstractFolioObject):
         raise ImageException(f"loading image with the extension {ext} is not supported")
 
     @classmethod
-    def load_jpeg(cls, path: str | Path) -> "Image":
+    def load_jpeg(cls, path: str | Path) -> Self:
         """
         Loads a JPEG image from the given file path.
 
@@ -87,11 +96,12 @@ class Image(AbstractFolioObject):
         if isinstance(_path, Path):
             _path = _path.as_posix()
         obj = cls.__new__(cls)
-        obj._image_handle = lib.folio_image_load_jpeg(ct.c_char_p(_path.encode()))
+        obj._is_closed = False
+        obj.__handle = lib.folio_image_load_jpeg(ct.c_char_p(_path.encode()))
         return obj
 
     @classmethod
-    def load_png(cls, path: str | Path) -> "Image":
+    def load_png(cls, path: str | Path) -> Self:
         """
         Loads a PNG image from the given file path.
 
@@ -106,11 +116,12 @@ class Image(AbstractFolioObject):
         if isinstance(_path, Path):
             _path = _path.as_posix()
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_image_load_png(ct.c_char_p(_path.encode()))
         return obj
 
     @classmethod
-    def load_tiff(cls, path: str | Path) -> "Image":
+    def load_tiff(cls, path: str | Path) -> Self:
         """
         Loads a TIFF image from the given file path.
 
@@ -125,11 +136,12 @@ class Image(AbstractFolioObject):
         if isinstance(_path, Path):
             _path = _path.as_posix()
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_image_load_tiff(ct.c_char_p(_path.encode()))
         return obj
 
     @classmethod
-    def parse_jpeg(cls, data: bytes) -> "Image":
+    def parse_jpeg(cls, data: bytes) -> Self:
         """
         Parses a JPEG image from raw bytes.
 
@@ -141,13 +153,14 @@ class Image(AbstractFolioObject):
             which can then be added to a document or div
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_image_parse_jpeg(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
         return obj
 
     @classmethod
-    def parse_png(cls, data: bytes) -> "Image":
+    def parse_png(cls, data: bytes) -> Self:
         """
         Parses a PNG image from raw bytes.
 
@@ -159,6 +172,7 @@ class Image(AbstractFolioObject):
             which can then be added to a document or div
         """
         obj = cls.__new__(cls)
+        obj._is_closed = False
         obj.__handle = lib.folio_image_parse_jpeg(
             ct.c_char_p(data), ct.c_int32(len(data))
         )
@@ -177,9 +191,6 @@ class Image(AbstractFolioObject):
         Returns the natural pixel height of the source image.
         """
         return lib.folio_image_height(self._handle)
-
-    def close(self):
-        lib.folio_image_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

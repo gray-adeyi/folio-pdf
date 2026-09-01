@@ -28,6 +28,7 @@ class PageImporter(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_page_import_free
 
     def __init__(self, reader: PDFReader, page_index: int):
         """
@@ -40,6 +41,7 @@ class PageImporter(AbstractFolioObject):
         Returns:
             a new `PageImporter` handle
         """
+        self._is_closed = False
         self.__handle = lib.folio_extract_page_import(
             reader._handle, ct.c_int32(page_index)
         )
@@ -57,9 +59,6 @@ class PageImporter(AbstractFolioObject):
         Returns the source page height in points.
         """
         return lib.folio_page_import_height(self._handle)
-
-    def close(self):
-        lib.folio_page_import_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

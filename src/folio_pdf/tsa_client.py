@@ -21,6 +21,7 @@ class TSAClient(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_tsa_client_free
 
     def __init__(self, url: str):
         """
@@ -32,10 +33,8 @@ class TSAClient(AbstractFolioObject):
         Returns:
             a new `TSAClient`
         """
+        self._is_closed = False
         self.__handle = lib.folio_tsa_client_new(ct.c_char_p(url.encode()))
-
-    def close(self):
-        lib.folio_tsa_client_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

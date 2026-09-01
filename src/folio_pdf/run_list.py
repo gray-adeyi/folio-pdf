@@ -10,6 +10,8 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.exceptions import RunListException
 from folio_pdf.font import Font
 
+_ErrorCode = int
+
 lib.folio_run_list_new.argtypes = []
 lib.folio_run_list_new.restype = ct.c_uint64
 
@@ -76,12 +78,14 @@ class RunList(AbstractFolioObject):
     """
 
     _requires_close = True
+    _binding_resource_free_fn = lib.folio_run_list_free
 
     def __init__(self):
+        self._is_closed = False
         self.__handle = lib.folio_run_list_new()
 
     @_with_error_handling(RunListException)
-    def add(self, text: str, font: Font, font_size: float, color: Color) -> "RunList":
+    def add(self, text: str, font: Font, font_size: float, color: Color) -> _ErrorCode:
         """
         Appends a styled text run using a standard (non-embedded) font.
 
@@ -111,7 +115,7 @@ class RunList(AbstractFolioObject):
         font: Font,
         font_size: float,
         color: Color,
-    ) -> "RunList":
+    ) -> _ErrorCode:
         """
         Appends a styled text run using an embedded font subset.
 
@@ -143,7 +147,7 @@ class RunList(AbstractFolioObject):
         color: Color,
         uri: str,
         underline: bool,
-    ) -> "RunList":
+    ) -> _ErrorCode:
         """
         Appends a clickable link run.
 
@@ -171,7 +175,7 @@ class RunList(AbstractFolioObject):
         )
 
     @_with_error_handling(RunListException)
-    def last_underline(self) -> "RunList":
+    def last_underline(self) -> _ErrorCode:
         """
         Applies underline decoration to the last added run.
 
@@ -181,7 +185,7 @@ class RunList(AbstractFolioObject):
         return lib.folio_run_list_last_set_underline(self._handle)
 
     @_with_error_handling(RunListException)
-    def last_strikethrough(self) -> "RunList":
+    def last_strikethrough(self) -> _ErrorCode:
         """
         Applies strikethrough decoration to the last added run.
 
@@ -191,7 +195,7 @@ class RunList(AbstractFolioObject):
         return lib.folio_run_list_last_set_strikethrough(self._handle)
 
     @_with_error_handling(RunListException)
-    def last_letter_spacing(self, spacing: float) -> "RunList":
+    def last_letter_spacing(self, spacing: float) -> _ErrorCode:
         """
         Sets letter spacing on the last added run.
 
@@ -206,7 +210,7 @@ class RunList(AbstractFolioObject):
         )
 
     @_with_error_handling(RunListException)
-    def last_background_color(self, color: Color) -> "RunList":
+    def last_background_color(self, color: Color) -> _ErrorCode:
         """
         Applies a highlight background color to the last added run.
 
@@ -222,9 +226,6 @@ class RunList(AbstractFolioObject):
             ct.c_double(color.g),
             ct.c_double(color.b),
         )
-
-    def close(self):
-        lib.folio_run_list_free(self._handle)
 
     @property
     def _handle(self) -> ct.c_uint64:

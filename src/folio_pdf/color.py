@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from folio_pdf.enums import Colors
+from folio_pdf.enums import NamedColor
 
 
 @dataclass
@@ -31,44 +31,44 @@ class Color:
     b: float
 
     @classmethod
-    def from_named(cls, color: str | Colors):
+    def from_named(cls, color: str | NamedColor):
         _color = color
         if isinstance(_color, str):
-            _color = Colors(_color.lower())
+            _color = NamedColor(_color.lower())
         match _color:
-            case Colors.BLACK:
+            case NamedColor.BLACK:
                 return cls(0, 0, 0)
-            case Colors.WHITE:
+            case NamedColor.WHITE:
                 return cls(1, 1, 1)
-            case Colors.RED:
+            case NamedColor.RED:
                 return cls(1, 0, 0)
-            case Colors.GREEN:
+            case NamedColor.GREEN:
                 return cls(0, 1, 0)
-            case Colors.BLUE:
+            case NamedColor.BLUE:
                 return cls(0, 0, 1)
-            case Colors.GRAY:
+            case NamedColor.GRAY:
                 return cls(0.5, 0.5, 0.5)
-            case Colors.LIGHT_GRAY:
+            case NamedColor.LIGHT_GRAY:
                 return cls(0.75, 0.75, 0.75)
-            case Colors.DARK_GRAY:
+            case NamedColor.DARK_GRAY:
                 return cls(0.25, 0.25, 0.25)
-            case Colors.NAVY:
+            case NamedColor.NAVY:
                 return cls(0, 0, 0.5)
-            case Colors.TEAL:
+            case NamedColor.TEAL:
                 return cls(0, 0.5, 0.5)
-            case Colors.ORANGE:
+            case NamedColor.ORANGE:
                 return cls(1, 0.65, 0)
-            case Colors.PURPLE:
+            case NamedColor.PURPLE:
                 return cls(0.5, 0, 0.5)
-            case Colors.YELLOW:
+            case NamedColor.YELLOW:
                 return cls(1, 1, 0)
-            case Colors.CYAN:
+            case NamedColor.CYAN:
                 return cls(0, 1, 1)
-            case Colors.MAGENTA:
+            case NamedColor.MAGENTA:
                 return cls(1, 0, 1)
-            case Colors.BROWN:
+            case NamedColor.BROWN:
                 return cls(0.6, 0.3, 0)
-            case Colors.PINK:
+            case NamedColor.PINK:
                 return cls(1, 0.75, 0.8)
 
     @classmethod

@@ -40,7 +40,7 @@ class Font(AbstractFolioObject):
     """
 
     _requires_close = True
-    _binding_resource_free_fn = lib.font_free
+    _binding_resource_free_fn = lib.folio_font_free
 
     def __init__(self, font_family: StandardPDFFont):
         self._is_closed = False

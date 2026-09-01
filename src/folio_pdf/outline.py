@@ -14,6 +14,20 @@ else:
     from typing_extensions import Self
 
 
+lib.folio_outline_add_child.argtypes = [ct.c_uint64, ct.c_char_p, ct.c_int32]
+lib.folio_outline_add_child.restype = ct.c_uint64
+
+lib.folio_outline_add_child_xyz.argtypes = [
+    ct.c_uint64,
+    ct.c_char_p,
+    ct.c_int32,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_outline_add_child_xyz.restype = ct.c_uint64
+
+
 class Outline(AbstractFolioObject):
     _requires_close = False
 
@@ -63,7 +77,7 @@ class Outline(AbstractFolioObject):
         Returns:
             the outline object representing the added child
         """
-        outline_handle = lib.folio_outline_add_child(
+        outline_handle = lib.folio_outline_add_child_xyz(
             self._handle,
             ct.c_char_p(title.encode()),
             ct.c_int32(page_index),

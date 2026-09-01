@@ -17,6 +17,136 @@ if TYPE_CHECKING:
 _ErrorCode = int
 
 
+lib.folio_div_new.argtypes = []
+lib.folio_div_new.restype = ct.c_uint64
+
+lib.folio_div_free.argtypes = [ct.c_uint64]
+lib.folio_div_free.restype = None
+
+lib.folio_div_add.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_div_add.restype = ct.c_int32
+
+lib.folio_div_set_padding.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_padding.restype = ct.c_int32
+
+lib.folio_div_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_background.restype = ct.c_int32
+
+lib.folio_div_set_border.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_border.restype = ct.c_int32
+
+lib.folio_div_set_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_width.restype = ct.c_int32
+
+lib.folio_div_set_min_height.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_min_height.restype = ct.c_int32
+
+lib.folio_div_set_max_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_max_width.restype = ct.c_int32
+
+lib.folio_div_set_min_width.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_min_width.restype = ct.c_int32
+
+lib.folio_div_set_width_percent.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_width_percent.restype = ct.c_int32
+
+lib.folio_div_set_aspect_ratio.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_aspect_ratio.restype = ct.c_int32
+
+lib.folio_div_set_keep_together.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_keep_together.restype = ct.c_int32
+
+lib.folio_div_set_border_radius_per_corner.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_border_radius_per_corner.restype = ct.c_int32
+
+lib.folio_div_set_hcenter.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_hcenter.restype = ct.c_int32
+
+lib.folio_div_set_hright.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_div_set_hright.restype = ct.c_int32
+
+lib.folio_div_set_clear.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_clear.restype = ct.c_int32
+
+lib.folio_div_set_outline.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_char_p,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_outline.restype = ct.c_int32
+
+lib.folio_div_add_box_shadow.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_add_box_shadow.restype = ct.c_int32
+
+lib.folio_div_set_space_before.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_space_before.restype = ct.c_int32
+
+lib.folio_div_set_space_after.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_space_after.restype = ct.c_int32
+
+lib.folio_div_set_border_radius.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_border_radius.restype = ct.c_int32
+
+lib.folio_div_set_opacity.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_opacity.restype = ct.c_int32
+
+lib.folio_div_set_overflow.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_overflow.restype = ct.c_int32
+
+lib.folio_div_set_tag.argtypes = [ct.c_uint64, ct.c_char_p]
+lib.folio_div_set_tag.restype = ct.c_int32
+
+lib.folio_div_set_box_shadow.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_div_set_box_shadow.restype = ct.c_int32
+
+lib.folio_div_set_max_height.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_div_set_max_height.restype = ct.c_int32
+
+
 class Div(AbstractFolioObject):
     """
     A block-level container that can hold other layout elements such as

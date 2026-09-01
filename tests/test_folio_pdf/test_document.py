@@ -3,8 +3,7 @@ from pathlib import Path
 from unittest import TestCase
 from uuid import uuid4
 
-from folio_pdf import Font
-from folio_pdf.document import Document
+from folio_pdf import Document, Font
 from folio_pdf.enums import PageSize, StandardPDFFont
 
 

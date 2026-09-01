@@ -181,20 +181,6 @@ lib.folio_document_add_outline_xyz.argtypes = [
 ]
 lib.folio_document_add_outline_xyz.restype = ct.c_uint64
 
-lib.folio_outline_add_child.argtypes = [ct.c_uint64, ct.c_char_p, ct.c_int32]
-lib.folio_outline_add_child.restype = ct.c_uint64
-
-lib.folio_outline_add_child_xyz.argtypes = [
-    ct.c_uint64,
-    ct.c_char_p,
-    ct.c_int32,
-    ct.c_double,
-    ct.c_double,
-    ct.c_double,
-]
-lib.folio_outline_add_child_xyz.restype = ct.c_uint64
-
-
 lib.folio_document_add_named_dest.argtypes = [
     ct.c_uint64,
     ct.c_char_p,

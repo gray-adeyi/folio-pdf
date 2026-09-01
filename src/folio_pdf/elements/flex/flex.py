@@ -23,6 +23,98 @@ _ErrorCode = int
 if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
+lib.folio_flex_new.argtypes = []
+lib.folio_flex_new.restype = ct.c_uint64
+
+lib.folio_flex_free.argtypes = [ct.c_uint64]
+lib.folio_flex_free.restype = None
+
+lib.folio_flex_add.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_flex_add.restype = ct.c_int32
+
+lib.folio_flex_add_item.argtypes = [ct.c_uint64, ct.c_uint64]
+lib.folio_flex_add_item.restype = ct.c_int32
+
+lib.folio_flex_set_direction.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_flex_set_direction.restype = ct.c_int32
+
+lib.folio_flex_set_justify_content.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_flex_set_justify_content.restype = ct.c_int32
+
+lib.folio_flex_set_align_items.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_flex_set_align_items.restype = ct.c_int32
+
+lib.folio_flex_set_wrap.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_flex_set_wrap.restype = ct.c_int32
+
+lib.folio_flex_set_gap.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_gap.restype = ct.c_int32
+
+lib.folio_flex_set_padding.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_padding.restype = ct.c_int32
+
+lib.folio_flex_set_background.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_flex_set_background.restype = ct.c_int32
+
+lib.folio_flex_set_space_before.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_space_before.restype = ct.c_int32
+
+lib.folio_flex_set_space_after.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_space_after.restype = ct.c_int32
+
+lib.folio_flex_set_row_gap.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_row_gap.restype = ct.c_int32
+
+lib.folio_flex_set_column_gap.argtypes = [ct.c_uint64, ct.c_double]
+lib.folio_flex_set_column_gap.restype = ct.c_int32
+
+lib.folio_flex_set_align_content.argtypes = [ct.c_uint64, ct.c_int32]
+lib.folio_flex_set_align_content.restype = ct.c_int32
+
+lib.folio_flex_set_borders.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_flex_set_borders.restype = ct.c_int32
+
+lib.folio_flex_set_padding_all.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_flex_set_padding_all.restype = ct.c_int32
+
+lib.folio_flex_set_border.argtypes = [
+    ct.c_uint64,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+    ct.c_double,
+]
+lib.folio_flex_set_border.restype = ct.c_int32
+
 
 class Flex(AbstractFolioObject):
     _requires_close = True

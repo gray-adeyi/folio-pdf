@@ -4,13 +4,13 @@ SPDX-License-Identifier: Apache-2.0
 """
 
 import ctypes as ct
+import sys
 
 from folio_pdf.color import Color
 from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignment
 from folio_pdf.exceptions import TabbedLineException
 from folio_pdf.font import Font
-
 
 if sys.version_info >= (3, 11):
     from typing import Self

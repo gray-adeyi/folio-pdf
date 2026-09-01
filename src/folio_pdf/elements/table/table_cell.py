@@ -10,12 +10,6 @@ from folio_pdf.core import AbstractFolioObject, _with_error_handling, lib
 from folio_pdf.enums import Alignment, VerticalAlignment
 from folio_pdf.exceptions import TableCellException
 
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
-
 _ErrorCode = int
 
 lib.folio_cell_free.argtypes = [ct.c_uint64]

@@ -15,11 +15,6 @@ if TYPE_CHECKING:
     from folio_pdf.folio_pdf import Element
 
 
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
-
 _ErrorCode = int
 
 lib.folio_grid_new.argtypes = []
@@ -169,7 +164,9 @@ class Grid(AbstractFolioObject):
         )
 
     @_with_error_handling(GridException)
-    def template_rows(self, types: list[GridTrackType], values: list[float]) -> _ErrorCode:
+    def template_rows(
+        self, types: list[GridTrackType], values: list[float]
+    ) -> _ErrorCode:
         """
         Defines the explicit row track sizes for the grid.
 
